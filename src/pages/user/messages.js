@@ -8,7 +8,7 @@ import useSound from 'use-sound';
 
 // socket
 import io from "socket.io-client";
-const socket = io.connect("http://192.168.0.159:8000");
+const socket = io.connect("https://we-connect-backend.onrender.com");
 
 // component
 export default function Messages(props) {
