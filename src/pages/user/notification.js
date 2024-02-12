@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 
-// socket
-import io from "socket.io-client";
-const socket = io.connect("http://localhost:8000");
-
 // component
 export default function Notification(props) {
 
