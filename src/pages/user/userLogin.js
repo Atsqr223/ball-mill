@@ -5,7 +5,7 @@ import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 export default function UserLogin(props) {
 
     // page title
-    document.title = 'Welcome to We connect | Login | Authentication Page';
+    document.title = 'Welcome to We connect | Login';
 
     const navigate = useNavigate();
     const [loader, setLoader] = useState(false);
@@ -29,9 +29,12 @@ export default function UserLogin(props) {
             body: JSON.stringify(formData)
         }).then((response) => response.json()).then((data) => {
             setLoader(false);
-            console.log(data);
             if (data.success === true) {
-                let userData = localStorage.setItem(process.env.REACT_APP_USER_AUTH_KEY, JSON.stringify(data.data.user));
+                let setAuth = {
+                    userdata: data.data.user,
+                    token: data.data.access_token
+                };
+                localStorage.setItem(process.env.REACT_APP_USER_AUTH_KEY, JSON.stringify(setAuth));
                 setTimeout(() => {
                     console.log("REDIRECT");
                     window.location.reload();

@@ -19,6 +19,7 @@ export default function Header(props) {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
                 localStorage.removeItem(process.env.REACT_APP_USER_AUTH_KEY);
+                localStorage.clear();
                 setTimeout(() => {
                     console.log("REDIRECT");
                     window.location.reload();

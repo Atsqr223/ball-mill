@@ -33,14 +33,13 @@ export default function Messages(props) {
         const { name, value } = event.target;
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
 
-        let userData = JSON.parse(localStorage.getItem(process.env.REACT_APP_USER_AUTH_KEY));
-        setFormData((prevFormData) => ({ ...prevFormData, name: userData.name }));
-        setFormData((prevFormData) => ({ ...prevFormData, senderID: userData._id }));
+        setFormData((prevFormData) => ({ ...prevFormData, name: loginUserData.userdata.name }));
+        setFormData((prevFormData) => ({ ...prevFormData, senderID: loginUserData.userdata._id }));
 
         // message typing
         if (typing == false) {
             typing = true;
-            socket.emit("type_message", userData.name + " is typing...");
+            socket.emit("type_message", loginUserData.userdata.name + " is typing...");
             timeout = setTimeout(timeoutFunction, 3000);
         } else {
             clearTimeout(timeout);
@@ -74,10 +73,19 @@ export default function Messages(props) {
     }
 
     const fetchMessage = async () => {
-        const response = await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/message/getall');
-        const data = await response.json();
+        const response = await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/message/getall', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': loginUserData.token
+            }
+        });
 
-        setMessageData(data.data.messages);
+        if (response.status === 200) {
+            const data = await response.json();
+            setMessageData(data.data.messages);
+        }
     };
 
     useEffect(() => {
@@ -134,7 +142,7 @@ export default function Messages(props) {
                                     <div className="widget-user-image">
                                         <img className="img-circle elevation-2" src="/assets/dist/img/user7-128x128.jpg" alt="User Avatar" />
                                     </div>
-                                    <h3 className="widget-user-username">{loginUserData.name}</h3>
+                                    <h3 className="widget-user-username">{loginUserData.userdata.name}</h3>
                                     <h5 className="widget-user-desc">Lead Developer</h5>
                                 </div>
                                 <div className="card-footer p-0">
