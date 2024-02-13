@@ -5,10 +5,11 @@ import moment from "moment";
 
 import wavFile from '../../audio/wavFile.wav';
 import useSound from 'use-sound';
+import Swal from 'sweetalert2';
 
 // socket
 import io from "socket.io-client";
-const socket = io.connect("https://we-connect-backend.onrender.com");
+const socket = io.connect(process.env.REACT_APP_API_BASE_URL);
 
 // component
 export default function Messages(props) {
@@ -21,10 +22,13 @@ export default function Messages(props) {
     const messageEl = useRef(null);
     const [playSound] = useSound(wavFile);
 
-    const [formData, setFormData] = useState({ senderID: '', name: '', message: '', time: new Date() });
+    const [formData, setFormData] = useState({ senderID: '', receiverID: '', name: '', message: '', time: new Date() });
     const [messageData, setMessageData] = useState([]);
     const [messageType, setMessageType] = useState('');
     const [loginUserData, setLoginUserData] = useState(JSON.parse(localStorage.getItem(process.env.REACT_APP_USER_AUTH_KEY)));
+    const [receiverDetails, setReceiverDetails] = useState('');
+    const [allUser, setAllUser] = useState([]);
+    const [messageLoader, setMessageLoader] = useState(false);
 
     let typing = false;
     let timeout = undefined;
@@ -33,13 +37,15 @@ export default function Messages(props) {
         const { name, value } = event.target;
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
 
-        setFormData((prevFormData) => ({ ...prevFormData, name: loginUserData.userdata.name }));
-        setFormData((prevFormData) => ({ ...prevFormData, senderID: loginUserData.userdata._id }));
+        let userData = JSON.parse(localStorage.getItem(process.env.REACT_APP_USER_AUTH_KEY));
+        setFormData((prevFormData) => ({ ...prevFormData, name: userData.userdata.name }));
+        setFormData((prevFormData) => ({ ...prevFormData, senderID: userData.userdata._id }));
+        setFormData((prevFormData) => ({ ...prevFormData, receiverID: receiverDetails._id }));
 
         // message typing
         if (typing == false) {
             typing = true;
-            socket.emit("type_message", loginUserData.userdata.name + " is typing...");
+            socket.emit("type_message", userData.userdata.name + " is typing...");
             timeout = setTimeout(timeoutFunction, 3000);
         } else {
             clearTimeout(timeout);
@@ -52,7 +58,7 @@ export default function Messages(props) {
         socket.emit("type_message", "");
     }
 
-    const sendMessage = (event) => {
+    const sendMessage = (event, re) => {
         event.preventDefault();
         const today = new Date();
 
@@ -72,8 +78,12 @@ export default function Messages(props) {
         return convertedTime.toLocaleString();
     }
 
-    const fetchMessage = async () => {
-        const response = await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/message/getall', {
+    const fetchMessage = async (senderID, receiver) => {
+        console.log("receiver ::", receiver);
+        setMessageLoader(true);
+        setReceiverDetails(receiver);
+        console.log("AAAA :: ", loginUserData.token);
+        const response = await fetch(process.env.REACT_APP_API_BASE_URL + `api/v1/message/getall?senderID=${senderID}&receiverID=${receiver._id}`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -81,15 +91,44 @@ export default function Messages(props) {
                 'Authorization': loginUserData.token
             }
         });
+        const data = await response.json();
 
-        if (response.status === 200) {
-            const data = await response.json();
-            setMessageData(data.data.messages);
-        }
+        setMessageData(data.data.messages);
+        setMessageLoader(false);
+    };
+
+    const fetchUserList = async () => {
+        let token = localStorage.getItem('token');
+
+        let param = `?limit=20`;
+        param += `&skip=0`;
+        param += `&condition=`;
+        param += `&sort_field=_id`;
+        param += `&sort_order=desc`;
+        param += `&page_no=1`;
+        param += `&search_keyword=`;
+        param += `&id=${loginUserData.userdata._id}`;
+        const response = await fetch(process.env.REACT_APP_API_BASE_URL + `api/v1/user/list${param}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': loginUserData.token
+            }
+        });
+        const data = await response.json();
+
+        setAllUser(data.data.users);
     };
 
     useEffect(() => {
-        fetchMessage();
+        fetchUserList();
+        // fetchMessage();
+
+        socket.emit("addUser", loginUserData.userdata._id);
+        socket.on("getUsers", (data) => {
+            console.log("USERS :: ", data);
+        });
 
         socket.on("someone_type_message", (data) => {
             setMessageType(data);
@@ -98,17 +137,32 @@ export default function Messages(props) {
         socket.on("receive_message", (data) => {
             // const audio = new Audio(wavFile);
             // audio.play();
-            setMessageData(prevFormData => [...prevFormData, data]);
+            console.log("data :: ", data);
+            console.log(`${data.receiverID} === ${loginUserData.userdata._id}`);
+            console.log(`${data.senderID} === ${receiverDetails._id}`);
+            console.log(`receiverDetails :: `, receiverDetails);
+            if (data.receiverID == loginUserData.userdata._id && data.senderID == receiverDetails._id) {
+                setMessageData(prevFormData => [...prevFormData, data]);
+            } else {
+                // console.log("ERROR");
+                // Swal.fire({
+                //     position: "top-end",
+                //     icon: "success",
+                //     title: "Received new message.",
+                //     showConfirmButton: false,
+                //     timer: 1500
+                // });
+            }
         });
 
         // scroll
-        if (messageEl) {
+        if (messageEl && !messageLoader) {
             messageEl.current.addEventListener('DOMNodeInserted', event => {
                 const { currentTarget: target } = event;
                 target.scroll({ top: target.scrollHeight, behavior: 'smooth' });
             });
         }
-    }, [socket]);
+    }, [socket, receiverDetails]);
 
     return (
         <>
@@ -135,53 +189,38 @@ export default function Messages(props) {
             <div className="content" style={{ marginTop: "40px", marginBottom: '52px' }}>
                 <section className="container">
                     <div className="row">
-                        <div className='col-md-3 d-none d-sm-block d-sm-none d-md-block d-md-none d-lg-block d-lg-none d-xl-block overflow-auto' style={{ height: '100vh' }}>
-                            <div className="card card-widget widget-user-2 shadow-sm">
-                                {/* <!-- Add the bg color to the header using any of the bg-* classes --> */}
-                                <div className="widget-user-header bg-warning">
-                                    <div className="widget-user-image">
-                                        <img className="img-circle elevation-2" src="/assets/dist/img/user7-128x128.jpg" alt="User Avatar" />
+                        <div className='col-md-4 d-none d-sm-block d-sm-none d-md-block d-md-none d-lg-block d-lg-none d-xl-block overflow-auto' style={{ height: '100vh' }}>
+
+                            {allUser.map((user, i) => {
+                                return <div className="info-box" key={i} onClick={() => fetchMessage(loginUserData.userdata._id, user)}>
+                                    <span className="info-box-icon bg-info"><i className="far fa-user"></i></span>
+                                    <div className="info-box-content">
+                                        <h5 className="widget-user-username">{user.name}</h5>
+                                        <h6 className="info-box-number">{user.email}</h6>
                                     </div>
-                                    <h3 className="widget-user-username">{loginUserData.userdata.name}</h3>
-                                    <h5 className="widget-user-desc">Lead Developer</h5>
+                                </div>;
+                            })}
+                        </div>
+                        {messageLoader ? <div className="col-md-8">
+                            <div className="card direct-chat direct-chat-warning">
+                                <div className="card-header">
+                                    <h3 className="card-title">Direct Chat {receiverDetails.name}</h3>
                                 </div>
-                                <div className="card-footer p-0">
-                                    <ul className="nav flex-column">
-                                        <li className="nav-item">
-                                            <a href="#" className="nav-link">
-                                                Friend's <span className="float-right badge bg-primary">31</span>
-                                            </a>
-                                        </li>
-                                        <li className="nav-item">
-                                            <a href="#" className="nav-link">
-                                                Followers <span className="float-right badge bg-info">5</span>
-                                            </a>
-                                        </li>
-                                        <li className="nav-item">
-                                            <a href="#" className="nav-link">
-                                                Following <span className="float-right badge bg-success">12</span>
-                                            </a>
-                                        </li>
-                                        <li className="nav-item">
-                                            <a href="#" className="nav-link">
-                                                Subscribe <span className="float-right badge bg-danger">842</span>
-                                            </a>
-                                        </li>
-                                        <li className="nav-item">
-                                            <a href="#" className="nav-link">
-                                                Likes <span className="float-right badge bg-danger">842</span>
-                                            </a>
-                                        </li>
-                                    </ul>
+                                <div className="card-body">
+                                    <div className="direct-chat-messages"></div>
+                                </div>
+                                <div className="overlay">
+                                    <i className="fas fa-3x fa-sync-alt"></i>
                                 </div>
                             </div>
                         </div>
-                        <div className="col-md-9">
-                            <div className="card direct-chat direct-chat-warning">
-                                <div className="card-header">
-                                    <h3 className="card-title">Direct Chat {loginUserData.email}</h3>
+                            :
+                            <div className="col-md-8">
+                                <div className="card direct-chat direct-chat-warning">
+                                    <div className="card-header">
+                                        <h3 className="card-title">Direct Chat {receiverDetails.name}</h3>
 
-                                    {/* <div className="card-tools">
+                                        {/* <div className="card-tools">
                                         <span title="3 New Messages" className="badge badge-warning">3</span>
                                         <button type="button" className="btn btn-tool" data-card-widget="collapse">
                                             <i className="fas fa-minus"></i>
@@ -193,55 +232,57 @@ export default function Messages(props) {
                                             <i className="fas fa-times"></i>
                                         </button>
                                     </div> */}
-                                </div>
-                                <div className="card-body">
-                                    <div className="direct-chat-messages" ref={messageEl}>
-                                        {messageData.map((data, i) => {
-                                            return <div key={i}>
-                                                {
-                                                    (loginUserData._id != data.senderID) ?
-                                                        (<div className="direct-chat-msg">
-                                                            <div className="direct-chat-infos clearfix">
-                                                                <span className="direct-chat-name float-left">{data.name}</span>
-                                                                <span className="direct-chat-timestamp float-right">{formatDate(data.time)}</span>
-                                                            </div>
-                                                            <img className="direct-chat-img" src="assets/dist/img/user1-128x128.jpg" alt="message user image" />
-                                                            <div className="direct-chat-text">
-                                                                {data.message}
-                                                            </div>
-                                                        </div>) : (
-                                                            <div className="direct-chat-msg right">
+                                    </div>
+                                    <div className="card-body">
+                                        <div className="direct-chat-messages" ref={messageEl}>
+                                            {messageData.map((data, i) => {
+                                                return <div key={i}>
+                                                    {
+                                                        (loginUserData.userdata._id.toString() === data.receiverID?._id || loginUserData.userdata._id.toString() === data.receiverID) ?
+                                                            (<div className="direct-chat-msg">
                                                                 <div className="direct-chat-infos clearfix">
-                                                                    <span className="direct-chat-name float-right">{data.name}</span>
-                                                                    <span className="direct-chat-timestamp float-left">{formatDate(data.time)}</span>
+                                                                    <span className="direct-chat-name float-left">{receiverDetails.name}</span>
+                                                                    <span className="direct-chat-timestamp float-right">{formatDate(data.time)}</span>
                                                                 </div>
-                                                                <img className="direct-chat-img" src="assets/dist/img/user3-128x128.jpg" alt="message user image" />
+                                                                <img className="direct-chat-img" src="assets/dist/img/user1-128x128.jpg" alt="message user image" />
                                                                 <div className="direct-chat-text">
                                                                     {data.message}
                                                                 </div>
-                                                            </div>
-                                                        )
-                                                }
-                                            </div>
-                                        })}
+                                                            </div>) : (
+                                                                <div className="direct-chat-msg right">
+                                                                    <div className="direct-chat-infos clearfix">
+                                                                        <span className="direct-chat-name float-right">{loginUserData.userdata.name}</span>
+                                                                        <span className="direct-chat-timestamp float-left">{formatDate(data.time)}</span>
+                                                                    </div>
+                                                                    <img className="direct-chat-img" src="assets/dist/img/user3-128x128.jpg" alt="message user image" />
+                                                                    <div className="direct-chat-text">
+                                                                        {data.message}
+                                                                    </div>
+                                                                </div>
+                                                            )
+                                                    }
+                                                </div>
+                                            })}
 
+                                        </div>
+
+                                        <p>{messageType}</p>
                                     </div>
 
-                                    <p>{messageType}</p>
-                                </div>
-
-                                <div className="card-footer">
-                                    <form onSubmit={sendMessage}>
-                                        <div className="input-group">
-                                            <input type="text" name="message" placeholder="Type Message ..." autoComplete='off' className="form-control" value={formData.message} onChange={handleChange} />
-                                            <span className="input-group-append">
-                                                <button type="submit" className="btn btn-warning">Send</button>
-                                            </span>
-                                        </div>
-                                    </form>
+                                    {receiverDetails ?
+                                        <div className="card-footer">
+                                            <form onSubmit={sendMessage}>
+                                                <div className="input-group">
+                                                    <input type="text" name="message" placeholder="Type Message ..." autoComplete='off' className="form-control" value={formData.message} onChange={handleChange} />
+                                                    <span className="input-group-append">
+                                                        <button type="submit" className="btn btn-warning">Send</button>
+                                                    </span>
+                                                </div>
+                                            </form>
+                                        </div> : <></>}
                                 </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </section>
             </div>
