@@ -21,14 +21,14 @@ export default function Feeds(props) {
 
     // fetch data
     const fetchData = async () => {
-        let token = localStorage.getItem('token');
+        let userdata = JSON.parse(localStorage.getItem('userdata'));
         try {
             const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-all`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Authorization': token
+                    'Authorization': userdata.token
                 }
             });
             const data = await response.json();
