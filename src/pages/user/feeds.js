@@ -19,6 +19,7 @@ export default function Feeds(props) {
 
     const navigate = useNavigate();
     const [loader, setLoader] = useState(false);
+    const [fetchloader, setFetchloader] = useState(false);
     const [postFormData, setPostFormData] = useState({ content: "", id: "" });
 
     const handleChange = (event) => {
@@ -44,12 +45,15 @@ export default function Feeds(props) {
             },
             body: JSON.stringify(postFormData)
         }).then((response) => response.json()).then((data) => {
+            setPostFormData((prevFormData) => ({ ...prevFormData, ['content']: '' }));
+            setLoader(false);
             fetchData();
         });
     };
 
     // fetch data
     const fetchData = async () => {
+        setFetchloader(true);
         let userdata = JSON.parse(localStorage.getItem('userdata'));
         try {
             const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-all`, {
@@ -63,13 +67,13 @@ export default function Feeds(props) {
             const data = await response.json();
 
             setItems(data.data.posts);
-            setLoader(false);
+            setFetchloader(false);
         } catch (error) {
             console.log(error);
-            setLoader(false);
+            setFetchloader(false);
         } finally {
             console.log(false);
-            setLoader(false);
+            setFetchloader(false);
         }
     };
 
@@ -201,10 +205,14 @@ export default function Feeds(props) {
                                     </div>
 
                                     <div className="card-footer">
-                                        <button type="submit" className="btn btn-primary">Submit</button>
+                                        {loader ? <p>Creating post...</p> :
+                                            <button type="submit" className="btn btn-primary">Submit</button>
+                                        }
                                     </div>
                                 </form>
                             </div>
+
+                            {fetchloader ? <p>Fetching data...</p> : <></>}
 
                             {items.map((item, i) => {
                                 return <div key={i} className="card card-widget">
@@ -256,406 +264,6 @@ export default function Feeds(props) {
                                     </div>
                                 </div>
                             })}
-
-                            <div className="card card-widget">
-                                <div className="card-header">
-                                    <div className="user-block">
-                                        <img className="img-circle" src='/assets/dist/img/user1-128x128.jpg' alt="User Image" />
-                                        <span className="username"><a href="#">Jonathan Burke Jr.</a></span>
-                                        <span className="description">Shared publicly - 7:30 PM Today</span>
-                                    </div>
-
-                                    <div className="card-tools">
-                                        <button type="button" className="btn btn-tool" data-card-widget="remove">
-                                            <i className="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="card-body">
-                                    <img className="img-fluid pad" src='/assets/dist/img/photo2.png' alt="Photo" />
-
-                                    <p>I took this photo this morning. What do you guys think?</p>
-                                    <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
-                                    {like[0].like ? <button type="button" className="btn btn-primary btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button> :
-                                        <button type="button" className="btn btn-default btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>}
-                                    <span className="float-right text-muted">127 likes - 3 comments</span>
-                                </div>
-
-                                <div className="card-footer card-comments">
-                                    <div className="card-comment">
-                                        <img className="img-circle img-sm" src='/assets/dist/img/user3-128x128.jpg' alt="User Image" />
-
-                                        <div className="comment-text">
-                                            <span className="username">
-                                                Maria Gonzales
-                                                <span className="text-muted float-right">8:03 PM Today</span>
-                                            </span>
-                                            It is a long established fact that a reader will be distracted
-                                            by the readable content of a page when looking at its layout.
-                                        </div>
-                                    </div>
-
-                                    <div className="card-comment">
-                                        <img className="img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="User Image" />
-
-                                        <div className="comment-text">
-                                            <span className="username">
-                                                Luna Stark
-                                                <span className="text-muted float-right">8:03 PM Today</span>
-                                            </span>
-                                            It is a long established fact that a reader will be distracted
-                                            by the readable content of a page when looking at its layout.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="card-footer">
-                                    <form action="#" method="post">
-                                        <img className="img-fluid img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="Alt Text" />
-                                        {/* <!-- .img-push is used to add margin to elements next to floating images --> */}
-                                        <div className="img-push">
-                                            <input type="text" className="form-control form-control-sm" placeholder="Press enter to post comment" />
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div className="card card-widget">
-                                <div className="card-header">
-                                    <div className="user-block">
-                                        <img className="img-circle" src="/assets/dist/img/user1-128x128.jpg" alt="User Image" />
-                                        <span className="username"><a href="#">Jonathan Burke Jr.</a></span>
-                                        <span className="description">Shared publicly - 7:30 PM Today</span>
-                                    </div>
-                                    <div className="card-tools">
-                                        <button type="button" className="btn btn-tool" data-card-widget="remove">
-                                            <i className="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="card-body">
-                                    <p>Far far away, behind the word mountains, far from the
-                                        countries Vokalia and Consonantia, there live the blind
-                                        texts. Separated they live in Bookmarksgrove right at</p>
-
-                                    <p>the coast of the Semantics, a large language ocean.
-                                        A small river named Duden flows by their place and supplies
-                                        it with the necessary regelialia. It is a paradisematic
-                                        country, in which roasted parts of sentences fly into
-                                        your mouth.</p>
-                                    <div className="attachment-block clearfix">
-                                        <img className="attachment-img" src="/assets/dist/img/photo1.png" alt="Attachment Image" />
-
-                                        <div className="attachment-pushed">
-                                            <h4 className="attachment-heading"><a href="https://www.lipsum.com/">Lorem ipsum text generator</a></h4>
-
-                                            <div className="attachment-text">
-                                                Description about the attachment can be placed here.
-                                                Lorem Ipsum is simply dummy text of the printing and typesetting industry... <a href="#">more</a>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
-                                    {like[1].like ? <button type="button" className="btn btn-primary btn-sm ml-1" onClick={() => doLike(1)}><i className="far fa-thumbs-up"></i> Like</button> :
-                                        <button type="button" className="btn btn-default btn-sm ml-1" onClick={() => doLike(1)}><i className="far fa-thumbs-up"></i> Like</button>}
-                                    <span className="float-right text-muted">45 likes - 2 comments</span>
-                                </div>
-
-                                <div className="card-footer card-comments">
-                                    <div className="card-comment">
-                                        <img className="img-circle img-sm" src="/assets/dist/img/user3-128x128.jpg" alt="User Image" />
-
-                                        <div className="comment-text">
-                                            <span className="username">
-                                                Maria Gonzales
-                                                <span className="text-muted float-right">8:03 PM Today</span>
-                                            </span>
-                                            It is a long established fact that a reader will be distracted
-                                            by the readable content of a page when looking at its layout.
-                                        </div>
-                                    </div>
-                                    <div className="card-comment">
-                                        <img className="img-circle img-sm" src="/assets/dist/img/user5-128x128.jpg" alt="User Image" />
-
-                                        <div className="comment-text">
-                                            <span className="username">
-                                                Nora Havisham
-                                                <span className="text-muted float-right">8:03 PM Today</span>
-                                            </span>
-                                            The point of using Lorem Ipsum is that it hrs a morer-less
-                                            normal distribution of letters, as opposed to using
-                                            'Content here, content here', making it look like readable English.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="card-footer">
-                                    <form action="#" method="post">
-                                        <img className="img-fluid img-circle img-sm" src="/assets/dist/img/user4-128x128.jpg" alt="Alt Text" />
-                                        <div className="img-push">
-                                            <input type="text" className="form-control form-control-sm" placeholder="Press enter to post comment" />
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div className="card card-widget">
-                                <div className="card-header">
-                                    <div className="user-block">
-                                        <img className="img-circle" src='/assets/dist/img/user1-128x128.jpg' alt="User Image" />
-                                        <span className="username"><a href="#">Jonathan Burke Jr.</a></span>
-                                        <span className="description">Shared publicly - 7:30 PM Today</span>
-                                    </div>
-
-                                    <div className="card-tools">
-                                        <button type="button" className="btn btn-tool" data-card-widget="remove">
-                                            <i className="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="card-body">
-                                    <img className="img-fluid pad" src='/assets/dist/img/photo2.png' alt="Photo" />
-
-                                    <p>I took this photo this morning. What do you guys think?</p>
-                                    <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
-                                    {like[2].like ? <button type="button" className="btn btn-primary btn-sm ml-1" onClick={() => doLike(2)}><i className="far fa-thumbs-up"></i> Like</button> :
-                                        <button type="button" className="btn btn-default btn-sm ml-1" onClick={() => doLike(2)}><i className="far fa-thumbs-up"></i> Like</button>}
-                                    <span className="float-right text-muted">127 likes - 3 comments</span>
-                                </div>
-
-                                <div className="card-footer card-comments">
-                                    <div className="card-comment">
-                                        <img className="img-circle img-sm" src='/assets/dist/img/user3-128x128.jpg' alt="User Image" />
-
-                                        <div className="comment-text">
-                                            <span className="username">
-                                                Maria Gonzales
-                                                <span className="text-muted float-right">8:03 PM Today</span>
-                                            </span>
-                                            It is a long established fact that a reader will be distracted
-                                            by the readable content of a page when looking at its layout.
-                                        </div>
-                                    </div>
-
-                                    <div className="card-comment">
-                                        <img className="img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="User Image" />
-
-                                        <div className="comment-text">
-                                            <span className="username">
-                                                Luna Stark
-                                                <span className="text-muted float-right">8:03 PM Today</span>
-                                            </span>
-                                            It is a long established fact that a reader will be distracted
-                                            by the readable content of a page when looking at its layout.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="card-footer">
-                                    <form action="#" method="post">
-                                        <img className="img-fluid img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="Alt Text" />
-                                        {/* <!-- .img-push is used to add margin to elements next to floating images --> */}
-                                        <div className="img-push">
-                                            <input type="text" className="form-control form-control-sm" placeholder="Press enter to post comment" />
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div className="card card-widget">
-                                <div className="card-header">
-                                    <div className="user-block">
-                                        <img className="img-circle" src='/assets/dist/img/user1-128x128.jpg' alt="User Image" />
-                                        <span className="username"><a href="#">Jonathan Burke Jr.</a></span>
-                                        <span className="description">Shared publicly - 7:30 PM Today</span>
-                                    </div>
-
-                                    <div className="card-tools">
-                                        <button type="button" className="btn btn-tool" data-card-widget="remove">
-                                            <i className="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="card-body">
-                                    <img className="img-fluid pad" src='/assets/dist/img/photo2.png' alt="Photo" />
-
-                                    <p>I took this photo this morning. What do you guys think?</p>
-                                    <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
-                                    {like[3].like ? <button type="button" className="btn btn-primary btn-sm ml-1" onClick={() => doLike(3)}><i className="far fa-thumbs-up"></i> Like</button> :
-                                        <button type="button" className="btn btn-default btn-sm ml-1" onClick={() => doLike(3)}><i className="far fa-thumbs-up"></i> Like</button>}
-                                    <span className="float-right text-muted">127 likes - 3 comments</span>
-                                </div>
-
-                                <div className="card-footer card-comments">
-                                    <div className="card-comment">
-                                        <img className="img-circle img-sm" src='/assets/dist/img/user3-128x128.jpg' alt="User Image" />
-
-                                        <div className="comment-text">
-                                            <span className="username">
-                                                Maria Gonzales
-                                                <span className="text-muted float-right">8:03 PM Today</span>
-                                            </span>
-                                            It is a long established fact that a reader will be distracted
-                                            by the readable content of a page when looking at its layout.
-                                        </div>
-                                    </div>
-
-                                    <div className="card-comment">
-                                        <img className="img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="User Image" />
-
-                                        <div className="comment-text">
-                                            <span className="username">
-                                                Luna Stark
-                                                <span className="text-muted float-right">8:03 PM Today</span>
-                                            </span>
-                                            It is a long established fact that a reader will be distracted
-                                            by the readable content of a page when looking at its layout.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="card-footer">
-                                    <form action="#" method="post">
-                                        <img className="img-fluid img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="Alt Text" />
-                                        {/* <!-- .img-push is used to add margin to elements next to floating images --> */}
-                                        <div className="img-push">
-                                            <input type="text" className="form-control form-control-sm" placeholder="Press enter to post comment" />
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div className="card card-widget">
-                                <div className="card-header">
-                                    <div className="user-block">
-                                        <img className="img-circle" src='/assets/dist/img/user1-128x128.jpg' alt="User Image" />
-                                        <span className="username"><a href="#">Jonathan Burke Jr.</a></span>
-                                        <span className="description">Shared publicly - 7:30 PM Today</span>
-                                    </div>
-
-                                    <div className="card-tools">
-                                        <button type="button" className="btn btn-tool" data-card-widget="remove">
-                                            <i className="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="card-body">
-                                    <img className="img-fluid pad" src='/assets/dist/img/photo2.png' alt="Photo" />
-
-                                    <p>I took this photo this morning. What do you guys think?</p>
-                                    <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
-                                    {like[4].like ? <button type="button" className="btn btn-primary btn-sm ml-1" onClick={() => doLike(4)}><i className="far fa-thumbs-up"></i> Like</button> :
-                                        <button type="button" className="btn btn-default btn-sm ml-1" onClick={() => doLike(4)}><i className="far fa-thumbs-up"></i> Like</button>}
-                                    <span className="float-right text-muted">127 likes - 3 comments</span>
-                                </div>
-
-                                <div className="card-footer card-comments">
-                                    <div className="card-comment">
-                                        <img className="img-circle img-sm" src='/assets/dist/img/user3-128x128.jpg' alt="User Image" />
-
-                                        <div className="comment-text">
-                                            <span className="username">
-                                                Maria Gonzales
-                                                <span className="text-muted float-right">8:03 PM Today</span>
-                                            </span>
-                                            It is a long established fact that a reader will be distracted
-                                            by the readable content of a page when looking at its layout.
-                                        </div>
-                                    </div>
-
-                                    <div className="card-comment">
-                                        <img className="img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="User Image" />
-
-                                        <div className="comment-text">
-                                            <span className="username">
-                                                Luna Stark
-                                                <span className="text-muted float-right">8:03 PM Today</span>
-                                            </span>
-                                            It is a long established fact that a reader will be distracted
-                                            by the readable content of a page when looking at its layout.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="card-footer">
-                                    <form action="#" method="post">
-                                        <img className="img-fluid img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="Alt Text" />
-                                        {/* <!-- .img-push is used to add margin to elements next to floating images --> */}
-                                        <div className="img-push">
-                                            <input type="text" className="form-control form-control-sm" placeholder="Press enter to post comment" />
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div className="card card-widget">
-                                <div className="card-header">
-                                    <div className="user-block">
-                                        <img className="img-circle" src='/assets/dist/img/user1-128x128.jpg' alt="User Image" />
-                                        <span className="username"><a href="#">Jonathan Burke Jr.</a></span>
-                                        <span className="description">Shared publicly - 7:30 PM Today</span>
-                                    </div>
-
-                                    <div className="card-tools">
-                                        <button type="button" className="btn btn-tool" data-card-widget="remove">
-                                            <i className="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="card-body">
-                                    <img className="img-fluid pad" src='/assets/dist/img/photo2.png' alt="Photo" />
-
-                                    <p>I took this photo this morning. What do you guys think?</p>
-                                    <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
-                                    {like[5].like ? <button type="button" className="btn btn-primary btn-sm ml-1" onClick={() => doLike(5)}><i className="far fa-thumbs-up"></i> Like</button> :
-                                        <button type="button" className="btn btn-default btn-sm ml-1" onClick={() => doLike(5)}><i className="far fa-thumbs-up"></i> Like</button>}
-                                    <span className="float-right text-muted">127 likes - 3 comments</span>
-                                </div>
-
-                                <div className="card-footer card-comments">
-                                    <div className="card-comment">
-                                        <img className="img-circle img-sm" src='/assets/dist/img/user3-128x128.jpg' alt="User Image" />
-
-                                        <div className="comment-text">
-                                            <span className="username">
-                                                Maria Gonzales
-                                                <span className="text-muted float-right">8:03 PM Today</span>
-                                            </span>
-                                            It is a long established fact that a reader will be distracted
-                                            by the readable content of a page when looking at its layout.
-                                        </div>
-                                    </div>
-
-                                    <div className="card-comment">
-                                        <img className="img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="User Image" />
-
-                                        <div className="comment-text">
-                                            <span className="username">
-                                                Luna Stark
-                                                <span className="text-muted float-right">8:03 PM Today</span>
-                                            </span>
-                                            It is a long established fact that a reader will be distracted
-                                            by the readable content of a page when looking at its layout.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="card-footer">
-                                    <form action="#" method="post">
-                                        <img className="img-fluid img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="Alt Text" />
-                                        {/* <!-- .img-push is used to add margin to elements next to floating images --> */}
-                                        <div className="img-push">
-                                            <input type="text" className="form-control form-control-sm" placeholder="Press enter to post comment" />
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
                         </div>
 
                         <div className='col-md-3 overflow-auto' style={{ height: '100vh' }}>
