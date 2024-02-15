@@ -6,6 +6,7 @@ export default function Feeds(props) {
 
     // page title
     document.title = "Welcome to We connect | Feed's";
+    const [items, setItems] = useState([]);
     const [like, setLike] = useState([
         { like: false },
         { like: false },
@@ -14,27 +15,27 @@ export default function Feeds(props) {
         { like: false },
         { like: false },
         { like: false }
-    ])
+    ]);
 
     const navigate = useNavigate();
 
     // fetch data
-    // const fetchData = async () => {
-    //     setIsLoading(true);
-    //     setError(null);
+    const fetchData = async () => {
+        setIsLoading(true);
+        setError(null);
 
-    //     try {
-    //         const response = await fetch(`https://api.example.com/items?page=${page}`);
-    //         const data = await response.json();
+        try {
+            const response = await fetch(process.env.REACT_APP_API_BASE_URL + `api/v1/post/get-all`);
+            const data = await response.json();
 
-    //         setItems(prevItems => [...prevItems, ...data]);
-    //         setPage(prevPage => prevPage + 1);
-    //     } catch (error) {
-    //         setError(error);
-    //     } finally {
-    //         setIsLoading(false);
-    //     }
-    // };
+            setItems(prevItems => [...prevItems, ...data.data.posts]);
+            // setPage(prevPage => prevPage + 1);
+        } catch (error) {
+            setError(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const doLike = (index) => {
         const likes = like.map((l, i) => {
@@ -52,6 +53,7 @@ export default function Feeds(props) {
     }
 
     useEffect(() => {
+        fetchData();
       }, []);
 
     return (
