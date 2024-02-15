@@ -36,9 +36,9 @@ export default function Feeds(props) {
             setItems(data.data.users);
             // setPage(prevPage => prevPage + 1);
         } catch (error) {
-            setError(error);
+            console.log(error);
         } finally {
-            setIsLoading(false);
+            console.log(false);
         }
     };
 
