@@ -21,14 +21,19 @@ export default function Feeds(props) {
 
     // fetch data
     const fetchData = async () => {
-        setIsLoading(true);
-        setError(null);
-
+        let token = localStorage.getItem('token');
         try {
-            const response = await fetch(process.env.REACT_APP_API_BASE_URL + `api/v1/post/get-all`);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-all`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                }
+            });
             const data = await response.json();
-
-            setItems(prevItems => [...prevItems, ...data.data.posts]);
+    
+            setItems(data.data.users);
             // setPage(prevPage => prevPage + 1);
         } catch (error) {
             setError(error);
