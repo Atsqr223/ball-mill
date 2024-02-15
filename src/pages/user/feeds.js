@@ -18,6 +18,35 @@ export default function Feeds(props) {
     ]);
 
     const navigate = useNavigate();
+    const [loader, setLoader] = useState(false);
+    const [postFormData, setPostFormData] = useState({ content: "", id: "" });
+
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setPostFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+
+        let userdata = JSON.parse(localStorage.getItem('userdata'));
+        setPostFormData((prevFormData) => ({ ...prevFormData, ['id']: userdata.userdata._id }));
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        setLoader(true);
+        let userdata = JSON.parse(localStorage.getItem('userdata'));
+
+        await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/create-post`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': userdata.token
+            },
+            body: JSON.stringify(postFormData)
+        }).then((response) => response.json()).then((data) => {
+            fetchData();
+        });
+    };
 
     // fetch data
     const fetchData = async () => {
@@ -32,13 +61,15 @@ export default function Feeds(props) {
                 }
             });
             const data = await response.json();
-    
-            setItems(data.data.users);
-            // setPage(prevPage => prevPage + 1);
+
+            setItems(data.data.posts);
+            setLoader(false);
         } catch (error) {
             console.log(error);
+            setLoader(false);
         } finally {
             console.log(false);
+            setLoader(false);
         }
     };
 
@@ -59,7 +90,7 @@ export default function Feeds(props) {
 
     useEffect(() => {
         fetchData();
-      }, []);
+    }, []);
 
     return (
         <>
@@ -154,6 +185,78 @@ export default function Feeds(props) {
                         </div>
 
                         <div className="col-md-6 overflow-auto" style={{ height: '100vh' }}>
+                            <div className="card card-primary">
+                                <div className="card-header">
+                                    <h3 className="card-title">General Elements</h3>
+                                </div>
+                                <form onSubmit={handleSubmit}>
+                                    <div className="card-body">
+                                        <div className="row">
+                                            <div className="col-sm-12">
+                                                <div className="form-group">
+                                                    <textarea className="form-control" rows="3" name="content" placeholder="What in your mind" value={postFormData.contest} onChange={handleChange}></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="card-footer">
+                                        <button type="submit" className="btn btn-primary">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            {items.map((item, i) => {
+                                return <div key={i} className="card card-widget">
+                                    <div className="card-header">
+                                        <div className="user-block">
+                                            <img className="img-circle" src='/assets/dist/img/user1-128x128.jpg' alt="User Image" />
+                                            <span className="username"><a href="#">{item.createdBy.name}</a></span>
+                                            <span className="description">{item.createdAt}</span>
+                                        </div>
+
+                                        <div className="card-tools">
+                                            <button type="button" className="btn btn-tool" data-card-widget="remove">
+                                                <i className="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="card-body">
+                                        <p>{item.content}</p>
+                                        <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
+                                        {like[0].like ? <button type="button" className="btn btn-primary btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button> :
+                                            <button type="button" className="btn btn-default btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>}
+                                        <span className="float-right text-muted">127 likes - 3 comments</span>
+                                    </div>
+
+                                    <div className="card-footer card-comments">
+                                        <div className="card-comment">
+                                            <img className="img-circle img-sm" src='/assets/dist/img/user3-128x128.jpg' alt="User Image" />
+
+                                            <div className="comment-text">
+                                                <span className="username">
+                                                    Maria Gonzales
+                                                    <span className="text-muted float-right">8:03 PM Today</span>
+                                                </span>
+                                                It is a long established fact that a reader will be distracted
+                                                by the readable content of a page when looking at its layout.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="card-footer">
+                                        <form action="#" method="post">
+                                            <img className="img-fluid img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="Alt Text" />
+                                            {/* <!-- .img-push is used to add margin to elements next to floating images --> */}
+                                            <div className="img-push">
+                                                <input type="text" className="form-control form-control-sm" placeholder="Press enter to post comment" />
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            })}
+
                             <div className="card card-widget">
                                 <div className="card-header">
                                     <div className="user-block">
@@ -175,7 +278,7 @@ export default function Feeds(props) {
                                     <p>I took this photo this morning. What do you guys think?</p>
                                     <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
                                     {like[0].like ? <button type="button" className="btn btn-primary btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button> :
-                                        <button type="button" className="btn btn-default btn-sm ml-1" onClick={() =>doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>}
+                                        <button type="button" className="btn btn-default btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>}
                                     <span className="float-right text-muted">127 likes - 3 comments</span>
                                 </div>
 
