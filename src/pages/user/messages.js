@@ -22,6 +22,7 @@ export default function Messages(props) {
     const messageEl = useRef(null);
     const [playSound] = useSound(wavFile);
 
+    const [loader, setLoader] = useState(false);
     const [formData, setFormData] = useState({
         senderID: '',
         receiverID: '',
@@ -200,17 +201,31 @@ export default function Messages(props) {
             <div className="content" style={{ marginTop: "40px", marginBottom: '52px' }}>
                 <section className="container">
                     <div className="row">
-                        <div className='col-md-4 overflow-auto' style={{ height: '120vh' }}>
-                            {allUser.map((user, i) => {
-                                return <div className="info-box" style={{ cursor: 'pointer' }} key={i} onClick={() => fetchMessage(loginUserData.userdata._id, user)}>
-                                    <span className="info-box-icon bg-info"><i className="far fa-user"></i></span>
-                                    <div className="info-box-content">
-                                        <h5 className="widget-user-username">{user.name}</h5>
-                                        <h6 className="info-box-number">{user.email}</h6>
-                                    </div>
-                                </div>;
-                            })}
-                        </div>
+                        {loader ? <div className="col-md-4 overflow-auto" style={{ height: '100vh' }}>
+                            <div className="card direct-chat direct-chat-warning">
+                                <div className="card-header">
+                                    <h3 className="card-title">Loading messages <b className="font-weight-bold">{receiverDetails.name}</b></h3>
+                                </div>
+                                <div className="card-body">
+                                    <div className="direct-chat-messages"></div>
+                                </div>
+                                <div className="overlay">
+                                    <i className="fas fa-3x fa-sync-alt"></i>
+                                </div>
+                            </div>
+                        </div> :
+                            <div className='col-md-4 overflow-auto' style={{ height: '100vh' }}>
+                                {allUser.map((user, i) => {
+                                    return <div className="info-box" style={{ cursor: 'pointer' }} key={i} onClick={() => fetchMessage(loginUserData.userdata._id, user)}>
+                                        <span className="info-box-icon bg-info"><i className="far fa-user"></i></span>
+                                        <div className="info-box-content">
+                                            <h5 className="widget-user-username">{user.name}</h5>
+                                            <h6 className="info-box-number">{user.email}</h6>
+                                        </div>
+                                    </div>;
+                                })}
+                            </div>
+                        }
 
                         {messageLoader ? <div className="col-md-8" style={{ height: '100vh' }}>
                             <div className="card direct-chat direct-chat-warning">
