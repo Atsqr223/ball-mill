@@ -114,6 +114,7 @@ export default function Messages(props) {
     };
 
     const fetchUserList = async () => {
+        setLoader(true);
         let param = `?limit=20`;
         param += `&skip=0`;
         param += `&condition=`;
@@ -129,10 +130,14 @@ export default function Messages(props) {
                 'Content-Type': 'application/json',
                 'Authorization': loginUserData.token
             }
+        }).then((response) => response.json()).then((userRes) => {
+            if (userRes.success === true) {
+                setAllUser(userRes.data.users);
+            } else {
+                setAllUser([]);
+            }
+            setLoader(false);
         });
-        const data = await response.json();
-
-        setAllUser(data.data.users);
     };
 
     useEffect(() => {
@@ -174,7 +179,7 @@ export default function Messages(props) {
                 target.scroll({ top: target.scrollHeight, behavior: 'smooth' });
             });
         }
-    }, [socket, receiverDetails]);
+    }, [socket]);
 
     return (
         <>
@@ -201,20 +206,20 @@ export default function Messages(props) {
             <div className="content" style={{ marginTop: "40px", marginBottom: '52px' }}>
                 <section className="container">
                     <div className="row">
-                        {loader ? <div className="col-md-4 overflow-auto" style={{ height: '100vh' }}>
-                            <div className="card direct-chat direct-chat-warning">
-                                <div className="card-header">
-                                    <h3 className="card-title">Loading messages <b className="font-weight-bold">{receiverDetails.name}</b></h3>
+                        <div class="card card-primary">
+                            <div class="card-header">
+                                <h3 class="card-title">Friends</h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="card-refresh" onClick={fetchUserList}>
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
                                 </div>
-                                <div className="card-body">
-                                    <div className="direct-chat-messages"></div>
-                                </div>
-                                <div className="overlay">
-                                    <i className="fas fa-3x fa-sync-alt"></i>
-                                </div>
+
                             </div>
-                        </div> :
-                            <div className='col-md-4 overflow-auto' style={{ height: '100vh' }}>
+
+                            {loader ? <div class="card-body">
+                                <p>Getting...</p>
+                            </div> : <div class="card-body">
                                 {allUser.map((user, i) => {
                                     return <div className="info-box" style={{ cursor: 'pointer' }} key={i} onClick={() => fetchMessage(loginUserData.userdata._id, user)}>
                                         <span className="info-box-icon bg-info"><i className="far fa-user"></i></span>
@@ -224,8 +229,8 @@ export default function Messages(props) {
                                         </div>
                                     </div>;
                                 })}
-                            </div>
-                        }
+                            </div>}
+                        </div>
 
                         {messageLoader ? <div className="col-md-8" style={{ height: '100vh' }}>
                             <div className="card direct-chat direct-chat-warning">
