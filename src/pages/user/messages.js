@@ -22,7 +22,12 @@ export default function Messages(props) {
     const messageEl = useRef(null);
     const [playSound] = useSound(wavFile);
 
-    const [formData, setFormData] = useState({ senderID: '', receiverID: '', name: '', message: '', time: new Date() });
+    const [formData, setFormData] = useState({
+        senderID: '',
+        receiverID: '',
+        message: '',
+        time: new Date()
+    });
     const [messageData, setMessageData] = useState([]);
     const [messageType, setMessageType] = useState('');
     const [loginUserData, setLoginUserData] = useState(JSON.parse(localStorage.getItem(process.env.REACT_APP_USER_AUTH_KEY)));
@@ -53,6 +58,14 @@ export default function Messages(props) {
         }
     };
 
+    const validateForm = (data) => {
+        if (!data.message.trim()) {
+            return false;
+        } else {
+            return true;
+        }
+    };
+
     function timeoutFunction() {
         typing = false;
         socket.emit("type_message", "");
@@ -60,12 +73,13 @@ export default function Messages(props) {
 
     const sendMessage = (event, re) => {
         event.preventDefault();
-        const today = new Date();
-
-        setFormData((prevFormData) => ({ ...prevFormData, time: new Date(today.toGMTString()) }));
-        socket.emit("send_message", formData);
-        setFormData((prevFormData) => ({ ...prevFormData, message: '' }));
-        setMessageData(prevFormData => [...prevFormData, formData]);
+        if (validateForm(formData)) {
+            const today = new Date();
+            setFormData((prevFormData) => ({ ...prevFormData, time: new Date(today.toGMTString()) }));
+            socket.emit("send_message", formData);
+            setFormData((prevFormData) => ({ ...prevFormData, message: '' }));
+            setMessageData(prevFormData => [...prevFormData, formData]);
+        }
     }
 
     const formatDate = (gmtDate) => {
@@ -79,10 +93,8 @@ export default function Messages(props) {
     }
 
     const fetchMessage = async (senderID, receiver) => {
-        console.log("receiver ::", receiver);
         setMessageLoader(true);
         setReceiverDetails(receiver);
-        console.log("AAAA :: ", loginUserData.token);
         const response = await fetch(process.env.REACT_APP_API_BASE_URL + `api/v1/message/getall?senderID=${senderID}&receiverID=${receiver._id}`, {
             method: 'GET',
             headers: {
@@ -90,16 +102,17 @@ export default function Messages(props) {
                 'Content-Type': 'application/json',
                 'Authorization': loginUserData.token
             }
+        }).then((response) => response.json()).then((messageRes) => {
+            if (messageRes.success === true) {
+                setMessageData(messageRes.data.messages);
+            } else {
+                setMessageData([]);
+            }
+            setMessageLoader(false);
         });
-        const data = await response.json();
-
-        setMessageData(data.data.messages);
-        setMessageLoader(false);
     };
 
     const fetchUserList = async () => {
-        let token = localStorage.getItem('token');
-
         let param = `?limit=20`;
         param += `&skip=0`;
         param += `&condition=`;
@@ -135,8 +148,6 @@ export default function Messages(props) {
         });
 
         socket.on("receive_message", (data) => {
-            // const audio = new Audio(wavFile);
-            // audio.play();
             console.log("data :: ", data);
             console.log(`${data.receiverID} === ${loginUserData.userdata._id}`);
             console.log(`${data.senderID} === ${receiverDetails._id}`);
@@ -189,10 +200,9 @@ export default function Messages(props) {
             <div className="content" style={{ marginTop: "40px", marginBottom: '52px' }}>
                 <section className="container">
                     <div className="row">
-                        <div className='col-md-4 d-none d-sm-block d-sm-none d-md-block d-md-none d-lg-block d-lg-none d-xl-block overflow-auto' style={{ height: '100vh' }}>
-
+                        <div className='col-md-4 overflow-auto' style={{ height: '120vh' }}>
                             {allUser.map((user, i) => {
-                                return <div className="info-box" key={i} onClick={() => fetchMessage(loginUserData.userdata._id, user)}>
+                                return <div className="info-box" style={{ cursor: 'pointer' }} key={i} onClick={() => fetchMessage(loginUserData.userdata._id, user)}>
                                     <span className="info-box-icon bg-info"><i className="far fa-user"></i></span>
                                     <div className="info-box-content">
                                         <h5 className="widget-user-username">{user.name}</h5>
@@ -201,10 +211,11 @@ export default function Messages(props) {
                                 </div>;
                             })}
                         </div>
-                        {messageLoader ? <div className="col-md-8">
+
+                        {messageLoader ? <div className="col-md-8" style={{ height: '100vh' }}>
                             <div className="card direct-chat direct-chat-warning">
                                 <div className="card-header">
-                                    <h3 className="card-title">Direct Chat {receiverDetails.name}</h3>
+                                    <h3 className="card-title">Loading messages <b className="font-weight-bold">{receiverDetails.name}</b></h3>
                                 </div>
                                 <div className="card-body">
                                     <div className="direct-chat-messages"></div>
@@ -218,7 +229,7 @@ export default function Messages(props) {
                             <div className="col-md-8">
                                 <div className="card direct-chat direct-chat-warning">
                                     <div className="card-header">
-                                        <h3 className="card-title">Direct Chat {receiverDetails.name}</h3>
+                                        <h3 className="card-title">Chat with <b className="font-weight-bold">{receiverDetails.name}</b></h3>
 
                                         {/* <div className="card-tools">
                                         <span title="3 New Messages" className="badge badge-warning">3</span>

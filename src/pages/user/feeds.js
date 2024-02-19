@@ -20,7 +20,12 @@ export default function Feeds(props) {
     const navigate = useNavigate();
     const [loader, setLoader] = useState(false);
     const [fetchloader, setFetchloader] = useState(false);
-    const [postFormData, setPostFormData] = useState({ content: "", id: "" });
+    const [postFormData, setPostFormData] = useState({
+        content: "",
+        id: "",
+        submited: false
+    });
+    const [errors, setErrors] = useState({});
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -30,25 +35,43 @@ export default function Feeds(props) {
         setPostFormData((prevFormData) => ({ ...prevFormData, ['id']: userdata.userdata._id }));
     };
 
+    const validateForm = (data) => {
+        let errors = {};
+
+        if (!data.content.trim()) {
+            errors.content = "Can't post empty content.";
+        }
+
+        return errors;
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         setLoader(true);
-        let userdata = JSON.parse(localStorage.getItem('userdata'));
+        setPostFormData((prevFormData) => ({ ...prevFormData, submited: true }));
+        const validationErrors = validateForm(postFormData);
+        if (Object.keys(validationErrors).length === 0) {
+            let userdata = JSON.parse(localStorage.getItem('userdata'));
+            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/create-post`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': userdata.token
+                },
+                body: JSON.stringify(postFormData)
+            }).then((response) => response.json()).then((postRes) => {
+                setLoader(false);
+                if (postRes.success === true) {
+                    fetchData();
+                } else {
 
-        await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/create-post`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': userdata.token
-            },
-            body: JSON.stringify(postFormData)
-        }).then((response) => response.json()).then((data) => {
-            setPostFormData((prevFormData) => ({ ...prevFormData, ['content']: '' }));
+                }
+            });
+        } else {
             setLoader(false);
-            fetchData();
-        });
+            setErrors(validationErrors);
+        }
     };
 
     // fetch data
@@ -72,7 +95,6 @@ export default function Feeds(props) {
             console.log(error);
             setFetchloader(false);
         } finally {
-            console.log(false);
             setFetchloader(false);
         }
     };
@@ -121,7 +143,7 @@ export default function Feeds(props) {
             <div className="content" style={{ marginTop: "40px", marginBottom: '52px' }}>
                 <div className="container">
                     <div className='row'>
-                        <div className='col-md-3 d-none d-sm-block d-sm-none d-md-block d-md-none d-lg-block d-lg-none d-xl-block overflow-auto' style={{ height: '100vh' }}>
+                        <div className='col-md-3 overflow-auto' style={{ height: '100vh' }}>
                             <div className="card card-widget widget-user-2 shadow-sm">
                                 {/* <!-- Add the bg color to the header using any of the bg-* classes --> */}
                                 <div className="widget-user-header bg-warning">
@@ -191,7 +213,7 @@ export default function Feeds(props) {
                         <div className="col-md-6 overflow-auto" style={{ height: '100vh' }}>
                             <div className="card card-primary">
                                 <div className="card-header">
-                                    <h3 className="card-title">General Elements</h3>
+                                    <h3 className="card-title">Write your content</h3>
                                 </div>
                                 <form onSubmit={handleSubmit}>
                                     <div className="card-body">
@@ -200,19 +222,23 @@ export default function Feeds(props) {
                                                 <div className="form-group">
                                                     <textarea className="form-control" rows="3" name="content" placeholder="What in your mind" value={postFormData.contest} onChange={handleChange}></textarea>
                                                 </div>
+                                                {errors.content && <span className="text-danger">{errors.content}</span>}
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="card-footer">
-                                        {loader ? <p>Creating post...</p> :
-                                            <button type="submit" className="btn btn-primary">Submit</button>
-                                        }
+                                        <button type="submit" className="btn btn-primary" disabled={loader}>
+                                            {!loader ?
+                                                `Posts` :
+                                                `...`
+                                            }
+                                        </button>
                                     </div>
                                 </form>
                             </div>
 
-                            {fetchloader ? <p>Fetching data...</p> : <></>}
+                            {fetchloader ? <p>Getting leatest post...</p> : <></>}
 
                             {items.map((item, i) => {
                                 return <div key={i} className="card card-widget">

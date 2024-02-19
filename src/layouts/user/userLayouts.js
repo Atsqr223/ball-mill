@@ -28,7 +28,7 @@ export default function UserLayouts(props) {
 
   let basicData = {
     today: new Date(),
-    authData: props.authData
+    authData: JSON.parse(localStorage.getItem('userdata'))
   }
 
   return (

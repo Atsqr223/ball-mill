@@ -19,6 +19,7 @@ const Dashboard = lazy(() => import('./pages/admin/dashboard'));
 const UserLayouts = lazy(() => import('./layouts/user/userLayouts'));
 const Home = lazy(() => import('./pages/user/home'));
 const Feeds = lazy(() => import('./pages/user/feeds'));
+const Profile = lazy(() => import('./pages/user/profile'));
 const Inbox = lazy(() => import('./pages/user/mailbox/inbox'));
 const ComposeMail = lazy(() => import('./pages/user/mailbox/compose'));
 const ReadMail = lazy(() => import('./pages/user/mailbox/read'));
@@ -84,6 +85,7 @@ function App() {
             
             <Route path="messages" element={<Messages title="Chats" />} />
             <Route path="notification" element={<Notification />} />
+            <Route path="profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Route>
           {/* user routes end */}

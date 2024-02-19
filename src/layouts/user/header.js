@@ -135,6 +135,11 @@ export default function Header(props) {
                                 </div>
                             </li>
                             <li className="nav-item">
+                                <Link to="/profile" className="nav-link">
+                                    <i className="fas fa-user"></i>
+                                </Link>
+                            </li>
+                            <li className="nav-item">
                                 <a className="nav-link" href="#" role="button" onClick={logout}>
                                     <i className="fas fa-sign-out-alt"></i>
                                 </a>
