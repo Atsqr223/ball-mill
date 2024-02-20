@@ -10,6 +10,7 @@ const AdminLogin = lazy(() => import('./pages/admin/adminLogin'));
 const UserLoginLayouts = lazy(() => import('./layouts/user/userAuth/userLoginLayouts'));
 const UserLogin = lazy(() => import('./pages/user/userLogin'));
 const UserSignup = lazy(() => import('./pages/user/userSignup'));
+const UserForgotPassword = lazy(() => import('./pages/user/userForgotPassword'));
 
 // pages admin
 const AdminLayouts = lazy(() => import('./layouts/admin/adminLayouts'));
@@ -57,7 +58,7 @@ function App() {
             <Route index element={<UserLogin />} />
             <Route path="login" element={<UserLogin />} />
             <Route path="signup" element={<UserSignup />} />
-            <Route path="forgot-password" element={<UserSignup />} />
+            <Route path="forgot-password" element={<UserForgotPassword />} />
             <Route path="*" element={<NotFound />} />
           </Route>
 

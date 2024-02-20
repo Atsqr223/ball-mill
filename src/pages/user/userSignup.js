@@ -62,7 +62,7 @@ export default function UserSignup(props) {
         }
 
         if (!data.terms) {
-            errors.terms = 'Please react and accept our terms and conditions.';
+            errors.terms = 'Please read and accept our terms and conditions.';
         }
 
         return errors;
