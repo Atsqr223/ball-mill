@@ -3,6 +3,7 @@ import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 
 // component
 export default function Feeds(props) {
+    const {authFlag, authToken, authUser} = useOutletContext();
 
     // page title
     document.title = "Welcome to We connect | Feed's";
@@ -31,8 +32,7 @@ export default function Feeds(props) {
         const { name, value } = event.target;
         setPostFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
 
-        let userdata = JSON.parse(localStorage.getItem('userdata'));
-        setPostFormData((prevFormData) => ({ ...prevFormData, ['id']: userdata.userdata._id }));
+        setPostFormData((prevFormData) => ({ ...prevFormData, ['id']: authUser._id }));
     };
 
     const validateForm = (data) => {
@@ -51,13 +51,12 @@ export default function Feeds(props) {
         setPostFormData((prevFormData) => ({ ...prevFormData, submited: true }));
         const validationErrors = validateForm(postFormData);
         if (Object.keys(validationErrors).length === 0) {
-            let userdata = JSON.parse(localStorage.getItem('userdata'));
             await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/create-post`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Authorization': userdata.token
+                    'Authorization': authToken
                 },
                 body: JSON.stringify(postFormData)
             }).then((response) => response.json()).then((postRes) => {
@@ -77,20 +76,25 @@ export default function Feeds(props) {
     // fetch data
     const fetchData = async () => {
         setFetchloader(true);
-        let userdata = JSON.parse(localStorage.getItem('userdata'));
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-all`, {
+            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-all`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Authorization': userdata.token
+                    'Authorization': authToken
+                }
+            }).then((response) => response.json()).then((postsRes) => {
+                setLoader(false);
+                setFetchloader(false);
+                if (postsRes.success === true) {
+                    setItems(postsRes.data.posts);
+                } else {
+                    setItems([]);
+                    // localStorage.clear();
+                    // window.location.reload();
                 }
             });
-            const data = await response.json();
-
-            setItems(data.data.posts);
-            setFetchloader(false);
         } catch (error) {
             console.log(error);
             setFetchloader(false);

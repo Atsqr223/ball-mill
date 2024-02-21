@@ -42,7 +42,7 @@ export default function Header(props) {
                 </a>
 
                 {
-                    props.basicData.authData ? (<div className="collapse navbar-collapse order-3" id="navbarCollapse">
+                    props.basicData.authFlag ? (<div className="collapse navbar-collapse order-3" id="navbarCollapse">
                         {/* <!-- Left navbar links --> */}
                         <ul className="navbar-nav ml-auto">
                             <li className="nav-item">

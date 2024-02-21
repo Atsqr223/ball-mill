@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 
+import { createAuthSession } from "../../utils/authHelper";
+
 // component
 export default function UserLogin(props) {
 
@@ -62,11 +64,10 @@ export default function UserLogin(props) {
                         userdata: loginRes.data.user,
                         token: loginRes.data.access_token
                     };
-                    localStorage.setItem(process.env.REACT_APP_USER_AUTH_KEY, JSON.stringify(setAuth));
+                    createAuthSession(setAuth);
                     setTimeout(() => {
                         console.log("REDIRECT");
                         window.location.reload();
-                        // navigate("/feeds", { replace: true });
                     }, 1000);
                 } else {
                     setLoginError(loginRes.message);

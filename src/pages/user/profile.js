@@ -3,13 +3,12 @@ import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 
 // component
 export default function Profile(props) {
-
     // page title
     document.title = 'Welcome to We connect | Profile';
 
+    const {authFlag, authToken, authUser} = useOutletContext();
+
     const navigate = useNavigate();
-    const [loginUser, setLoginUser] = useState(JSON.parse(localStorage.getItem(process.env.REACT_APP_USER_AUTH_KEY)));
-    console.log("loginUser :: ", loginUser);
 
     return (
         <>
@@ -61,7 +60,7 @@ export default function Profile(props) {
                                             <div className="text-center">
                                                 <img className="profile-user-img img-fluid img-circle" src="/assets/dist/img/user4-128x128.jpg" alt="User profile picture" />
                                             </div>
-                                            <h3 className="profile-username text-center">{loginUser?.userdata?.name}</h3>
+                                            <h3 className="profile-username text-center">{authUser.name}</h3>
                                             <p className="text-muted text-center">Software Engineer</p>
                                             <ul className="list-group list-group-unbordered mb-3">
                                                 <li className="list-group-item">

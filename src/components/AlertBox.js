@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 function GetAlert({alert, message}) {
-    console.log("alert :: ", alert);
-    console.log("message :: ", message);
     switch (alert) {
         case 'danger':
             return (<div className="alert alert-danger alert-dismissible">

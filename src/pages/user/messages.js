@@ -13,9 +13,10 @@ const socket = io.connect(process.env.REACT_APP_API_BASE_URL);
 
 // component
 export default function Messages(props) {
-
     // page title
-    document.title = "Welcome to We connect | " + props.title;
+    document.title = "Welcome to We connect | Message";
+
+    const {authFlag, authToken, authUser} = useOutletContext();
 
     const navigate = useNavigate();
 
@@ -31,7 +32,6 @@ export default function Messages(props) {
     });
     const [messageData, setMessageData] = useState([]);
     const [messageType, setMessageType] = useState('');
-    const [loginUserData, setLoginUserData] = useState(JSON.parse(localStorage.getItem(process.env.REACT_APP_USER_AUTH_KEY)));
     const [receiverDetails, setReceiverDetails] = useState('');
     const [allUser, setAllUser] = useState([]);
     const [messageLoader, setMessageLoader] = useState(false);
@@ -43,15 +43,14 @@ export default function Messages(props) {
         const { name, value } = event.target;
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
 
-        let userData = JSON.parse(localStorage.getItem(process.env.REACT_APP_USER_AUTH_KEY));
-        setFormData((prevFormData) => ({ ...prevFormData, name: userData.userdata.name }));
-        setFormData((prevFormData) => ({ ...prevFormData, senderID: userData.userdata._id }));
+        setFormData((prevFormData) => ({ ...prevFormData, name: authUser.name }));
+        setFormData((prevFormData) => ({ ...prevFormData, senderID: authUser._id }));
         setFormData((prevFormData) => ({ ...prevFormData, receiverID: receiverDetails._id }));
 
         // message typing
         if (typing == false) {
             typing = true;
-            socket.emit("type_message", userData.userdata.name + " is typing...");
+            socket.emit("type_message", authUser.name + " is typing...");
             timeout = setTimeout(timeoutFunction, 3000);
         } else {
             clearTimeout(timeout);
@@ -101,7 +100,7 @@ export default function Messages(props) {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'Authorization': loginUserData.token
+                'Authorization': authToken
             }
         }).then((response) => response.json()).then((messageRes) => {
             if (messageRes.success === true) {
@@ -122,13 +121,13 @@ export default function Messages(props) {
         param += `&sort_order=desc`;
         param += `&page_no=1`;
         param += `&search_keyword=`;
-        param += `&id=${loginUserData.userdata._id}`;
+        param += `&id=${authUser._id}`;
         const response = await fetch(process.env.REACT_APP_API_BASE_URL + `api/v1/user/list${param}`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'Authorization': loginUserData.token
+                'Authorization': authToken
             }
         }).then((response) => response.json()).then((userRes) => {
             if (userRes.success === true) {
@@ -144,7 +143,7 @@ export default function Messages(props) {
         fetchUserList();
         // fetchMessage();
 
-        socket.emit("addUser", loginUserData.userdata._id);
+        socket.emit("addUser", authUser._id);
         socket.on("getUsers", (data) => {
             console.log("USERS :: ", data);
         });
@@ -155,10 +154,10 @@ export default function Messages(props) {
 
         socket.on("receive_message", (data) => {
             console.log("data :: ", data);
-            console.log(`${data.receiverID} === ${loginUserData.userdata._id}`);
+            console.log(`${data.receiverID} === ${authUser._id}`);
             console.log(`${data.senderID} === ${receiverDetails._id}`);
             console.log(`receiverDetails :: `, receiverDetails);
-            if (data.receiverID == loginUserData.userdata._id && data.senderID == receiverDetails._id) {
+            if (data.receiverID == authUser._id && data.senderID == receiverDetails._id) {
                 setMessageData(prevFormData => [...prevFormData, data]);
             } else {
                 // console.log("ERROR");
@@ -206,22 +205,22 @@ export default function Messages(props) {
             <div className="content" style={{ marginTop: "40px", marginBottom: '52px' }}>
                 <section className="container">
                     <div className="row">
-                        <div class="card card-primary">
-                            <div class="card-header">
-                                <h3 class="card-title">Friends</h3>
-                                <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="card-refresh" onClick={fetchUserList}>
-                                        <i class="fas fa-sync-alt"></i>
+                        <div className="card card-primary">
+                            <div className="card-header">
+                                <h3 className="card-title">Friends</h3>
+                                <div className="card-tools">
+                                    <button type="button" className="btn btn-tool" data-card-widget="card-refresh" onClick={fetchUserList}>
+                                        <i className="fas fa-sync-alt"></i>
                                     </button>
                                 </div>
 
                             </div>
 
-                            {loader ? <div class="card-body">
+                            {loader ? <div className="card-body">
                                 <p>Getting...</p>
-                            </div> : <div class="card-body">
+                            </div> : <div className="card-body">
                                 {allUser.map((user, i) => {
-                                    return <div className="info-box" style={{ cursor: 'pointer' }} key={i} onClick={() => fetchMessage(loginUserData.userdata._id, user)}>
+                                    return <div className="info-box" style={{ cursor: 'pointer' }} key={i} onClick={() => fetchMessage(authUser._id, user)}>
                                         <span className="info-box-icon bg-info"><i className="far fa-user"></i></span>
                                         <div className="info-box-content">
                                             <h5 className="widget-user-username">{user.name}</h5>
@@ -269,7 +268,7 @@ export default function Messages(props) {
                                             {messageData.map((data, i) => {
                                                 return <div key={i}>
                                                     {
-                                                        (loginUserData.userdata._id.toString() === data.receiverID?._id || loginUserData.userdata._id.toString() === data.receiverID) ?
+                                                        (authUser._id.toString() === data.receiverID?._id || authUser._id.toString() === data.receiverID) ?
                                                             (<div className="direct-chat-msg">
                                                                 <div className="direct-chat-infos clearfix">
                                                                     <span className="direct-chat-name float-left">{receiverDetails.name}</span>
@@ -282,7 +281,7 @@ export default function Messages(props) {
                                                             </div>) : (
                                                                 <div className="direct-chat-msg right">
                                                                     <div className="direct-chat-infos clearfix">
-                                                                        <span className="direct-chat-name float-right">{loginUserData.userdata.name}</span>
+                                                                        <span className="direct-chat-name float-right">{authUser.name}</span>
                                                                         <span className="direct-chat-timestamp float-left">{formatDate(data.time)}</span>
                                                                     </div>
                                                                     <img className="direct-chat-img" src="assets/dist/img/user3-128x128.jpg" alt="message user image" />

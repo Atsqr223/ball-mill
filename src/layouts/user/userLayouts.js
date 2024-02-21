@@ -5,6 +5,13 @@ import { Outlet, Link, redirect, useNavigate } from "react-router-dom";
 import Header from './header';
 import Footer from './footer';
 
+// auth helper
+import { 
+  authCheck,
+  getAuthToken,
+  getAuthUser
+} from "../../utils/authHelper";
+
 // component
 export default function UserLayouts(props) {
 
@@ -28,7 +35,9 @@ export default function UserLayouts(props) {
 
   let basicData = {
     today: new Date(),
-    authData: JSON.parse(localStorage.getItem('userdata'))
+    authFlag: authCheck(),
+    authToken: getAuthToken(),
+    authUser: getAuthUser()
   }
 
   return (
@@ -39,7 +48,7 @@ export default function UserLayouts(props) {
 
       {/* <!-- Content Wrapper. Contains page content --> */}
       <div className="content-wrapper">
-        <Outlet basicData={basicData} />
+        <Outlet context={basicData} />
       </div>
       {/* <!-- /.content-wrapper --> */}
 

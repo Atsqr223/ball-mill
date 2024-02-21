@@ -2,6 +2,9 @@ import './App.css';
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
 
+// auth helper
+import { authCheck } from "./utils/authHelper";
+
 // pages admin auth
 const AdminLoginLayouts = lazy(() => import('./layouts/admin/adminAuth/adminLoginLayouts'));
 const AdminLogin = lazy(() => import('./pages/admin/adminLogin'));
@@ -33,10 +36,9 @@ const NotFound = lazy(() => import('./pages/error/notFound'));
 
 function App() {
 
-  const userLoginFlag = JSON.parse(localStorage.getItem(process.env.REACT_APP_USER_AUTH_KEY));
-  const adminLoginFlag = JSON.parse(localStorage.getItem(process.env.REACT_APP_ADMIN_AUTH_KEY));
+  const loginFlag = authCheck();
 
-  console.log("userLoginFlag:: ", userLoginFlag);
+  console.log("userLoginFlag:: ", loginFlag);
 
   useEffect(() => {
   }, []);
@@ -49,7 +51,7 @@ function App() {
         <Routes>
           {/* user routes start */}
           <Route path="/auth" element={
-            userLoginFlag ? (
+            loginFlag ? (
               <Navigate replace to="/feeds" />
             ) : (
               <UserLoginLayouts />
@@ -63,8 +65,8 @@ function App() {
           </Route>
 
           <Route element={
-            userLoginFlag ? (
-              <UserLayouts authData={userLoginFlag} />
+            loginFlag ? (
+              <UserLayouts authData={loginFlag} />
             ) : (
               <Navigate replace to="/auth/login" />
             )
@@ -94,7 +96,7 @@ function App() {
 
           {/* admin routes start */}
           <Route path="/admin/auth" element={
-            adminLoginFlag ? (
+            loginFlag ? (
               <Navigate replace to="/admin/dashboard" />
             ) : (
               <AdminLoginLayouts />
@@ -106,7 +108,7 @@ function App() {
           </Route>
 
           <Route path="/admin" element={
-            adminLoginFlag ? (
+            loginFlag ? (
               <AdminLayouts />
             ) : (
               <Navigate replace to="/admin/auth/login" />

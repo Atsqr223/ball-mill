@@ -13,13 +13,16 @@ export default function UserForgotPassword(props) {
     const [loader, setLoader] = useState(false);
 
     // forgot password form
-    const [forgotFormSuccess, setForgotFormSuccess] = useState(false);
-    const [forgotFormError, setForgotFormError] = useState('');
+    const [forgotApiSuccess, setForgotApiSuccess] = useState(false);
+    const [forgotApiError, setForgotApiError] = useState({
+        alert: '',
+        message: ''
+    });
     const [forgotFormData, setForgotFormData] = useState({
         phoneoremail: "",
         submited: false
     });
-    const [forgotFormErrors, setForgotFormErrors] = useState({});
+    const [forgotFormValidateErrors, setForgotFormValidateErrors] = useState({});
     const forgotFormHandleChange = (event) => {
         const { name, value } = event.target;
         setForgotFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
@@ -51,22 +54,29 @@ export default function UserForgotPassword(props) {
             }).then((response) => response.json()).then((forgotRes) => {
                 setLoader(false);
                 if (forgotRes.success === true) {
-                    setForgotFormSuccess(true);
+                    setForgotApiSuccess(true);
                     setResetFormData((prevFormData) => ({ ...prevFormData, ['email']: forgotRes.data.email }));
                     setResetFormData((prevFormData) => ({ ...prevFormData, ['id']: forgotRes.data._id }));
+                    setForgotApiError((prevFormData) => ({ ...prevFormData, ['alert']: `` }));
+                    setForgotApiError((prevFormData) => ({ ...prevFormData, ['message']: `` }));
                 } else {
-                    setForgotFormError(forgotRes.message);
+                    setForgotApiSuccess(false);
+                    setForgotApiError((prevFormData) => ({ ...prevFormData, ['alert']: `danger` }));
+                    setForgotApiError((prevFormData) => ({ ...prevFormData, ['message']: forgotRes.message }));
                 }
             });
         } else {
             setLoader(false);
-            setForgotFormErrors(validationErrors);
+            setForgotFormValidateErrors(validationErrors);
         }
     };
 
     // reset password form
-    const [resetFormSuccess, setResetFormSuccess] = useState(false);
-    const [resetFormError, setResetFormError] = useState('');
+    const [resetApiSuccess, setResetApiSuccess] = useState(false);
+    const [resetApiError, setResetApiError] = useState({
+        alert: '',
+        message: ''
+    });
     const [resetFormData, setResetFormData] = useState({
         id: "",
         email: "",
@@ -75,7 +85,7 @@ export default function UserForgotPassword(props) {
         confirmPassword: "",
         submited: false
     });
-    const [resetFormErrors, setResetFormErrors] = useState({});
+    const [resetFormValidateErrors, setResetFormValidateErrors] = useState({});
     const resetFormHandleChange = (event) => {
         const { name, value } = event.target;
         setResetFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
@@ -115,14 +125,18 @@ export default function UserForgotPassword(props) {
             }).then((response) => response.json()).then((resetRes) => {
                 setLoader(false);
                 if (resetRes.success === true) {
-                    setResetFormSuccess(true);
+                    setResetApiSuccess(true);
+                    setResetApiError((prevFormData) => ({ ...prevFormData, ['alert']: `` }));
+                    setResetApiError((prevFormData) => ({ ...prevFormData, ['message']: `` }));
                 } else {
-                    setResetFormError(resetRes.message);
+                    setResetApiSuccess(false);
+                    setResetApiError((prevFormData) => ({ ...prevFormData, ['alert']: `danger` }));
+                    setResetApiError((prevFormData) => ({ ...prevFormData, ['message']: resetRes.message }));
                 }
             });
         } else {
             setLoader(false);
-            setResetFormError(validationErrors);
+            setResetFormValidateErrors(validationErrors);
         }
     };
 
@@ -137,25 +151,29 @@ export default function UserForgotPassword(props) {
         }).then((response) => response.json()).then((forgotRes) => {
             setLoader(false);
             if (forgotRes.success === true) {
-                setForgotFormSuccess(true);
+                setForgotApiSuccess(true);
                 setResetFormData((prevFormData) => ({ ...prevFormData, ['email']: forgotRes.data.email }));
                 setResetFormData((prevFormData) => ({ ...prevFormData, ['id']: forgotRes.data._id }));
+                setForgotApiError((prevFormData) => ({ ...prevFormData, ['alert']: `` }));
+                setForgotApiError((prevFormData) => ({ ...prevFormData, ['message']: `` }));
             } else {
-                setForgotFormError(forgotRes.message);
+                setForgotApiSuccess(false);
+                setForgotApiError((prevFormData) => ({ ...prevFormData, ['alert']: `danger` }));
+                setForgotApiError((prevFormData) => ({ ...prevFormData, ['message']: forgotRes.message }));
             }
         });
     };
 
     return (
         <>
-            {!forgotFormSuccess ?
+            {!forgotApiSuccess ?
                 <>
                     <p className="login-box-msg">Forgot your password</p>
-                    <AlertBox alert={'danger'} message={forgotFormError} />
+                    <AlertBox alert={forgotApiError.alert} message={forgotApiError.message} />
                     <form onSubmit={forgotFormHandleSubmit}>
                         <div className="form-group">
                             <input type="email" className="form-control" placeholder="Email" name="phoneoremail" value={forgotFormData.phoneoremail} onChange={forgotFormHandleChange} />
-                            {forgotFormErrors.phoneoremail && <span className="text-danger">{forgotFormErrors.phoneoremail}</span>}
+                            {forgotFormValidateErrors.phoneoremail && <span className="text-danger">{forgotFormValidateErrors.phoneoremail}</span>}
                         </div>
 
                         <div className="row">
@@ -179,23 +197,23 @@ export default function UserForgotPassword(props) {
                         <Link to="/auth/signup" className="text-center">Register a new membership</Link>
                     </p>
                 </> : <>
-                    {!resetFormSuccess ? <>
+                    {!resetApiSuccess ? <>
                         <p className="login-box-msg">Reset your password</p>
-                        
+                        <AlertBox alert={resetApiError.alert} message={resetApiError.message} />
                         <form onSubmit={resetFormHandleSubmit}>
                             <div className="form-group">
                                 <input type="text" className="form-control" placeholder="OTP" name="otp" value={resetFormData.otp} onChange={resetFormHandleChange} />
-                                {resetFormError.otp && <span className="text-danger">{resetFormError.otp}</span>}
+                                {resetFormValidateErrors.otp && <span className="text-danger">{resetFormValidateErrors.otp}</span>}
                             </div>
 
                             <div className="form-group">
                                 <input type="password" className="form-control" name="password" value={resetFormData.password} onChange={resetFormHandleChange} placeholder="Password" />
-                                {resetFormError.password && <span className="text-danger">{resetFormError.password}</span>}
+                                {resetFormValidateErrors.password && <span className="text-danger">{resetFormValidateErrors.password}</span>}
                             </div>
 
                             <div className="form-group">
                                 <input type="password" className="form-control" name="confirmPassword" value={resetFormData.rePassword} onChange={resetFormHandleChange} placeholder="Retype password" />
-                                {resetFormError.confirmPassword && <span className="text-danger">{resetFormError.confirmPassword}</span>}
+                                {resetFormValidateErrors.confirmPassword && <span className="text-danger">{resetFormValidateErrors.confirmPassword}</span>}
                             </div>
 
                             <div className="row">
