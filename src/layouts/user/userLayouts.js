@@ -53,11 +53,11 @@ export default function UserLayouts(props) {
       {/* <!-- /.content-wrapper --> */}
 
       {/* <!-- Control Sidebar --> */}
-      <aside className="control-sidebar control-sidebar-dark">
+      {/* <aside className="control-sidebar control-sidebar-dark"> */}
         {/* <!-- Control sidebar content goes here --> */}
-      </aside>
+      {/* </aside> */}
 
-      <Footer basicData={basicData} />
+      {/* <Footer basicData={basicData} /> */}
     </>
   );
 }

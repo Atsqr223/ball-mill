@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function GetAlert({alert, message}) {
+function GetAlert({ alert, message }) {
     switch (alert) {
         case 'danger':
             return (<div className="alert alert-danger alert-dismissible">
@@ -32,10 +32,19 @@ function GetAlert({alert, message}) {
 // component
 export default function AlertBox(props) {
 
+    let { alert, message } = props;
+    useEffect(() => {
+        setTimeout(() => {
+            alert = '';
+            message = '';
+        }, 5000);
+    }, [alert, message]);
+
     return (
         <>
-            <GetAlert alert={props.alert} message={props.message} />
+            <GetAlert alert={alert} message={message} />
         </>
     );
 }
+
 

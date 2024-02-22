@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 
+import AlertBox from "../../components/AlertBox";
 import { createAuthSession } from "../../utils/authHelper";
 
 // component
@@ -19,6 +20,10 @@ export default function UserLogin(props) {
         submited: false
     });
     const [errors, setErrors] = useState({});
+    const [alertBox, setAlertBox] = useState({
+        alert: '',
+        message: ''
+    });
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -71,6 +76,8 @@ export default function UserLogin(props) {
                     }, 1000);
                 } else {
                     setLoginError(loginRes.message);
+                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: `danger` }));
+                    setAlertBox((prevFormData) => ({ ...prevFormData, message: `${loginRes.message}` }));
                 }
             });
         } else {
@@ -82,7 +89,7 @@ export default function UserLogin(props) {
     return (
         <>
             <p className="login-box-msg">Sign in to start your session</p>
-
+            <AlertBox alert={alertBox.alert} message={alertBox.message} />
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <input type="email" className="form-control" placeholder="Email" name="phoneoremail" value={formData.phoneoremail} onChange={handleChange} />

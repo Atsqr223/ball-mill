@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
+import AlertBox from "../../components/AlertBox";
 
 // component
 export default function UserSignup(props) {
@@ -22,6 +23,10 @@ export default function UserSignup(props) {
         submited: false
     });
     const [errors, setErrors] = useState({});
+    const [alertBox, setAlertBox] = useState({
+        alert: '',
+        message: ''
+    });
 
     const handleChange = (event) => {
         setSignupError('');
@@ -87,6 +92,8 @@ export default function UserSignup(props) {
                     setSignupSuccess(true);
                 } else {
                     setSignupError(signupRes.message);
+                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: `danger` }));
+                    setAlertBox((prevFormData) => ({ ...prevFormData, message: `${signupRes.message}` }));
                 }
             });
         } else {
@@ -100,7 +107,7 @@ export default function UserSignup(props) {
             {!signupSuccess ?
                 <>
                     <p className="login-box-msg">Register a new membership</p>
-
+                    <AlertBox alert={alertBox.alert} message={alertBox.message} />
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <input type="text" className="form-control" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="First name" />

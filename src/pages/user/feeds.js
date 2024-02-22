@@ -1,53 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
+import AlertBox from "../../components/AlertBox";
+import { utcToLocalTime } from "../../utils/timeHelper";
 
 // component
 export default function Feeds(props) {
-    const {authFlag, authToken, authUser} = useOutletContext();
+    const { authFlag, authToken, authUser } = useOutletContext();
 
     // page title
     document.title = "Welcome to We connect | Feed's";
-    const [items, setItems] = useState([]);
-    const [like, setLike] = useState([
-        { like: false },
-        { like: false },
-        { like: false },
-        { like: false },
-        { like: false },
-        { like: false },
-        { like: false }
-    ]);
-
     const navigate = useNavigate();
-    const [loader, setLoader] = useState(false);
-    const [fetchloader, setFetchloader] = useState(false);
+    const [posts, setPosts] = useState([]);
+    const [postsLoader, setPostsLoader] = useState(false);
+    const [postsError, setPostsError] = useState(null);
+    const [page, setPage] = useState(1);
+    const [createLoader, setCreateLoader] = useState(false);
     const [postFormData, setPostFormData] = useState({
         content: "",
         id: "",
         submited: false
     });
-    const [errors, setErrors] = useState({});
+    const [postFormValidateErrors, setPostFormValidateErrors] = useState({});
+    const [alertBox, setAlertBox] = useState({
+        alert: '',
+        message: ''
+    });
 
     const handleChange = (event) => {
         const { name, value } = event.target;
         setPostFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
-
         setPostFormData((prevFormData) => ({ ...prevFormData, ['id']: authUser._id }));
     };
 
     const validateForm = (data) => {
         let errors = {};
-
         if (!data.content.trim()) {
             errors.content = "Can't post empty content.";
         }
-
         return errors;
     };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        setLoader(true);
+        setCreateLoader(true);
         setPostFormData((prevFormData) => ({ ...prevFormData, submited: true }));
         const validationErrors = validateForm(postFormData);
         if (Object.keys(validationErrors).length === 0) {
@@ -60,24 +55,31 @@ export default function Feeds(props) {
                 },
                 body: JSON.stringify(postFormData)
             }).then((response) => response.json()).then((postRes) => {
-                setLoader(false);
+                setCreateLoader(false);
+                setAlertBox((prevFormData) => ({ ...prevFormData, message: `${postRes.message}` }));
                 if (postRes.success === true) {
+                    document.getElementById("createPost").reset();
+                    setPostFormData((prevFormData) => ({ ...prevFormData, ['content']: '' }));
+                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: `success` }));
+                    setPage(1);
+                    setPosts([]);
                     fetchData();
                 } else {
-
+                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: `danger` }));
                 }
             });
         } else {
-            setLoader(false);
-            setErrors(validationErrors);
+            setCreateLoader(false);
+            setPostFormValidateErrors(validationErrors);
         }
     };
 
     // fetch data
     const fetchData = async () => {
-        setFetchloader(true);
+        setPostsLoader(true);
         try {
-            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-all`, {
+            let param = `?page_no=${page}`;
+            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-all${param}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
@@ -85,42 +87,47 @@ export default function Feeds(props) {
                     'Authorization': authToken
                 }
             }).then((response) => response.json()).then((postsRes) => {
-                setLoader(false);
-                setFetchloader(false);
+                setPostsLoader(false);
                 if (postsRes.success === true) {
-                    setItems(postsRes.data.posts);
+                    setPosts(prevItems => [...prevItems, ...postsRes.data.posts]);
+                    if (postsRes.data.posts.length > 0) {
+                        setPage(prevPage => prevPage + 1);
+                    }
                 } else {
-                    setItems([]);
-                    // localStorage.clear();
-                    // window.location.reload();
+                    setPosts([]);
                 }
             });
         } catch (error) {
-            console.log(error);
-            setFetchloader(false);
+            setPostsLoader(false);
+            setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'danger' }));
+            setAlertBox((prevFormData) => ({ ...prevFormData, message: 'An error occord.' }));
         } finally {
-            setFetchloader(false);
+            setPostsLoader(false);
         }
     };
 
     const doLike = (index) => {
-        const likes = like.map((l, i) => {
-            if (i === index) {
-                return {
-                    ...l,
-                    like: !like[index].like
-                };
-            } else {
-                return l;
-            }
-        });
-        // Re-render with the new array
-        setLike(likes);
+        console.log("Like");
     }
 
-    useEffect(() => {
+    const handleScroll = () => {
+        console.log(">>>");
+        // if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || postsLoader) {
+        //     return;
+        // }
+        if (postsLoader) {
+            return;
+        }
         fetchData();
-    }, []);
+    };
+
+    useEffect(() => {
+        if (posts.length === 0) {
+            fetchData();
+        }
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [postsLoader]);
 
     return (
         <>
@@ -144,7 +151,7 @@ export default function Feeds(props) {
             {/* <!-- /.content-header --> */}
 
             {/* <!-- Main content --> */}
-            <div className="content" style={{ marginTop: "40px", marginBottom: '52px' }}>
+            <div className="content" style={{ marginTop: "40px" }}>
                 <div className="container">
                     <div className='row'>
                         <div className='col-md-3 overflow-auto' style={{ height: '100vh' }}>
@@ -154,7 +161,7 @@ export default function Feeds(props) {
                                     <div className="widget-user-image">
                                         <img className="img-circle elevation-2" src="/assets/dist/img/user7-128x128.jpg" alt="User Avatar" />
                                     </div>
-                                    <h3 className="widget-user-username">Nadia Carmichael</h3>
+                                    <h3 className="widget-user-username">{authUser.name}</h3>
                                     <h5 className="widget-user-desc">Lead Developer</h5>
                                 </div>
                                 <div className="card-footer p-0">
@@ -215,25 +222,22 @@ export default function Feeds(props) {
                         </div>
 
                         <div className="col-md-6 overflow-auto" style={{ height: '100vh' }}>
+                            <AlertBox alert={alertBox.alert} message={alertBox.message} />
                             <div className="card card-primary">
                                 <div className="card-header">
                                     <h3 className="card-title">Write your content</h3>
                                 </div>
-                                <form onSubmit={handleSubmit}>
+                                <form id="createPost" onSubmit={handleSubmit}>
                                     <div className="card-body">
-                                        <div className="row">
-                                            <div className="col-sm-12">
-                                                <div className="form-group">
-                                                    <textarea className="form-control" rows="3" name="content" placeholder="What in your mind" value={postFormData.contest} onChange={handleChange}></textarea>
-                                                </div>
-                                                {errors.content && <span className="text-danger">{errors.content}</span>}
-                                            </div>
+                                        <div className="form-group">
+                                            <textarea className="form-control" rows="3" name="content" placeholder="What in your mind" value={postFormData.contest} onChange={handleChange}></textarea>
                                         </div>
+                                        {postFormValidateErrors.content && <span className="text-danger">{postFormValidateErrors.content}</span>}
                                     </div>
 
                                     <div className="card-footer">
-                                        <button type="submit" className="btn btn-primary" disabled={loader}>
-                                            {!loader ?
+                                        <button type="submit" className="btn btn-primary" disabled={createLoader}>
+                                            {!createLoader ?
                                                 `Posts` :
                                                 `...`
                                             }
@@ -242,15 +246,13 @@ export default function Feeds(props) {
                                 </form>
                             </div>
 
-                            {fetchloader ? <p>Getting leatest post...</p> : <></>}
-
-                            {items.map((item, i) => {
+                            {posts.map((item, i) => {
                                 return <div key={i} className="card card-widget">
                                     <div className="card-header">
                                         <div className="user-block">
                                             <img className="img-circle" src='/assets/dist/img/user1-128x128.jpg' alt="User Image" />
                                             <span className="username"><a href="#">{item.createdBy.name}</a></span>
-                                            <span className="description">{item.createdAt}</span>
+                                            <span className="description">{utcToLocalTime(item.createdAt)}</span>
                                         </div>
 
                                         <div className="card-tools">
@@ -261,10 +263,10 @@ export default function Feeds(props) {
                                     </div>
 
                                     <div className="card-body">
-                                        <p>{item.content}</p>
+                                        <p className="text-justify" dangerouslySetInnerHTML={{__html: item.content}}></p>
                                         <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
-                                        {like[0].like ? <button type="button" className="btn btn-primary btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button> :
-                                            <button type="button" className="btn btn-default btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>}
+                                        <button type="button" className="btn btn-primary btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>
+                                        <button type="button" className="btn btn-default btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>
                                         <span className="float-right text-muted">127 likes - 3 comments</span>
                                     </div>
 
@@ -294,6 +296,8 @@ export default function Feeds(props) {
                                     </div>
                                 </div>
                             })}
+
+                            {postsLoader ? <p>Getting leatest post...</p> : <></>}
                         </div>
 
                         <div className='col-md-3 overflow-auto' style={{ height: '100vh' }}>
