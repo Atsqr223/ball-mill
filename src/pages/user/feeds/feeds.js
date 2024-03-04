@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
-import AlertBox from "../../components/AlertBox";
-import { utcToLocalTime } from "../../utils/timeHelper";
+import InfiniteScroll from 'react-infinite-scroll-component';
+import AlertBox from "../../../components/AlertBox";
+import CreatePost from "../../../components/CreatePost";
+import { utcToLocalTime } from "../../../utils/timeHelper";
 
 // component
 export default function Feeds(props) {
@@ -12,73 +14,23 @@ export default function Feeds(props) {
     const navigate = useNavigate();
     const [posts, setPosts] = useState([]);
     const [postsLoader, setPostsLoader] = useState(false);
-    const [postsError, setPostsError] = useState(null);
-    const [page, setPage] = useState(1);
-    const [createLoader, setCreateLoader] = useState(false);
-    const [postFormData, setPostFormData] = useState({
-        content: "",
-        id: "",
-        submited: false
-    });
-    const [postFormValidateErrors, setPostFormValidateErrors] = useState({});
+    const [pageNo, setPageNo] = useState(1);
     const [alertBox, setAlertBox] = useState({
         alert: '',
         message: ''
     });
 
-    const handleChange = (event) => {
-        const { name, value } = event.target;
-        setPostFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
-        setPostFormData((prevFormData) => ({ ...prevFormData, ['id']: authUser._id }));
-    };
-
-    const validateForm = (data) => {
-        let errors = {};
-        if (!data.content.trim()) {
-            errors.content = "Can't post empty content.";
-        }
-        return errors;
-    };
-
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        setCreateLoader(true);
-        setPostFormData((prevFormData) => ({ ...prevFormData, submited: true }));
-        const validationErrors = validateForm(postFormData);
-        if (Object.keys(validationErrors).length === 0) {
-            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/create-post`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': authToken
-                },
-                body: JSON.stringify(postFormData)
-            }).then((response) => response.json()).then((postRes) => {
-                setCreateLoader(false);
-                setAlertBox((prevFormData) => ({ ...prevFormData, message: `${postRes.message}` }));
-                if (postRes.success === true) {
-                    document.getElementById("createPost").reset();
-                    setPostFormData((prevFormData) => ({ ...prevFormData, ['content']: '' }));
-                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: `success` }));
-                    setPage(1);
-                    setPosts([]);
-                    fetchData();
-                } else {
-                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: `danger` }));
-                }
-            });
-        } else {
-            setCreateLoader(false);
-            setPostFormValidateErrors(validationErrors);
-        }
-    };
+    const fetchDataReset = async () => {
+        setPageNo(prevPage => prevPage - pageNo);
+        setPosts([]);
+        fetchData();
+    }
 
     // fetch data
     const fetchData = async () => {
         setPostsLoader(true);
         try {
-            let param = `?page_no=${page}`;
+            let param = `?page_no=${pageNo}`;
             await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-all${param}`, {
                 method: 'GET',
                 headers: {
@@ -91,7 +43,9 @@ export default function Feeds(props) {
                 if (postsRes.success === true) {
                     setPosts(prevItems => [...prevItems, ...postsRes.data.posts]);
                     if (postsRes.data.posts.length > 0) {
-                        setPage(prevPage => prevPage + 1);
+                        setPageNo(prevPage => prevPage + 1);
+                    } else {
+
                     }
                 } else {
                     setPosts([]);
@@ -110,24 +64,11 @@ export default function Feeds(props) {
         console.log("Like");
     }
 
-    const handleScroll = () => {
-        console.log(">>>");
-        // if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || postsLoader) {
-        //     return;
-        // }
-        if (postsLoader) {
-            return;
-        }
-        fetchData();
-    };
-
     useEffect(() => {
         if (posts.length === 0) {
             fetchData();
         }
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [postsLoader]);
+    }, []);
 
     return (
         <>
@@ -221,83 +162,77 @@ export default function Feeds(props) {
                             </div>
                         </div>
 
-                        <div className="col-md-6 overflow-auto" style={{ height: '100vh' }}>
+                        <div id="scrollableDiv" className="col-md-6 overflow-auto" style={{ height: '100vh' }}>
+                            <CreatePost authFlag={authFlag} authToken={authToken} authUser={authUser} fetchDataReset={fetchDataReset} />
+
                             <AlertBox alert={alertBox.alert} message={alertBox.message} />
-                            <div className="card card-primary">
-                                <div className="card-header">
-                                    <h3 className="card-title">Write your content</h3>
-                                </div>
-                                <form id="createPost" onSubmit={handleSubmit}>
-                                    <div className="card-body">
-                                        <div className="form-group">
-                                            <textarea className="form-control" rows="3" name="content" placeholder="What in your mind" value={postFormData.contest} onChange={handleChange}></textarea>
-                                        </div>
-                                        {postFormValidateErrors.content && <span className="text-danger">{postFormValidateErrors.content}</span>}
-                                    </div>
 
-                                    <div className="card-footer">
-                                        <button type="submit" className="btn btn-primary" disabled={createLoader}>
-                                            {!createLoader ?
-                                                `Posts` :
-                                                `...`
-                                            }
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
+                            <InfiniteScroll
+                                dataLength={posts.length}
+                                next={fetchData}
+                                hasMore={posts.length < 200}
+                                loader={<></>}
+                                scrollableTarget="scrollableDiv"
+                            >
+                                {posts.map((item, i) => {
+                                    return <div key={i} className="card card-widget">
+                                        <div className="card-header">
+                                            <div className="user-block">
+                                                <img className="img-circle" src='/assets/dist/img/user1-128x128.jpg' alt="User Image" />
+                                                <span className="username"><a href="#">{item.createdBy.name}</a></span>
+                                                <span className="description">{utcToLocalTime(item.createdAt)}</span>
+                                            </div>
 
-                            {posts.map((item, i) => {
-                                return <div key={i} className="card card-widget">
-                                    <div className="card-header">
-                                        <div className="user-block">
-                                            <img className="img-circle" src='/assets/dist/img/user1-128x128.jpg' alt="User Image" />
-                                            <span className="username"><a href="#">{item.createdBy.name}</a></span>
-                                            <span className="description">{utcToLocalTime(item.createdAt)}</span>
-                                        </div>
-
-                                        <div className="card-tools">
-                                            <button type="button" className="btn btn-tool" data-card-widget="remove">
-                                                <i className="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div className="card-body">
-                                        <p className="text-justify" dangerouslySetInnerHTML={{__html: item.content}}></p>
-                                        <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
-                                        <button type="button" className="btn btn-primary btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>
-                                        <button type="button" className="btn btn-default btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>
-                                        <span className="float-right text-muted">127 likes - 3 comments</span>
-                                    </div>
-
-                                    <div className="card-footer card-comments">
-                                        <div className="card-comment">
-                                            <img className="img-circle img-sm" src='/assets/dist/img/user3-128x128.jpg' alt="User Image" />
-
-                                            <div className="comment-text">
-                                                <span className="username">
-                                                    Maria Gonzales
-                                                    <span className="text-muted float-right">8:03 PM Today</span>
-                                                </span>
-                                                It is a long established fact that a reader will be distracted
-                                                by the readable content of a page when looking at its layout.
+                                            <div className="card-tools">
+                                                <button type="button" className="btn btn-tool" data-card-widget="remove">
+                                                    <i className="fas fa-times"></i>
+                                                </button>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div className="card-footer">
-                                        <form action="#" method="post">
-                                            <img className="img-fluid img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="Alt Text" />
-                                            {/* <!-- .img-push is used to add margin to elements next to floating images --> */}
-                                            <div className="img-push">
-                                                <input type="text" className="form-control form-control-sm" placeholder="Press enter to post comment" />
+                                        <div className="card-body">
+                                            <p className="text-justify" dangerouslySetInnerHTML={{ __html: item.content }}></p>
+                                            <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
+                                            <button type="button" className="btn btn-primary btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>
+                                            <button type="button" className="btn btn-default btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>
+                                            <span className="float-right text-muted">127 likes - 3 comments</span>
+                                        </div>
+
+                                        <div className="card-footer card-comments">
+                                            <div className="card-comment">
+                                                <img className="img-circle img-sm" src='/assets/dist/img/user3-128x128.jpg' alt="User Image" />
+
+                                                <div className="comment-text">
+                                                    <span className="username">
+                                                        Maria Gonzales
+                                                        <span className="text-muted float-right">8:03 PM Today</span>
+                                                    </span>
+                                                    It is a long established fact that a reader will be distracted
+                                                    by the readable content of a page when looking at its layout.
+                                                </div>
                                             </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            })}
+                                        </div>
 
-                            {postsLoader ? <p>Getting leatest post...</p> : <></>}
+                                        <div className="card-footer">
+                                            <form action="#" method="post">
+                                                <img className="img-fluid img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="Alt Text" />
+                                                {/* <!-- .img-push is used to add margin to elements next to floating images --> */}
+                                                <div className="img-push">
+                                                    <input type="text" className="form-control form-control-sm" placeholder="Press enter to post comment" />
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                })}
+                            </InfiniteScroll>
+
+                            {postsLoader ? <div className='text-center mb-2'>
+                                <div className="spinner-grow text-primary"></div>
+                                <div className="spinner-grow text-success ml-2"></div>
+                                <div className="spinner-grow text-info ml-2"></div>
+                                <div className="spinner-grow text-warning ml-2"></div>
+                                <div className="spinner-grow text-danger ml-2"></div>
+                            </div> : <></>}
                         </div>
 
                         <div className='col-md-3 overflow-auto' style={{ height: '100vh' }}>

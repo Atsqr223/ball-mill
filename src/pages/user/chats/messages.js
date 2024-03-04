@@ -3,7 +3,7 @@ import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 
 import moment from "moment";
 
-import wavFile from '../../audio/wavFile.wav';
+// import wavFile from '../../audio/wavFile.wav';
 import useSound from 'use-sound';
 import Swal from 'sweetalert2';
 
@@ -21,7 +21,7 @@ export default function Messages(props) {
     const navigate = useNavigate();
 
     const messageEl = useRef(null);
-    const [playSound] = useSound(wavFile);
+    // const [playSound] = useSound(wavFile);
 
     const [loader, setLoader] = useState(false);
     const [formData, setFormData] = useState({

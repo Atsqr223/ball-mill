@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
-import AlertBox from "../../components/AlertBox";
+import AlertBox from "../../../components/AlertBox";
 
 // component
 export default function UserSignup(props) {
@@ -146,12 +146,12 @@ export default function UserSignup(props) {
                                 </div>
                             </div>
                             <div className="col-4">
-                                <button type="submit" className="btn btn-primary btn-block" disabled={loader}>
-                                    {!loader ?
-                                        `Let's go` :
-                                        `...`
-                                    }
-                                </button>
+                                {!loader ?
+                                    <button type="submit" className="btn btn-primary btn-block" disabled={loader}>
+                                        Let's go
+                                    </button> :
+                                    <div class="spinner-border text-primary float-right"></div>
+                                }
                             </div>
                         </div>
 

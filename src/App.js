@@ -6,14 +6,14 @@ import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
 import { authCheck } from "./utils/authHelper";
 
 // pages admin auth
-const AdminLoginLayouts = lazy(() => import('./layouts/admin/adminAuth/adminLoginLayouts'));
+const AdminLoginLayouts = lazy(() => import('./layouts/admin/adminLogin/adminLoginLayouts'));
 const AdminLogin = lazy(() => import('./pages/admin/adminLogin'));
 
 // pages user auth
-const UserLoginLayouts = lazy(() => import('./layouts/user/userAuth/userLoginLayouts'));
-const UserLogin = lazy(() => import('./pages/user/userLogin'));
-const UserSignup = lazy(() => import('./pages/user/userSignup'));
-const UserForgotPassword = lazy(() => import('./pages/user/userForgotPassword'));
+const UserLoginLayouts = lazy(() => import('./layouts/user/userLogin/userLoginLayouts'));
+const UserLogin = lazy(() => import('./pages/user/auth/userLogin'));
+const UserSignup = lazy(() => import('./pages/user/auth/userSignup'));
+const UserForgotPassword = lazy(() => import('./pages/user/auth/userForgotPassword'));
 
 // pages admin
 const AdminLayouts = lazy(() => import('./layouts/admin/adminLayouts'));
@@ -22,13 +22,13 @@ const Dashboard = lazy(() => import('./pages/admin/dashboard'));
 // pages user
 const UserLayouts = lazy(() => import('./layouts/user/userLayouts'));
 const Home = lazy(() => import('./pages/user/home'));
-const Feeds = lazy(() => import('./pages/user/feeds'));
-const Profile = lazy(() => import('./pages/user/profile'));
+const Feeds = lazy(() => import('./pages/user/feeds/feeds'));
+const Profile = lazy(() => import('./pages/user/profile/profile'));
 const Inbox = lazy(() => import('./pages/user/mailbox/inbox'));
 const ComposeMail = lazy(() => import('./pages/user/mailbox/compose'));
 const ReadMail = lazy(() => import('./pages/user/mailbox/read'));
 const Notification = lazy(() => import('./pages/user/notification'));
-const Messages = lazy(() => import('./pages/user/messages'));
+const Messages = lazy(() => import('./pages/user/chats/messages'));
 
 // error pages
 const NotFound = lazy(() => import('./pages/error/notFound'));

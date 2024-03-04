@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 
-import AlertBox from "../../components/AlertBox";
-import { createAuthSession } from "../../utils/authHelper";
+import AlertBox from "../../../components/AlertBox";
+import { createAuthSession } from "../../../utils/authHelper";
 
 // component
 export default function UserLogin(props) {
@@ -111,12 +111,12 @@ export default function UserLogin(props) {
                         </div>
                     </div>
                     <div className="col-4">
-                        <button type="submit" className="btn btn-primary btn-block" disabled={loader}>
-                            {!loader ?
-                                `Let's go` :
-                                `...`
-                            }
-                        </button>
+                        {!loader ?
+                            <button type="submit" className="btn btn-primary btn-block" disabled={loader}>
+                                Let's go
+                            </button> :
+                            <div class="spinner-border text-primary float-right"></div>
+                        }
                     </div>
                 </div>
             </form>
