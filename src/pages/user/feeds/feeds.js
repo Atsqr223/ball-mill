@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { RWebShare } from "react-web-share";
 import AlertBox from "../../../components/AlertBox";
 import CreatePost from "../../../components/CreatePost";
 import { utcToLocalTime } from "../../../utils/timeHelper";
@@ -192,7 +193,16 @@ export default function Feeds(props) {
 
                                         <div className="card-body">
                                             <p className="text-justify" dangerouslySetInnerHTML={{ __html: item.content }}></p>
-                                            <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
+                                            <RWebShare
+                                                data={{
+                                                    text: `${process.env.REACT_APP_DESCRIPTION}`,
+                                                    url: `${process.env.REACT_APP_BASE_URL}`,
+                                                    title: `${process.env.REACT_APP_TITLE}`,
+                                                }}
+                                                onClick={() => console.log("shared successfully!")}
+                                            >
+                                                <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
+                                            </RWebShare>
                                             <button type="button" className="btn btn-primary btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>
                                             <button type="button" className="btn btn-default btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>
                                             <span className="float-right text-muted">127 likes - 3 comments</span>
