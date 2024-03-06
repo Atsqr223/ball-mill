@@ -21,6 +21,53 @@ export default function Feeds(props) {
         message: ''
     });
 
+    // comments
+    const [commentFormData, setCommentFormData] = useState({
+        text: "",
+        postId: "",
+        createdBy: "",
+        submited: false
+    });
+
+    const handleChange = (event, post, index) => {
+        console.log(">>>>>>", event);
+        const { name, value } = event.target;
+        setCommentFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+        setCommentFormData((prevFormData) => ({ ...prevFormData, ['postId']: post._id }));
+        setCommentFormData((prevFormData) => ({ ...prevFormData, ['createdBy']: authUser._id }));
+    };
+
+    const handleSubmit = async (event, post, index) => {
+        event.preventDefault();
+        setCommentFormData((prevFormData) => ({ ...prevFormData, submited: true }));
+        // const validationErrors = validateForm(postFormData);
+        // if (Object.keys(validationErrors).length === 0) {
+        await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post-comment/create`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': authToken
+            },
+            body: JSON.stringify(commentFormData)
+        }).then((response) => response.json()).then((postRes) => {
+            // setcreatePostLoader(false);
+            // setAlertBox((prevFormData) => ({ ...prevFormData, message: `${postRes.message}` }));
+            if (postRes.success === true) {
+                document.getElementById(`createComment${index}`).reset();
+                setCommentFormData((prevFormData) => ({ ...prevFormData, ['text']: '' }));
+                // setAlertBox((prevFormData) => ({ ...prevFormData, alert: `success` }));
+                // fetchDataReset();
+            } else {
+                setAlertBox((prevFormData) => ({ ...prevFormData, alert: `danger` }));
+            }
+        });
+        // } else {
+        //     setcreatePostLoader(false);
+        //     setPostFormValidateErrors(validationErrors);
+        // }
+    };
+
     const fetchDataReset = async () => {
         setPageNo(prevPage => prevPage - pageNo);
         setPosts([]);
@@ -208,7 +255,7 @@ export default function Feeds(props) {
                                             <span className="float-right text-muted">127 likes - 3 comments</span>
                                         </div>
 
-                                        <div className="card-footer card-comments">
+                                        {item.comments.length > 0 ? <div className="card-footer card-comments">
                                             <div className="card-comment">
                                                 <img className="img-circle img-sm" src='/assets/dist/img/user3-128x128.jpg' alt="User Image" />
 
@@ -217,18 +264,18 @@ export default function Feeds(props) {
                                                         Maria Gonzales
                                                         <span className="text-muted float-right">8:03 PM Today</span>
                                                     </span>
-                                                    It is a long established fact that a reader will be distracted
-                                                    by the readable content of a page when looking at its layout.
+                                                    {item.comments[item.comments.length - 1].text}
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> : <>
+                                        </>}
 
                                         <div className="card-footer">
-                                            <form action="#" method="post">
+                                            <form id={`createComment${i}`} onSubmit={(e) => { handleSubmit(e, item, i) }}>
                                                 <img className="img-fluid img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="Alt Text" />
                                                 {/* <!-- .img-push is used to add margin to elements next to floating images --> */}
                                                 <div className="img-push">
-                                                    <input type="text" className="form-control form-control-sm" placeholder="Press enter to post comment" />
+                                                    <input type="text" className="form-control form-control-sm" placeholder="Press enter to post comment" name='text' value={commentFormData.text} onChange={(e) => { handleChange(e, item, i) }} autoComplete='off' />
                                                 </div>
                                             </form>
                                         </div>
