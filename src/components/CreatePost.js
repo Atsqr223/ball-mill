@@ -3,12 +3,11 @@ import AlertBox from "../components/AlertBox";
 
 // component
 export default function CreatePost(props) {
-  const { authFlag, authToken, authUser, fetchDataReset } = props;
+  const { authFlag, authToken, authUser, newPostAdded } = props;
 
   const [createPostLoader, setcreatePostLoader] = useState(false);
   const [postFormData, setPostFormData] = useState({
-    content: "",
-    id: "",
+    text: "",
     submited: false
   });
   const [postFormValidateErrors, setPostFormValidateErrors] = useState({});
@@ -20,13 +19,12 @@ export default function CreatePost(props) {
   const handleChange = (event) => {
     const { name, value } = event.target;
     setPostFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
-    setPostFormData((prevFormData) => ({ ...prevFormData, ['id']: authUser._id }));
   };
 
   const validateForm = (data) => {
     let errors = {};
-    if (!data.content.trim()) {
-      errors.content = "Can't post empty content.";
+    if (!data.text.trim()) {
+      errors.text = "Can't post empty content.";
     }
     return errors;
   };
@@ -50,9 +48,9 @@ export default function CreatePost(props) {
         setAlertBox((prevFormData) => ({ ...prevFormData, message: `${postRes.message}` }));
         if (postRes.success === true) {
           document.getElementById("createPost").reset();
-          setPostFormData((prevFormData) => ({ ...prevFormData, ['content']: '' }));
+          setPostFormData((prevFormData) => ({ ...prevFormData, ['text']: '' }));
           setAlertBox((prevFormData) => ({ ...prevFormData, alert: `success` }));
-          fetchDataReset();
+          newPostAdded(postRes.data.post);
         } else {
           setAlertBox((prevFormData) => ({ ...prevFormData, alert: `danger` }));
         }
@@ -73,9 +71,9 @@ export default function CreatePost(props) {
         <form id="createPost" onSubmit={handleSubmit}>
           <div className="card-body">
             <div className="form-group">
-              <textarea className="form-control" rows="3" name="content" placeholder="What in your mind" value={postFormData.contest} onChange={handleChange}></textarea>
+              <textarea className="form-control" rows="3" name="text" placeholder="What in your mind" value={postFormData.text} onChange={handleChange}></textarea>
             </div>
-            {postFormValidateErrors.content && <span className="text-danger">{postFormValidateErrors.content}</span>}
+            {postFormValidateErrors.text && <span className="text-danger">{postFormValidateErrors.text}</span>}
           </div>
 
           <div className="card-footer">

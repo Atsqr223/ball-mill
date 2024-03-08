@@ -4,6 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { RWebShare } from "react-web-share";
 import AlertBox from "../../../components/AlertBox";
 import CreatePost from "../../../components/CreatePost";
+import ViewPost from '../../../components/ViewPost';
 import { utcToLocalTime } from "../../../utils/timeHelper";
 
 // component
@@ -21,57 +22,22 @@ export default function Feeds(props) {
         message: ''
     });
 
-    // comments
-    const [commentFormData, setCommentFormData] = useState({
-        text: "",
-        postId: "",
-        createdBy: "",
-        submited: false
-    });
+    const newPostAdded = (newPost) => {
+        setPosts(current => [newPost, ...current]);
+    }
 
-    const handleChange = (event, post, index) => {
-        console.log(">>>>>>", event);
-        const { name, value } = event.target;
-        setCommentFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
-        setCommentFormData((prevFormData) => ({ ...prevFormData, ['postId']: post._id }));
-        setCommentFormData((prevFormData) => ({ ...prevFormData, ['createdBy']: authUser._id }));
-    };
-
-    const handleSubmit = async (event, post, index) => {
-        event.preventDefault();
-        setCommentFormData((prevFormData) => ({ ...prevFormData, submited: true }));
-        // const validationErrors = validateForm(postFormData);
-        // if (Object.keys(validationErrors).length === 0) {
-        await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post-comment/create`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': authToken
-            },
-            body: JSON.stringify(commentFormData)
-        }).then((response) => response.json()).then((postRes) => {
-            // setcreatePostLoader(false);
-            // setAlertBox((prevFormData) => ({ ...prevFormData, message: `${postRes.message}` }));
-            if (postRes.success === true) {
-                document.getElementById(`createComment${index}`).reset();
-                setCommentFormData((prevFormData) => ({ ...prevFormData, ['text']: '' }));
-                // setAlertBox((prevFormData) => ({ ...prevFormData, alert: `success` }));
-                // fetchDataReset();
+    const updatePostArray = (updatedPost) => {
+        const nextShapes = posts.map(post => {
+            if (post._id === updatedPost._id) {
+                // No change
+                return updatedPost;
             } else {
-                setAlertBox((prevFormData) => ({ ...prevFormData, alert: `danger` }));
+                // Return a new circle 50px below
+                return post;
             }
         });
-        // } else {
-        //     setcreatePostLoader(false);
-        //     setPostFormValidateErrors(validationErrors);
-        // }
-    };
-
-    const fetchDataReset = async () => {
-        setPageNo(prevPage => prevPage - pageNo);
-        setPosts([]);
-        fetchData();
+        // Re-render with the new array
+        setPosts(nextShapes);
     }
 
     // fetch data
@@ -108,15 +74,11 @@ export default function Feeds(props) {
         }
     };
 
-    const doLike = (index) => {
-        console.log("Like");
-    }
-
     useEffect(() => {
         if (posts.length === 0) {
             fetchData();
         }
-    }, []);
+    }, [posts]);
 
     return (
         <>
@@ -211,7 +173,7 @@ export default function Feeds(props) {
                         </div>
 
                         <div id="scrollableDiv" className="col-md-6 overflow-auto" style={{ height: '100vh' }}>
-                            <CreatePost authFlag={authFlag} authToken={authToken} authUser={authUser} fetchDataReset={fetchDataReset} />
+                            <CreatePost authFlag={authFlag} authToken={authToken} authUser={authUser} newPostAdded={newPostAdded} />
 
                             <AlertBox alert={alertBox.alert} message={alertBox.message} />
 
@@ -222,64 +184,8 @@ export default function Feeds(props) {
                                 loader={<></>}
                                 scrollableTarget="scrollableDiv"
                             >
-                                {posts.map((item, i) => {
-                                    return <div key={i} className="card card-widget">
-                                        <div className="card-header">
-                                            <div className="user-block">
-                                                <img className="img-circle" src='/assets/dist/img/user1-128x128.jpg' alt="User Image" />
-                                                <span className="username"><a href="#">{item.createdBy.name}</a></span>
-                                                <span className="description">{utcToLocalTime(item.createdAt)}</span>
-                                            </div>
-
-                                            <div className="card-tools">
-                                                <button type="button" className="btn btn-tool" data-card-widget="remove">
-                                                    <i className="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div className="card-body">
-                                            <p className="text-justify" dangerouslySetInnerHTML={{ __html: item.content }}></p>
-                                            <RWebShare
-                                                data={{
-                                                    text: `${process.env.REACT_APP_DESCRIPTION}`,
-                                                    url: `${process.env.REACT_APP_BASE_URL}`,
-                                                    title: `${process.env.REACT_APP_TITLE}`,
-                                                }}
-                                                onClick={() => console.log("shared successfully!")}
-                                            >
-                                                <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
-                                            </RWebShare>
-                                            <button type="button" className="btn btn-primary btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>
-                                            <button type="button" className="btn btn-default btn-sm ml-1" onClick={() => doLike(0)}><i className="far fa-thumbs-up"></i> Like</button>
-                                            <span className="float-right text-muted">127 likes - 3 comments</span>
-                                        </div>
-
-                                        {item.comments.length > 0 ? <div className="card-footer card-comments">
-                                            <div className="card-comment">
-                                                <img className="img-circle img-sm" src='/assets/dist/img/user3-128x128.jpg' alt="User Image" />
-
-                                                <div className="comment-text">
-                                                    <span className="username">
-                                                        Maria Gonzales
-                                                        <span className="text-muted float-right">8:03 PM Today</span>
-                                                    </span>
-                                                    {item.comments[item.comments.length - 1].text}
-                                                </div>
-                                            </div>
-                                        </div> : <>
-                                        </>}
-
-                                        <div className="card-footer">
-                                            <form id={`createComment${i}`} onSubmit={(e) => { handleSubmit(e, item, i) }}>
-                                                <img className="img-fluid img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="Alt Text" />
-                                                {/* <!-- .img-push is used to add margin to elements next to floating images --> */}
-                                                <div className="img-push">
-                                                    <input type="text" className="form-control form-control-sm" placeholder="Press enter to post comment" name='text' value={commentFormData.text} onChange={(e) => { handleChange(e, item, i) }} autoComplete='off' />
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
+                                {posts.map((post, i) => {
+                                        return <ViewPost key={i} postIndex={i} post={post} updatePostArray={updatePostArray} authFlag={authFlag} authToken={authToken} authUser={authUser} />;
                                 })}
                             </InfiniteScroll>
 
