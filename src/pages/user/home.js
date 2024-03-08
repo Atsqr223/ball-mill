@@ -5,7 +5,7 @@ import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 export default function Home(props) {
 
     // page title
-    document.title = 'Welcome to We connect | Home Page';
+    document.title = 'Subha welcomes you | Home Page';
 
     const navigate = useNavigate();
 

@@ -14,9 +14,9 @@ const socket = io.connect(process.env.REACT_APP_API_BASE_URL);
 // component
 export default function Messages(props) {
     // page title
-    document.title = "Welcome to We connect | Message";
+    document.title = "Subha welcomes you | Message";
 
-    const {authFlag, authToken, authUser} = useOutletContext();
+    const { authFlag, authToken, authUser } = useOutletContext();
 
     const navigate = useNavigate();
 
@@ -32,7 +32,7 @@ export default function Messages(props) {
     });
     const [messageData, setMessageData] = useState([]);
     const [messageType, setMessageType] = useState('');
-    const [receiverDetails, setReceiverDetails] = useState('');
+    const [receiverDetails, setReceiverDetails] = useState({});
     const [allUser, setAllUser] = useState([]);
     const [messageLoader, setMessageLoader] = useState(false);
 
@@ -42,7 +42,6 @@ export default function Messages(props) {
     const handleChange = (event) => {
         const { name, value } = event.target;
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
-
         setFormData((prevFormData) => ({ ...prevFormData, name: authUser.name }));
         setFormData((prevFormData) => ({ ...prevFormData, senderID: authUser._id }));
         setFormData((prevFormData) => ({ ...prevFormData, receiverID: receiverDetails._id }));
@@ -76,6 +75,7 @@ export default function Messages(props) {
         if (validateForm(formData)) {
             const today = new Date();
             setFormData((prevFormData) => ({ ...prevFormData, time: new Date(today.toGMTString()) }));
+            console.log("formData :: ", formData);
             socket.emit("send_message", formData);
             setFormData((prevFormData) => ({ ...prevFormData, message: '' }));
             setMessageData(prevFormData => [...prevFormData, formData]);
@@ -92,10 +92,11 @@ export default function Messages(props) {
         return convertedTime.toLocaleString();
     }
 
-    const fetchMessage = async (senderID, receiver) => {
+    const fetchMessage = async (sender, receiver) => {
         setMessageLoader(true);
         setReceiverDetails(receiver);
-        const response = await fetch(process.env.REACT_APP_API_BASE_URL + `api/v1/message/getall?senderID=${senderID}&receiverID=${receiver._id}`, {
+        console.log(sender, receiver);
+        const response = await fetch(process.env.REACT_APP_API_BASE_URL + `api/v1/message/getall?senderID=${sender._id}&receiverID=${receiver._id}`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -178,7 +179,7 @@ export default function Messages(props) {
                 target.scroll({ top: target.scrollHeight, behavior: 'smooth' });
             });
         }
-    }, [socket]);
+    }, [socket, receiverDetails]);
 
     return (
         <>
@@ -220,7 +221,7 @@ export default function Messages(props) {
                                 <p>Getting...</p>
                             </div> : <div className="card-body">
                                 {allUser.map((user, i) => {
-                                    return <div className="info-box" style={{ cursor: 'pointer' }} key={i} onClick={() => fetchMessage(authUser._id, user)}>
+                                    return <div className="info-box" style={{ cursor: 'pointer' }} key={i} onClick={() => fetchMessage(authUser, user)}>
                                         <span className="info-box-icon bg-info"><i className="far fa-user"></i></span>
                                         <div className="info-box-content">
                                             <h5 className="widget-user-username">{user.name}</h5>

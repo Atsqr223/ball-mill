@@ -6,7 +6,7 @@ import AlertBox from "../../../components/AlertBox";
 export default function UserSignup(props) {
 
     // page title
-    document.title = 'Welcome to We connect | Sign up | Authentication Page';
+    document.title = 'Subha welcomes you | Sign up | Authentication Page';
 
     const navigate = useNavigate();
     const [loader, setLoader] = useState(false);

@@ -105,7 +105,7 @@ export default function ViewPost(props) {
         <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
       </RWebShare>
       {isLike(post.likes, authUser._id) ? <>
-        <button type="button" className="btn btn-primary btn-sm ml-1" onClick={(e) => doLike(e, post, postIndex)}><i className="far fa-thumbs-up"></i> Like</button>
+        <button type="button" className="btn btn-primary btn-sm ml-1" onClick={(e) => doLike(e, post, postIndex)}><i className="far fa-thumbs-up"></i> Liked</button>
       </> : <>
         <button type="button" className="btn btn-default btn-sm ml-1" onClick={(e) => doLike(e, post, postIndex)}><i className="far fa-thumbs-up"></i> Like</button>
       </>}

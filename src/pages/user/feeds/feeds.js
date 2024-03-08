@@ -12,7 +12,7 @@ export default function Feeds(props) {
     const { authFlag, authToken, authUser } = useOutletContext();
 
     // page title
-    document.title = "Welcome to We connect | Feed's";
+    document.title = "Subha welcomes you | Feed's";
     const navigate = useNavigate();
     const [posts, setPosts] = useState([]);
     const [postsLoader, setPostsLoader] = useState(false);

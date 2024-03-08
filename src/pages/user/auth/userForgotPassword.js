@@ -7,7 +7,7 @@ import AlertBox from "../../../components/AlertBox";
 export default function UserForgotPassword(props) {
 
     // page title
-    document.title = 'Welcome to We connect | Forgot Password';
+    document.title = 'Subha welcomes you | Forgot Password';
 
     const navigate = useNavigate();
     const [loader, setLoader] = useState(false);

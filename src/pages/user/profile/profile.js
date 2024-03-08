@@ -4,7 +4,7 @@ import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 // component
 export default function Profile(props) {
     // page title
-    document.title = 'Welcome to We connect | Profile';
+    document.title = 'Subha welcomes you | Profile';
 
     const {authFlag, authToken, authUser} = useOutletContext();
 
