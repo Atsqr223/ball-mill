@@ -49,6 +49,12 @@ function App() {
         <img className="animation__wobble" src="/assets/dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60" />
       </div>}>
         <Routes>
+          {/* common routes */}
+          <Route element={<UserLayouts authData={loginFlag} />}>
+            <Route index element={<Home />} />
+            <Route path="home" element={<Home />} />
+          </Route>
+
           {/* user routes start */}
           <Route path="/auth" element={
             loginFlag ? (
@@ -71,10 +77,8 @@ function App() {
               <Navigate replace to="/auth/login" />
             )
           }>
-            <Route index element={<Home />} />
-            <Route path="home" element={<Home />} />
             <Route path="feeds" element={<Feeds />} />
-            
+
             <Route path="/mail">
               <Route index path="inbox" element={<Inbox title="Inbox" />} />
               <Route path="compose" element={<ComposeMail />} />
@@ -85,7 +89,7 @@ function App() {
               <Route path="trash" element={<Inbox title="Trash" />} />
               <Route path="*" element={<NotFound />} />
             </Route>
-            
+
             <Route path="messages" element={<Messages title="Chats" />} />
             <Route path="notification" element={<Notification />} />
             <Route path="profile" element={<Profile />} />

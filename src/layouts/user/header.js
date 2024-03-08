@@ -46,6 +46,9 @@ export default function Header(props) {
                         {/* <!-- Left navbar links --> */}
                         <ul className="navbar-nav ml-auto">
                             <li className="nav-item">
+                                <Link to="/home" className="nav-link">Home</Link>
+                            </li>
+                            <li className="nav-item">
                                 <Link to="/feeds" className="nav-link">Feeds</Link>
                             </li>
                             <li className="nav-item">
