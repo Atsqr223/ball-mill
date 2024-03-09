@@ -4,11 +4,12 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { RWebShare } from "react-web-share";
 import AlertBox from "./AlertBox";
 import { utcToLocalTime } from "../utils/timeHelper";
+import Swal from 'sweetalert2';
 
 // component
 export default function ViewPost(props) {
   const { authFlag, authToken, authUser, newPostAdded } = props;
-  const { post, postIndex, updatePostArray } = props;
+  const { post, postIndex, updatePostArray, deleteFromPostArray } = props;
 
   const [alertBox, setAlertBox] = useState({
     alert: '',
@@ -21,6 +22,7 @@ export default function ViewPost(props) {
     postId: "",
     submited: false
   });
+  const [commentFormValidateErrors, setCommentFormValidateErrors] = useState({});
 
   const handleChangeCommentForm = (event, post, index) => {
     const { name, value } = event.target;
@@ -28,30 +30,43 @@ export default function ViewPost(props) {
     setCommentFormData((prevFormData) => ({ ...prevFormData, ['postId']: post._id }));
   };
 
+  const validateForm = (data) => {
+    let errors = {};
+    if (!data.text.trim()) {
+      errors.text = "Can't post empty comment.";
+    }
+    return errors;
+  };
+
   const commentFormSubmit = async (event, post, index) => {
     event.preventDefault();
     setCommentFormData((prevFormData) => ({ ...prevFormData, submited: true }));
-    await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post-comment/create`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': authToken
-      },
-      body: JSON.stringify(commentFormData)
-    }).then((response) => response.json()).then((postRes) => {
-      if (postRes.success === true) {
-        document.getElementById(`createComment${index}`).reset();
-        setCommentFormData((prevFormData) => ({ ...prevFormData, ['text']: '' }));
-        updatePostArray(postRes.data.post);
-      } else {
-        setAlertBox((prevFormData) => ({ ...prevFormData, alert: `danger` }));
-      }
-    });
+    const validationErrors = validateForm(commentFormData);
+    if (Object.keys(validationErrors).length === 0) {
+      await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post-comment/create-comment`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': authToken
+        },
+        body: JSON.stringify(commentFormData)
+      }).then((response) => response.json()).then((postRes) => {
+        if (postRes.success === true) {
+          document.getElementById(`createComment${index}`).reset();
+          setCommentFormData((prevFormData) => ({ ...prevFormData, ['text']: '' }));
+          updatePostArray(postRes.data.post);
+        } else {
+          setAlertBox((prevFormData) => ({ ...prevFormData, alert: `danger` }));
+        }
+      });
+    } else {
+      setCommentFormValidateErrors(validationErrors);
+    }
   };
 
   const doLike = async (event, post, index) => {
-    await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post-like/create`, {
+    await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post-like/create-like`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -59,7 +74,7 @@ export default function ViewPost(props) {
         'Authorization': authToken
       },
       body: JSON.stringify({
-        createdBy: authUser._id,
+        auther: authUser._id,
         postId: post._id
       })
     }).then((response) => response.json()).then((postRes) => {
@@ -77,6 +92,39 @@ export default function ViewPost(props) {
     })
   }
 
+  const deletePost = (post) => {
+    Swal.fire({
+      title: "Do you want to delete this post ?",
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText: "Yes",
+      denyButtonText: `No`
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/delete-post`, {
+          method: 'DELETE',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': authToken
+          },
+          body: JSON.stringify({
+            postId: post._id
+          })
+        }).then((response) => response.json()).then((postRes) => {
+          if (postRes.success === true) {
+            deleteFromPostArray(post);
+          } else {
+            setAlertBox((prevFormData) => ({ ...prevFormData, alert: `danger` }));
+          }
+        });
+      } else {
+        console.log('Logout cancel.');
+      }
+    });
+  };
+
   return (<div className="card card-widget">
     <div className="card-header">
       <div className="user-block">
@@ -86,9 +134,12 @@ export default function ViewPost(props) {
       </div>
 
       <div className="card-tools">
-        <button type="button" className="btn btn-tool" data-card-widget="remove">
-          <i className="fas fa-times"></i>
-        </button>
+        {post.auther._id === authUser._id ?
+          <button type="button" className="btn btn-tool" onClick={(e) => { deletePost(post) }}>
+            <i className="fas fa-times"></i>
+          </button>
+          :
+          <></>}
       </div>
     </div>
 
@@ -133,6 +184,7 @@ export default function ViewPost(props) {
         {/* <!-- .img-push is used to add margin to elements next to floating images --> */}
         <div className="img-push">
           <input type="text" className="form-control form-control-sm" placeholder="Press enter to post comment" name='text' value={commentFormData.text} onChange={(e) => { handleChangeCommentForm(e, post, postIndex) }} autoComplete='off' />
+          {commentFormValidateErrors.text && <span className="text-danger">{commentFormValidateErrors.text}</span>}
         </div>
       </form>
     </div>

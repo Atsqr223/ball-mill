@@ -36,7 +36,7 @@ export default function Header(props) {
         <nav className='main-header navbar navbar-expand-md navbar-dark fixed-top bg-dark'>
             <div className="container">
                 <a href="/" className="navbar-brand">
-                    <img src="/assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" className="brand-image img-circle elevation-3"
+                    <img src="/assets/dist/img/subhaLogo.png" alt="SubhaPrasad Logo" className="brand-image img-circle elevation-3"
                         style={{ opacity: .8 }} />
                     <span className="brand-text font-weight-light">&nbsp;{process.env.REACT_APP_TITLE}</span>
                 </a>

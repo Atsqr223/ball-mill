@@ -38,14 +38,20 @@ export default function Feeds(props) {
         });
         // Re-render with the new array
         setPosts(nextShapes);
-    }
+    };
+
+    const deleteFromPostArray = (deletedPost) => {
+        setPosts(oldValues => {
+            return oldValues.filter(post => post !== deletedPost)
+        })
+    };
 
     // fetch data
     const fetchData = async () => {
         setPostsLoader(true);
         try {
-            let param = `?page_no=${pageNo}`;
-            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-all${param}`, {
+            let param = `?pageNo=${pageNo}`;
+            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-posts${param}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
@@ -78,7 +84,7 @@ export default function Feeds(props) {
         if (posts.length === 0) {
             fetchData();
         }
-    }, [posts]);
+    }, []);
 
     return (
         <>
@@ -113,7 +119,7 @@ export default function Feeds(props) {
                                         <img className="img-circle elevation-2" src="/assets/dist/img/user7-128x128.jpg" alt="User Avatar" />
                                     </div>
                                     <h3 className="widget-user-username">{authUser.name}</h3>
-                                    <h5 className="widget-user-desc">Lead Developer</h5>
+                                    <h5 className="widget-user-desc">{authUser.user_type.name}</h5>
                                 </div>
                                 <div className="card-footer p-0">
                                     <ul className="nav flex-column">
@@ -185,7 +191,15 @@ export default function Feeds(props) {
                                 scrollableTarget="scrollableDiv"
                             >
                                 {posts.map((post, i) => {
-                                        return <ViewPost key={i} postIndex={i} post={post} updatePostArray={updatePostArray} authFlag={authFlag} authToken={authToken} authUser={authUser} />;
+                                    return <ViewPost
+                                        key={i}
+                                        postIndex={i}
+                                        post={post}
+                                        updatePostArray={updatePostArray}
+                                        deleteFromPostArray={deleteFromPostArray}
+                                        authFlag={authFlag}
+                                        authToken={authToken}
+                                        authUser={authUser} />;
                                 })}
                             </InfiniteScroll>
 

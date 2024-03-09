@@ -46,7 +46,7 @@ function App() {
   return (
     <BrowserRouter>
       <Suspense fallback={<div className="preloader flex-column justify-content-center align-items-center">
-        <img className="animation__wobble" src="/assets/dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60" />
+        <img className="animation__wobble" src="/assets/dist/img/subhaLogo.png" alt="SubhaPrasad" height="60" width="60" />
       </div>}>
         <Routes>
           {/* common routes */}
