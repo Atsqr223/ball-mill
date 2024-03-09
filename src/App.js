@@ -23,6 +23,7 @@ const Dashboard = lazy(() => import('./pages/admin/dashboard'));
 const UserLayouts = lazy(() => import('./layouts/user/userLayouts'));
 const Home = lazy(() => import('./pages/user/home'));
 const Feeds = lazy(() => import('./pages/user/feeds/feeds'));
+const ViewSinglePost = lazy(() => import('./pages/user/post/ViewSinglePost'));
 const Profile = lazy(() => import('./pages/user/profile/profile'));
 const Inbox = lazy(() => import('./pages/user/mailbox/inbox'));
 const ComposeMail = lazy(() => import('./pages/user/mailbox/compose'));
@@ -78,6 +79,7 @@ function App() {
             )
           }>
             <Route path="feeds" element={<Feeds />} />
+            <Route path="view-post/:slug" element={<ViewSinglePost />} />
 
             <Route path="/mail">
               <Route index path="inbox" element={<Inbox title="Inbox" />} />

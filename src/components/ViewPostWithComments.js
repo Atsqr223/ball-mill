@@ -7,7 +7,7 @@ import { utcToLocalTime } from "../utils/timeHelper";
 import Swal from 'sweetalert2';
 
 // component
-export default function ViewPost(props) {
+export default function ViewPostWithComments(props) {
   const { authFlag, authToken, authUser, newPostAdded } = props;
   const { post, postIndex, updatePostArray, deleteFromPostArray } = props;
 
@@ -134,12 +134,6 @@ export default function ViewPost(props) {
       </div>
 
       <div className="card-tools">
-        {post.auther._id === authUser._id ?
-          <button type="button" className="btn btn-tool" onClick={(e) => { deletePost(post) }}>
-            <i className="fas fa-times"></i>
-          </button>
-          :
-          <></>}
       </div>
     </div>
 
@@ -163,20 +157,21 @@ export default function ViewPost(props) {
       <Link to={`${process.env.REACT_APP_BASE_URL}view-post/${post.slug}`} className="float-right text-muted">{post.likes.length} likes - {post.comments.length} comments</Link>
     </div>
 
-    {post.comments.length > 0 ? <div className="card-footer card-comments">
-      <div className="card-comment">
-        <img className="img-circle img-sm" src='/assets/dist/img/user3-128x128.jpg' alt="User Image" />
+    {post.comments.map((comment, i) => {
+      return <div className="card-footer card-comments">
+        <div className="card-comment">
+          <img className="img-circle img-sm" src='/assets/dist/img/user3-128x128.jpg' alt="User Image" />
 
-        <div className="comment-text">
-          <span className="username">
-            {post.comments[post.comments.length - 1].auther.name}
-            <span className="text-muted float-right">{utcToLocalTime(post.comments[post.comments.length - 1].createdAt)}</span>
-          </span>
-          {post.comments[post.comments.length - 1].text}
+          <div className="comment-text">
+            <span className="username">
+              {comment.auther.name}
+              <span className="text-muted float-right">{utcToLocalTime(comment.createdAt)}</span>
+            </span>
+            {comment.text}
+          </div>
         </div>
       </div>
-    </div> : <>
-    </>}
+    })}
 
     <div className="card-footer">
       <form id={`createComment${postIndex}`} onSubmit={(e) => { commentFormSubmit(e, post, postIndex) }}>
