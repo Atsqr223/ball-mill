@@ -92,7 +92,13 @@ export default function ViewSinglePost(props) {
                         <div className="container-fluid">
                             <div className="row mb-2">
                                 <div className="col-sm-6">
-                                    <h1>Post by - {post?.auther?.name}</h1>
+                                    <h1>Post by - {post?.auther?.name ? <>
+                                        {post?.auther?.name}
+                                    </> : <>
+                                        <div className="spinner-border spinner-border-base" role="status">
+                                            <span className="sr-only">Loading...</span>
+                                        </div>
+                                    </>}</h1>
                                 </div>
                                 <div className="col-sm-6">
                                     <ol className="breadcrumb float-sm-right">

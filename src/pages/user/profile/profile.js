@@ -6,9 +6,149 @@ export default function Profile(props) {
     // page title
     document.title = 'Subha welcomes you | Profile';
 
-    const {authFlag, authToken, authUser} = useOutletContext();
+    const { authFlag, authToken, authUser } = useOutletContext();
 
     const navigate = useNavigate();
+
+    // user form update start
+    const [userFormLoader, setUserFormLoader] = useState(false);
+    const name = authUser.name.split(" ");
+    const [userFormData, setUserFormData] = useState({
+        firstName: name[0],
+        lastName: name[1],
+        phone: authUser.phone.toString(),
+        email: authUser.email,
+        submited: false
+    });
+    const [userFormErrors, setUserFormErrors] = useState({});
+    const [alertBox, setAlertBox] = useState({
+        alert: '',
+        message: ''
+    });
+
+    const userFormHandleChange = (event) => {
+        const { name, value } = event.target;
+        setUserFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+        const validationErrors = validateUserForm(userFormData);
+        setUserFormErrors(validationErrors);
+    };
+
+    const validateUserForm = (data) => {
+        let errors = {};
+
+        // Validation rules
+        if (!data.firstName.trim()) {
+            errors.firstName = 'First name is required.';
+        }
+
+        if (!data.lastName.trim()) {
+            errors.lastName = 'Last name is required.';
+        }
+
+        if (!data.phone.trim()) {
+            errors.phone = 'Phone number is required.';
+        }
+
+        if (!data.email.trim()) {
+            errors.email = 'Email is required.';
+        } else if (!/\S+@\S+\.\S+/.test(data.email)) {
+            errors.email = 'Email address is invalid.';
+        }
+
+        return errors;
+    };
+
+    const updateUser = async (event) => {
+        event.preventDefault();
+        setUserFormData((prevFormData) => ({ ...prevFormData, submited: true }));
+        setUserFormLoader(true);
+        const validationErrors = validateUserForm(userFormData);
+        if (Object.keys(validationErrors).length === 0) {
+            await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userFormData)
+            }).then((response) => response.json()).then((signupRes) => {
+                setUserFormLoader(false);
+                if (signupRes.success === true) {
+
+                } else {
+
+                }
+            });
+        } else {
+            setUserFormLoader(false);
+            setUserFormErrors(validationErrors);
+        }
+    };
+    // user form update end
+
+    // user password update start
+    const [userPasswordFormLoader, setUserPasswordFormLoader] = useState(false);
+    const [userPasswordForm, setUserPasswordForm] = useState({
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+        submited: false
+    });
+    const [userPasswordFormErrors, setUserPasswordFormErrors] = useState({});
+
+    const userPasswordFormHandleChange = (event) => {
+        const { name, value } = event.target;
+        setUserPasswordForm((prevFormData) => ({ ...prevFormData, [name]: value }));
+        const validationErrors = validatePasswordForm(userPasswordForm);
+        setUserPasswordFormErrors(validationErrors);
+    };
+
+    function validatePasswordForm(data) {
+        let errors = {};
+
+        if (!data.oldPassword) {
+            errors.oldPassword = 'Old Password is required.';
+        }
+
+        if (!data.newPassword) {
+            errors.newPassword = 'New Password is required.';
+        } else if (data.newPassword.length < 6) {
+            errors.newPassword = 'New Password must be at least 6 characters long.';
+        }
+
+        if (data.password !== data.confirmPassword) {
+            errors.confirmPassword = 'Passwords do not match.';
+        }
+
+        return errors;
+    }
+
+    const updatePassword = async (event) => {
+        event.preventDefault();
+        setUserPasswordForm((prevFormData) => ({ ...prevFormData, submited: true }));
+        setUserPasswordFormLoader(true);
+        const validationErrors = validatePasswordForm(userPasswordForm);
+        if (Object.keys(validationErrors).length === 0) {
+            await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userPasswordForm)
+            }).then((response) => response.json()).then((signupRes) => {
+                setUserPasswordFormLoader(false);
+                if (signupRes.success === true) {
+                } else {
+
+                }
+            });
+        } else {
+            setUserPasswordFormLoader(false);
+            setUserPasswordFormErrors(validationErrors);
+        }
+    };
+    // user password update end
 
     return (
         <>
@@ -42,8 +182,8 @@ export default function Profile(props) {
                                 </div>
                                 <div className="col-sm-6">
                                     <ol className="breadcrumb float-sm-right">
-                                        <li className="breadcrumb-item"><a href="#">Home</a></li>
-                                        <li className="breadcrumb-item active">User Profile</li>
+                                        <li className="breadcrumb-item"><Link to="/feeds">Home</Link></li>
+                                        <li className="breadcrumb-item active">Profile</li>
                                     </ol>
                                 </div>
                             </div>
@@ -313,49 +453,87 @@ export default function Profile(props) {
                                                 </div>
 
                                                 <div className="tab-pane" id="settings">
-                                                    <form className="form-horizontal">
+                                                    <form className="form-horizontal" onSubmit={updateUser}>
                                                         <div className="form-group row">
-                                                            <label htmlFor="inputName" className="col-sm-2 col-form-label">Name</label>
+                                                            <label htmlFor="inputName" className="col-sm-2 col-form-label">First Name</label>
                                                             <div className="col-sm-10">
-                                                                <input type="email" className="form-control" id="inputName" placeholder="Name" />
+                                                                <input type="text" className="form-control" name="firstName" value={userFormData.firstName} onChange={userFormHandleChange} placeholder="First name" />
+                                                                {userFormErrors.firstName && userFormData.submited ? <span className="text-danger">{userFormErrors.firstName}</span> : <></>}
+                                                            </div>
+                                                        </div>
+                                                        <div className="form-group row">
+                                                            <label htmlFor="inputName" className="col-sm-2 col-form-label">Last Name</label>
+                                                            <div className="col-sm-10">
+                                                                <input type="text" className="form-control" name="lastName" value={userFormData.lastName} onChange={userFormHandleChange} placeholder="NLast name" />
+                                                                {userFormErrors.lastName && userFormData.submited ? <span className="text-danger">{userFormErrors.lastName}</span> : <></>}
                                                             </div>
                                                         </div>
                                                         <div className="form-group row">
                                                             <label htmlFor="inputEmail" className="col-sm-2 col-form-label">Email</label>
                                                             <div className="col-sm-10">
-                                                                <input type="email" className="form-control" id="inputEmail" placeholder="Email" />
+                                                                <input type="email" className="form-control" name="email" value={userFormData.email} onChange={userFormHandleChange} placeholder="Email" />
+                                                                {userFormErrors.email && userFormData.submited ? <span className="text-danger">{userFormErrors.email}</span> : <></>}
                                                             </div>
                                                         </div>
                                                         <div className="form-group row">
-                                                            <label htmlFor="inputName2" className="col-sm-2 col-form-label">Name</label>
+                                                            <label htmlFor="inputEmail" className="col-sm-2 col-form-label">Phone</label>
                                                             <div className="col-sm-10">
-                                                                <input type="text" className="form-control" id="inputName2" placeholder="Name" />
+                                                                <input type="text" className="form-control" name="phone" value={userFormData.phone} onChange={userFormHandleChange} placeholder="Phone no" />
+                                                                {userFormErrors.phone && userFormData.submited ? <span className="text-danger">{userFormErrors.phone}</span> : <></>}
                                                             </div>
                                                         </div>
-                                                        <div className="form-group row">
-                                                            <label htmlFor="inputExperience" className="col-sm-2 col-form-label">Experience</label>
-                                                            <div className="col-sm-10">
-                                                                <textarea className="form-control" id="inputExperience" placeholder="Experience"></textarea>
-                                                            </div>
-                                                        </div>
-                                                        <div className="form-group row">
-                                                            <label htmlFor="inputSkills" className="col-sm-2 col-form-label">Skills</label>
-                                                            <div className="col-sm-10">
-                                                                <input type="text" className="form-control" id="inputSkills" placeholder="Skills" />
-                                                            </div>
-                                                        </div>
+
                                                         <div className="form-group row">
                                                             <div className="offset-sm-2 col-sm-10">
-                                                                <div className="checkbox">
-                                                                    <label>
-                                                                        <input type="checkbox" /> I agree to the <a href="#">terms and conditions</a>
-                                                                    </label>
-                                                                </div>
+                                                                {userFormLoader ? <>
+                                                                    <button type="button" className="btn btn-danger">
+                                                                        <div className="spinner-border spinner-border-sm" role="status">
+                                                                            <span className="sr-only">Loading...</span>
+                                                                        </div>
+                                                                    </button>
+                                                                </> : <>
+                                                                    <button type="submit" className="btn btn-danger">Update</button>
+                                                                </>}
                                                             </div>
                                                         </div>
+                                                    </form>
+
+                                                    <form className="form-horizontal" onSubmit={updatePassword}>
+                                                        <div className="form-group row">
+                                                            <label htmlFor="inputName" className="col-sm-2 col-form-label">Old Password</label>
+                                                            <div className="col-sm-10">
+                                                                <input type="password" className="form-control" name="oldPassword" value={userPasswordForm.oldPassword} onChange={userPasswordFormHandleChange} placeholder="Old Password" />
+                                                                {(userPasswordFormErrors.oldPassword && userPasswordForm.submited) ? <span className="text-danger">{userPasswordFormErrors.oldPassword}</span> : <></>}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="form-group row">
+                                                            <label htmlFor="inputEmail" className="col-sm-2 col-form-label">New Password</label>
+                                                            <div className="col-sm-10">
+                                                                <input type="password" className="form-control" name="newPassword" value={userPasswordForm.newPassword} onChange={userPasswordFormHandleChange} placeholder="New Password" />
+                                                                {userPasswordFormErrors.newPassword && userPasswordForm.submited ? <span className="text-danger">{userPasswordFormErrors.newPassword}</span> : <></>}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="form-group row">
+                                                            <label htmlFor="inputEmail" className="col-sm-2 col-form-label">Confirm Password</label>
+                                                            <div className="col-sm-10">
+                                                                <input type="password" className="form-control" name="confirmPassword" value={userPasswordForm.confirmPassword} onChange={userPasswordFormHandleChange} placeholder="Confirm Password" />
+                                                                {userPasswordFormErrors.confirmPassword && userPasswordForm.submited ? <span className="text-danger">{userPasswordFormErrors.confirmPassword}</span> : <></>}
+                                                            </div>
+                                                        </div>
+
                                                         <div className="form-group row">
                                                             <div className="offset-sm-2 col-sm-10">
-                                                                <button type="submit" className="btn btn-danger">Submit</button>
+                                                                {userPasswordFormLoader ? <>
+                                                                    <button type="button" className="btn btn-danger">
+                                                                        <div className="spinner-border spinner-border-sm" role="status">
+                                                                            <span className="sr-only">Loading...</span>
+                                                                        </div>
+                                                                    </button>
+                                                                </> : <>
+                                                                    <button type="submit" className="btn btn-danger">Change</button>
+                                                                </>}
                                                             </div>
                                                         </div>
                                                     </form>
@@ -369,7 +547,6 @@ export default function Profile(props) {
                                 </div>
 
                             </div>
-
                         </div>
                     </section>
                 </div>

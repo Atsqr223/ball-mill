@@ -3,7 +3,7 @@ import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { RWebShare } from "react-web-share";
 import AlertBox from "./AlertBox";
-import { utcToLocalTime } from "../utils/timeHelper";
+import { utcToLocalTime, timeAgo } from "../utils/timeHelper";
 import Swal from 'sweetalert2';
 
 // component
@@ -161,8 +161,8 @@ export default function ViewPost(props) {
       {isLike(post.likes, authUser._id) ? <>
         {likeLoader ? <>
           <button type="button" className="btn btn-primary btn-sm ml-1">
-            <div class="spinner-border spinner-border-sm" role="status">
-              <span class="sr-only">Loading...</span>
+            <div className="spinner-border spinner-border-sm" role="status">
+              <span className="sr-only">Loading...</span>
             </div>
           </button>
         </> : <>
@@ -171,8 +171,8 @@ export default function ViewPost(props) {
       </> : <>
         {likeLoader ? <>
           <button type="button" className="btn btn-default btn-sm ml-1">
-            <div class="spinner-border spinner-border-sm" role="status">
-              <span class="sr-only">Loading...</span>
+            <div className="spinner-border spinner-border-sm" role="status">
+              <span className="sr-only">Loading...</span>
             </div>
           </button>
         </> : <>
