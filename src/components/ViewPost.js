@@ -11,6 +11,7 @@ export default function ViewPost(props) {
   const { authFlag, authToken, authUser, newPostAdded } = props;
   const { post, postIndex, updatePostArray, deleteFromPostArray } = props;
 
+  const [likeLoader, setLikeLoader] = useState(false);
   const [alertBox, setAlertBox] = useState({
     alert: '',
     message: ''
@@ -66,6 +67,7 @@ export default function ViewPost(props) {
   };
 
   const doLike = async (event, post, index) => {
+    setLikeLoader(true);
     await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post-like/create-like`, {
       method: 'POST',
       headers: {
@@ -78,6 +80,7 @@ export default function ViewPost(props) {
         postId: post._id
       })
     }).then((response) => response.json()).then((postRes) => {
+      setLikeLoader(false);
       if (postRes.success === true) {
         updatePostArray(postRes.data.post);
       } else {
@@ -156,11 +159,27 @@ export default function ViewPost(props) {
         <button type="button" className="btn btn-default btn-sm"><i className="fas fa-share"></i> Share</button>
       </RWebShare>
       {isLike(post.likes, authUser._id) ? <>
-        <button type="button" className="btn btn-primary btn-sm ml-1" onClick={(e) => doLike(e, post, postIndex)}><i className="far fa-thumbs-up"></i> Liked</button>
+        {likeLoader ? <>
+          <button type="button" className="btn btn-primary btn-sm ml-1">
+            <div class="spinner-border spinner-border-sm" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </button>
+        </> : <>
+          <button type="button" className="btn btn-primary btn-sm ml-1" onClick={(e) => doLike(e, post, postIndex)}><i className="far fa-thumbs-up"></i> Liked</button>
+        </>}
       </> : <>
-        <button type="button" className="btn btn-default btn-sm ml-1" onClick={(e) => doLike(e, post, postIndex)}><i className="far fa-thumbs-up"></i> Like</button>
+        {likeLoader ? <>
+          <button type="button" className="btn btn-default btn-sm ml-1">
+            <div class="spinner-border spinner-border-sm" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </button>
+        </> : <>
+          <button type="button" className="btn btn-default btn-sm ml-1" onClick={(e) => doLike(e, post, postIndex)}><i className="far fa-thumbs-up"></i> Like</button>
+        </>}
       </>}
-      <Link to={`${process.env.REACT_APP_BASE_URL}view-post/${post.slug}`} className="float-right text-muted">{post.likes.length} likes - {post.comments.length} comments</Link>
+      <Link to={`${process.env.REACT_APP_BASE_URL}view-post/${post.slug}`} className="float-right text-muted">{post.likesCount} likes - {post.commentsCount} comments</Link>
     </div>
 
     {post.comments.length > 0 ? <div className="card-footer card-comments">
