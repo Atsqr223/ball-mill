@@ -32,9 +32,11 @@ export default function Messages(props) {
     });
     const [messageData, setMessageData] = useState([]);
     const [messageType, setMessageType] = useState('');
-    const [receiverDetails, setReceiverDetails] = useState({});
+    const [sendToDetails, setsendToDetails] = useState({});
+    let sendToDetails2 = {};
     const [allUser, setAllUser] = useState([]);
     const [messageLoader, setMessageLoader] = useState(false);
+    const [onlineUsers, setOnlineUsers] = useState([]);
 
     let typing = false;
     let timeout = undefined;
@@ -44,12 +46,12 @@ export default function Messages(props) {
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
         setFormData((prevFormData) => ({ ...prevFormData, name: authUser.name }));
         setFormData((prevFormData) => ({ ...prevFormData, senderID: authUser._id }));
-        setFormData((prevFormData) => ({ ...prevFormData, receiverID: receiverDetails._id }));
+        setFormData((prevFormData) => ({ ...prevFormData, receiverID: sendToDetails._id }));
 
         // message typing
         if (typing == false) {
             typing = true;
-            socket.emit("type_message", authUser.name + " is typing...");
+            socket.emit("userTyping", { sendFrom: authUser, sendTo: sendToDetails, message: `${authUser.name} is typing...` });
             timeout = setTimeout(timeoutFunction, 3000);
         } else {
             clearTimeout(timeout);
@@ -67,7 +69,7 @@ export default function Messages(props) {
 
     function timeoutFunction() {
         typing = false;
-        socket.emit("type_message", "");
+        socket.emit("userTyping", { sendFrom: authUser, sendTo: sendToDetails, message: '' });
     }
 
     const sendMessage = (event, re) => {
@@ -75,8 +77,7 @@ export default function Messages(props) {
         if (validateForm(formData)) {
             const today = new Date();
             setFormData((prevFormData) => ({ ...prevFormData, time: new Date(today.toGMTString()) }));
-            console.log("formData :: ", formData);
-            socket.emit("send_message", formData);
+            socket.emit("sendMessage", formData);
             setFormData((prevFormData) => ({ ...prevFormData, message: '' }));
             setMessageData(prevFormData => [...prevFormData, formData]);
         }
@@ -94,7 +95,7 @@ export default function Messages(props) {
 
     const fetchMessage = async (sender, receiver) => {
         setMessageLoader(true);
-        setReceiverDetails(receiver);
+        setsendToDetails({ ...receiver });
         console.log(sender, receiver);
         const response = await fetch(process.env.REACT_APP_API_BASE_URL + `api/v1/message/getall?senderID=${sender._id}&receiverID=${receiver._id}`, {
             method: 'GET',
@@ -114,6 +115,7 @@ export default function Messages(props) {
     };
 
     const fetchUserList = async () => {
+        return;
         setLoader(true);
         let param = `?limit=20`;
         param += `&skip=0`;
@@ -140,25 +142,34 @@ export default function Messages(props) {
         });
     };
 
+    function isUnique(obj, index, self) {
+        return index === self.findIndex(o => (
+            o.socketId === obj.socketId
+        ));
+    }
+
     useEffect(() => {
-        fetchUserList();
-        // fetchMessage();
-
-        socket.emit("addUser", authUser._id);
-        socket.on("getUsers", (data) => {
-            console.log("USERS :: ", data);
+        socket.emit("newUserOnline", authUser);
+        socket.on("getOnlineUsers", (users) => {
+            let allUser = onlineUsers.concat(users)
+            const uniqueArray = allUser.filter(isUnique);
+            setOnlineUsers([...uniqueArray]);
         });
 
-        socket.on("someone_type_message", (data) => {
-            setMessageType(data);
+        socket.on("userTyping", (data) => {
+            if (Object.keys(sendToDetails).length !== 0) {
+                if (sendToDetails?._id === data.sendFrom._id) {
+                    setMessageType(data.message);
+                }
+            }
         });
 
-        socket.on("receive_message", (data) => {
+        socket.on("receiveMessage", (data) => {
             console.log("data :: ", data);
             console.log(`${data.receiverID} === ${authUser._id}`);
-            console.log(`${data.senderID} === ${receiverDetails._id}`);
-            console.log(`receiverDetails :: `, receiverDetails);
-            if (data.receiverID == authUser._id && data.senderID == receiverDetails._id) {
+            console.log(`${data.senderID} === ${sendToDetails._id}`);
+            console.log(`sendToDetails :: `, sendToDetails);
+            if (data.receiverID == authUser._id && data.senderID == sendToDetails._id) {
                 setMessageData(prevFormData => [...prevFormData, data]);
             } else {
                 // console.log("ERROR");
@@ -179,7 +190,7 @@ export default function Messages(props) {
                 target.scroll({ top: target.scrollHeight, behavior: 'smooth' });
             });
         }
-    }, [socket, receiverDetails]);
+    }, [socket, sendToDetails]);
 
     return (
         <>
@@ -220,14 +231,18 @@ export default function Messages(props) {
                             {loader ? <div className="card-body">
                                 <p>Getting...</p>
                             </div> : <div className="card-body">
-                                {allUser.map((user, i) => {
-                                    return <div className="info-box" style={{ cursor: 'pointer' }} key={i} onClick={() => fetchMessage(authUser, user)}>
-                                        <span className="info-box-icon bg-info"><i className="far fa-user"></i></span>
-                                        <div className="info-box-content">
-                                            <h5 className="widget-user-username">{user.name}</h5>
-                                            <h6 className="info-box-number">{user.email}</h6>
-                                        </div>
-                                    </div>;
+                                {onlineUsers.map((user, i) => {
+                                    return <React.Fragment key={i}>
+                                        {user.userData._id !== authUser._id ? <>
+                                            <div className="info-box" style={{ cursor: 'pointer' }} key={i} onClick={() => fetchMessage(authUser, user.userData)}>
+                                                <span className="info-box-icon bg-info"><i className="far fa-user"></i></span>
+                                                <div className="info-box-content">
+                                                    <h5 className="widget-user-username">{user.userData.name}</h5>
+                                                    <h6 className="info-box-number">{user.userData.email}</h6>
+                                                </div>
+                                            </div>
+                                        </> : <></>}
+                                    </React.Fragment>;
                                 })}
                             </div>}
                         </div>
@@ -235,7 +250,7 @@ export default function Messages(props) {
                         {messageLoader ? <div className="col-md-8" style={{ height: '100vh' }}>
                             <div className="card direct-chat direct-chat-warning">
                                 <div className="card-header">
-                                    <h3 className="card-title">Loading messages <b className="font-weight-bold">{receiverDetails.name}</b></h3>
+                                    <h3 className="card-title">Loading messages <b className="font-weight-bold">{sendToDetails.name}</b></h3>
                                 </div>
                                 <div className="card-body">
                                     <div className="direct-chat-messages"></div>
@@ -249,7 +264,7 @@ export default function Messages(props) {
                             <div className="col-md-8">
                                 <div className="card direct-chat direct-chat-warning">
                                     <div className="card-header">
-                                        <h3 className="card-title">Chat with <b className="font-weight-bold">{receiverDetails.name}</b></h3>
+                                        <h3 className="card-title">Chat with <b className="font-weight-bold">{sendToDetails.name}</b></h3>
 
                                         {/* <div className="card-tools">
                                         <span title="3 New Messages" className="badge badge-warning">3</span>
@@ -272,7 +287,7 @@ export default function Messages(props) {
                                                         (authUser._id.toString() === data.receiverID?._id || authUser._id.toString() === data.receiverID) ?
                                                             (<div className="direct-chat-msg">
                                                                 <div className="direct-chat-infos clearfix">
-                                                                    <span className="direct-chat-name float-left">{receiverDetails.name}</span>
+                                                                    <span className="direct-chat-name float-left">{sendToDetails.name}</span>
                                                                     <span className="direct-chat-timestamp float-right">{formatDate(data.time)}</span>
                                                                 </div>
                                                                 <img className="direct-chat-img" src="assets/dist/img/user1-128x128.jpg" alt="message user image" />
@@ -300,7 +315,7 @@ export default function Messages(props) {
                                         <p>{messageType}</p>
                                     </div>
 
-                                    {receiverDetails ?
+                                    {sendToDetails ?
                                         <div className="card-footer">
                                             <form onSubmit={sendMessage}>
                                                 <div className="input-group">
