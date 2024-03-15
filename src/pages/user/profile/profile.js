@@ -568,7 +568,7 @@ export default function Profile(props) {
 
                                                         <div className="form-group row">
                                                             <div className="offset-sm-2 col-sm-10">
-                                                                <button type="button" className="btn btn-danger" disabled={userPasswordFormLoader}>
+                                                                <button type="submit" className="btn btn-danger" disabled={userPasswordFormLoader}>
                                                                     {userPasswordFormLoader ? <>
                                                                         <div className="spinner-border spinner-border-sm" role="status">
                                                                             <span className="sr-only">Loading...</span>
