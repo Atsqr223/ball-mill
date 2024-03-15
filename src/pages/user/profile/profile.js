@@ -528,15 +528,15 @@ export default function Profile(props) {
 
                                                         <div className="form-group row">
                                                             <div className="offset-sm-2 col-sm-10">
-                                                                {userFormLoader ? <>
-                                                                    <button type="button" className="btn btn-danger">
+                                                                <button type="submit" className="btn btn-danger" disabled={userFormLoader}>
+                                                                    {userFormLoader ? <>
                                                                         <div className="spinner-border spinner-border-sm" role="status">
                                                                             <span className="sr-only">Loading...</span>
                                                                         </div>
-                                                                    </button>
-                                                                </> : <>
-                                                                    <button type="submit" className="btn btn-danger">Update</button>
-                                                                </>}
+                                                                    </> : <>
+                                                                        Update
+                                                                    </>}
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </form>
@@ -568,15 +568,15 @@ export default function Profile(props) {
 
                                                         <div className="form-group row">
                                                             <div className="offset-sm-2 col-sm-10">
-                                                                {userPasswordFormLoader ? <>
-                                                                    <button type="button" className="btn btn-danger">
+                                                                <button type="button" className="btn btn-danger" disabled={userPasswordFormLoader}>
+                                                                    {userPasswordFormLoader ? <>
                                                                         <div className="spinner-border spinner-border-sm" role="status">
                                                                             <span className="sr-only">Loading...</span>
                                                                         </div>
-                                                                    </button>
-                                                                </> : <>
-                                                                    <button type="submit" className="btn btn-danger">Change</button>
-                                                                </>}
+                                                                    </> : <>
+                                                                        Update
+                                                                    </>}
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </form>
