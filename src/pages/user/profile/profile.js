@@ -78,9 +78,7 @@ export default function Profile(props) {
                 body: JSON.stringify(userFormData)
             }).then((response) => response.json()).then((updateProfileRes) => {
                 document.getElementById("updateProfile").reset();
-                setUserFormData((prevFormData) => ({ ...prevFormData, firstName: true }));
-                setUserFormData((prevFormData) => ({ ...prevFormData, lastName: true }));
-                setUserFormData((prevFormData) => ({ ...prevFormData, submited: true }));
+                setUserFormData((prevFormData) => ({ ...prevFormData, submited: false }));
                 setUserFormLoader(false);
                 if (updateProfileRes.success === true) {
                     const setAuth = {
