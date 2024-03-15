@@ -148,12 +148,15 @@ export default function UserSignup(props) {
                                 </div>
                             </div>
                             <div className="col-4">
-                                {!loader ?
-                                    <button type="submit" className="btn btn-primary btn-block" disabled={loader}>
+                                <button type="submit" className="btn btn-primary btn-block" disabled={loader}>
+                                    {loader ? <>
+                                        <div className="spinner-border spinner-border-sm" role="status">
+                                            <span className="sr-only">Loading...</span>
+                                        </div>
+                                    </> : <>
                                         Let's go
-                                    </button> :
-                                    <div class="spinner-border text-primary float-right"></div>
-                                }
+                                    </>}
+                                </button>
                             </div>
                         </div>
 

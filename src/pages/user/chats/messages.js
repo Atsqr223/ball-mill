@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 
-import styles from './Message.css';
-
 // import wavFile from '../../audio/wavFile.wav';
 import useSound from 'use-sound';
 import Swal from 'sweetalert2';

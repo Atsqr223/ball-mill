@@ -87,12 +87,15 @@ export default function CreatePost(props) {
           </div>
 
           <div className="card-footer">
-            {!createPostLoader ?
-              <button type="submit" className="btn btn-primary" disabled={createPostLoader}>
-                Posts
-              </button> :
-              <div className="spinner-border text-primary float-right"></div>
-            }
+            <button type="submit" className="btn btn-primary" disabled={createPostLoader}>
+              {createPostLoader ? <>
+                <div className="spinner-border spinner-border-sm" role="status">
+                  <span className="sr-only">Loading...</span>
+                </div>
+              </> : <>
+                Create Post
+              </>}
+            </button>
           </div>
         </form>
       </div>
