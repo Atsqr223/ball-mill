@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 
-import moment from "moment";
+import styles from './Message.css';
 
 // import wavFile from '../../audio/wavFile.wav';
 import useSound from 'use-sound';
 import Swal from 'sweetalert2';
 
 // socket
-import io from "socket.io-client";
-const socket = io.connect(process.env.REACT_APP_API_BASE_URL);
+import { socket } from '../../../utils/socket';
 
 // component
 export default function Messages(props) {
@@ -23,6 +22,7 @@ export default function Messages(props) {
     const messageEl = useRef(null);
     // const [playSound] = useSound(wavFile);
 
+    const [isConnected, setIsConnected] = useState(socket.connected);
     const [loader, setLoader] = useState(false);
     const [formData, setFormData] = useState({
         senderID: '',
@@ -33,7 +33,6 @@ export default function Messages(props) {
     const [messageData, setMessageData] = useState([]);
     const [messageType, setMessageType] = useState('');
     const [sendToDetails, setsendToDetails] = useState({});
-    let sendToDetails2 = {};
     const [allUser, setAllUser] = useState([]);
     const [messageLoader, setMessageLoader] = useState(false);
     const [onlineUsers, setOnlineUsers] = useState([]);
@@ -51,13 +50,19 @@ export default function Messages(props) {
         // message typing
         if (typing == false) {
             typing = true;
+            console.log("sendToDetails :: ", sendToDetails);
             socket.emit("userTyping", { sendFrom: authUser, sendTo: sendToDetails, message: `${authUser.name} is typing...` });
-            timeout = setTimeout(timeoutFunction, 3000);
+            timeout = setTimeout(timeoutFunction, 2000);
         } else {
             clearTimeout(timeout);
-            timeout = setTimeout(timeoutFunction, 3000);
+            timeout = setTimeout(timeoutFunction, 2000);
         }
     };
+
+    function timeoutFunction() {
+        typing = false;
+        socket.emit("userTyping", { sendFrom: authUser, sendTo: sendToDetails, message: '' });
+    }
 
     const validateForm = (data) => {
         if (!data.message.trim()) {
@@ -66,11 +71,6 @@ export default function Messages(props) {
             return true;
         }
     };
-
-    function timeoutFunction() {
-        typing = false;
-        socket.emit("userTyping", { sendFrom: authUser, sendTo: sendToDetails, message: '' });
-    }
 
     const sendMessage = (event, re) => {
         event.preventDefault();
@@ -96,7 +96,8 @@ export default function Messages(props) {
     const fetchMessage = async (sender, receiver) => {
         setMessageLoader(true);
         setsendToDetails({ ...receiver });
-        console.log(sender, receiver);
+        // console.log("sendToDetails :: ", sendToDetails.name);
+        // console.log("receiver :: ", receiver.name);
         const response = await fetch(process.env.REACT_APP_API_BASE_URL + `api/v1/message/getall?senderID=${sender._id}&receiverID=${receiver._id}`, {
             method: 'GET',
             headers: {
@@ -157,8 +158,12 @@ export default function Messages(props) {
         });
 
         socket.on("userTyping", (data) => {
+            console.log("sendToDetails HELLO:: ", sendToDetails);
             if (Object.keys(sendToDetails).length !== 0) {
-                if (sendToDetails?._id === data.sendFrom._id) {
+                // console.log("sendToDetails._id :: ", sendToDetails.name);
+                // console.log("data.sendFrom._id :: ", data.sendFrom._id);
+                if (sendToDetails._id === data.sendFrom._id) {
+                    // console.log("OKKKKKKKKKKK");
                     setMessageType(data.message);
                 }
             }
@@ -190,6 +195,7 @@ export default function Messages(props) {
                 target.scroll({ top: target.scrollHeight, behavior: 'smooth' });
             });
         }
+        console.log("USEEFFECT :: sendToDetails :: ", sendToDetails.name);
     }, [socket, sendToDetails]);
 
     return (
@@ -234,7 +240,7 @@ export default function Messages(props) {
                                 {onlineUsers.map((user, i) => {
                                     return <React.Fragment key={i}>
                                         {user.userData._id !== authUser._id ? <>
-                                            <div className="info-box" style={{ cursor: 'pointer' }} key={i} onClick={() => fetchMessage(authUser, user.userData)}>
+                                            <div className="info-box" style={{ cursor: 'pointer' }} key={i} onClick={(e) => fetchMessage(authUser, user.userData)}>
                                                 <span className="info-box-icon bg-info"><i className="far fa-user"></i></span>
                                                 <div className="info-box-content">
                                                     <h5 className="widget-user-username">{user.userData.name}</h5>

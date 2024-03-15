@@ -34,6 +34,7 @@ export default function CreatePost(props) {
     setcreatePostLoader(true);
     setPostFormData((prevFormData) => ({ ...prevFormData, submited: true }));
     const validationErrors = validateForm(postFormData);
+    setPostFormValidateErrors(validationErrors);
     if (Object.keys(validationErrors).length === 0) {
       await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/create-post`, {
         method: 'POST',
@@ -45,19 +46,28 @@ export default function CreatePost(props) {
         body: JSON.stringify(postFormData)
       }).then((response) => response.json()).then((postRes) => {
         setcreatePostLoader(false);
-        setAlertBox((prevFormData) => ({ ...prevFormData, message: `${postRes.message}` }));
         if (postRes.success === true) {
           document.getElementById("createPost").reset();
-          setPostFormData((prevFormData) => ({ ...prevFormData, ['text']: '' }));
-          setAlertBox((prevFormData) => ({ ...prevFormData, alert: `success` }));
+          setPostFormData((prevFormData) => ({ ...prevFormData, text: '' }));
+          setPostFormData((prevFormData) => ({ ...prevFormData, submited: false }));
+          setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'success' }));
+          setAlertBox((prevFormData) => ({ ...prevFormData, message: postRes.message }));
+          setTimeout(() => {
+            setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
+            setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
+          }, 5000);
           newPostAdded(postRes.data.post);
         } else {
-          setAlertBox((prevFormData) => ({ ...prevFormData, alert: `danger` }));
+          setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'danger' }));
+          setAlertBox((prevFormData) => ({ ...prevFormData, message: postRes.message }));
+          setTimeout(() => {
+            setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
+            setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
+          }, 5000);
         }
       });
     } else {
       setcreatePostLoader(false);
-      setPostFormValidateErrors(validationErrors);
     }
   };
 

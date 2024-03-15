@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 
+import AlertBox from "../../../components/AlertBox";
+import { createAuthSession } from "../../../utils/authHelper";
+
 // component
 export default function Profile(props) {
     // page title
@@ -63,25 +66,45 @@ export default function Profile(props) {
         setUserFormData((prevFormData) => ({ ...prevFormData, submited: true }));
         setUserFormLoader(true);
         const validationErrors = validateUserForm(userFormData);
+        setUserFormErrors(validationErrors);
         if (Object.keys(validationErrors).length === 0) {
-            await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/auth/signup', {
+            await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/profile/update', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
+                    'Authorization': authToken
                 },
                 body: JSON.stringify(userFormData)
-            }).then((response) => response.json()).then((signupRes) => {
+            }).then((response) => response.json()).then((updateProfileRes) => {
+                document.getElementById("updateProfile").reset();
+                setUserFormData((prevFormData) => ({ ...prevFormData, firstName: true }));
+                setUserFormData((prevFormData) => ({ ...prevFormData, lastName: true }));
+                setUserFormData((prevFormData) => ({ ...prevFormData, submited: true }));
                 setUserFormLoader(false);
-                if (signupRes.success === true) {
-
+                if (updateProfileRes.success === true) {
+                    const setAuth = {
+                        userdata: updateProfileRes.data.user,
+                        token: updateProfileRes.data.access_token
+                    };
+                    createAuthSession(setAuth);
+                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'success' }));
+                    setAlertBox((prevFormData) => ({ ...prevFormData, message: updateProfileRes.message }));
+                    setTimeout(() => {
+                        setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
+                        setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
+                    }, 5000);
                 } else {
-
+                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'danger' }));
+                    setAlertBox((prevFormData) => ({ ...prevFormData, message: updateProfileRes.message }));
+                    setTimeout(() => {
+                        setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
+                        setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
+                    }, 5000);
                 }
             });
         } else {
             setUserFormLoader(false);
-            setUserFormErrors(validationErrors);
         }
     };
     // user form update end
@@ -114,9 +137,11 @@ export default function Profile(props) {
             errors.newPassword = 'New Password is required.';
         } else if (data.newPassword.length < 6) {
             errors.newPassword = 'New Password must be at least 6 characters long.';
+        } else if (data.newPassword.length > 16) {
+            errors.newPassword = 'Password must less then or equal to 16 characters.';
         }
 
-        if (data.password !== data.confirmPassword) {
+        if (data.newPassword !== data.confirmPassword) {
             errors.confirmPassword = 'Passwords do not match.';
         }
 
@@ -128,24 +153,41 @@ export default function Profile(props) {
         setUserPasswordForm((prevFormData) => ({ ...prevFormData, submited: true }));
         setUserPasswordFormLoader(true);
         const validationErrors = validatePasswordForm(userPasswordForm);
+        setUserPasswordFormErrors(validationErrors);
         if (Object.keys(validationErrors).length === 0) {
-            await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/auth/signup', {
+            await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/profile/update-password', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
+                    'Authorization': authToken
                 },
                 body: JSON.stringify(userPasswordForm)
-            }).then((response) => response.json()).then((signupRes) => {
+            }).then((response) => response.json()).then((passwordUpdateRes) => {
+                document.getElementById("updatePassword").reset();
+                setUserPasswordForm((prevFormData) => ({ ...prevFormData, oldPassword: '' }));
+                setUserPasswordForm((prevFormData) => ({ ...prevFormData, newPassword: '' }));
+                setUserPasswordForm((prevFormData) => ({ ...prevFormData, confirmPassword: '' }));
+                setUserPasswordForm((prevFormData) => ({ ...prevFormData, submited: false }));
                 setUserPasswordFormLoader(false);
-                if (signupRes.success === true) {
+                if (passwordUpdateRes.success === true) {
+                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'success' }));
+                    setAlertBox((prevFormData) => ({ ...prevFormData, message: passwordUpdateRes.message }));
+                    setTimeout(() => {
+                        setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
+                        setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
+                    }, 5000);
                 } else {
-
+                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'danger' }));
+                    setAlertBox((prevFormData) => ({ ...prevFormData, message: passwordUpdateRes.message }));
+                    setTimeout(() => {
+                        setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
+                        setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
+                    }, 5000);
                 }
             });
         } else {
             setUserPasswordFormLoader(false);
-            setUserPasswordFormErrors(validationErrors);
         }
     };
     // user password update end
@@ -251,6 +293,7 @@ export default function Profile(props) {
                                 </div>
 
                                 <div className="col-md-9">
+                                    <AlertBox alert={alertBox.alert} message={alertBox.message} />
                                     <div className="card">
                                         <div className="card-header p-2">
                                             <ul className="nav nav-pills">
@@ -453,7 +496,7 @@ export default function Profile(props) {
                                                 </div>
 
                                                 <div className="tab-pane" id="settings">
-                                                    <form className="form-horizontal" onSubmit={updateUser}>
+                                                    <form id='updateProfile' className="form-horizontal" onSubmit={updateUser}>
                                                         <div className="form-group row">
                                                             <label htmlFor="inputName" className="col-sm-2 col-form-label">First Name</label>
                                                             <div className="col-sm-10">
@@ -498,7 +541,7 @@ export default function Profile(props) {
                                                         </div>
                                                     </form>
 
-                                                    <form className="form-horizontal" onSubmit={updatePassword}>
+                                                    <form id='updatePassword' className="form-horizontal" onSubmit={updatePassword}>
                                                         <div className="form-group row">
                                                             <label htmlFor="inputName" className="col-sm-2 col-form-label">Old Password</label>
                                                             <div className="col-sm-10">

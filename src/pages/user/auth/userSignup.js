@@ -60,6 +60,8 @@ export default function UserSignup(props) {
             errors.password = 'Password is required.';
         } else if (data.password.length < 6) {
             errors.password = 'Password must be at least 6 characters long.';
+        } else if (data.password.length > 16) {
+            errors.password = 'Password must less then or equal to 16 characters.';
         }
 
         if (data.password !== data.confirmPassword) {
@@ -78,6 +80,7 @@ export default function UserSignup(props) {
         setFormData((prevFormData) => ({ ...prevFormData, submited: true }));
         setLoader(true);
         const validationErrors = validateForm(formData);
+        setErrors(validationErrors);
         if (Object.keys(validationErrors).length === 0) {
             await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/auth/signup', {
                 method: 'POST',
@@ -98,7 +101,6 @@ export default function UserSignup(props) {
             });
         } else {
             setLoader(false);
-            setErrors(validationErrors);
         }
     };
 
