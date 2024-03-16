@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
+
+import './profile.css';
 
 import AlertBox from "../../../components/AlertBox";
 import { createAuthSession } from "../../../utils/authHelper";
@@ -8,10 +10,49 @@ import { createAuthSession } from "../../../utils/authHelper";
 export default function Profile(props) {
     // page title
     document.title = 'Subha welcomes you | Profile';
-
     const { authFlag, authToken, authUser } = useOutletContext();
-
     const navigate = useNavigate();
+
+    const inputProfilePictureFile = useRef(null);
+    const [profilePicture, setProfilePicture] = useState([]);
+    const selectProfilePicture = async (e) => {
+        let formData = new FormData();    //formdata object
+        formData.append('image', e.target.files[0]);
+
+        await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/profile/profile-picture-update`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': authToken
+            },
+            body: formData
+        }).then((response) => response.json()).then((profilePictureRes) => {
+            inputProfilePictureFile.current.value = "";
+            inputProfilePictureFile.current.type = "text";
+            inputProfilePictureFile.current.type = "file";
+            if (profilePictureRes.success === true) {
+                document.getElementById("profilePicture").src = profilePictureRes.data.user.profile_picture_url;
+                const setAuth = {
+                    userdata: profilePictureRes.data.user,
+                    token: profilePictureRes.data.access_token
+                };
+                createAuthSession(setAuth);
+                setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'success' }));
+                setAlertBox((prevFormData) => ({ ...prevFormData, message: profilePictureRes.message }));
+                setTimeout(() => {
+                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
+                    setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
+                }, 5000);
+            } else {
+                setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'danger' }));
+                setAlertBox((prevFormData) => ({ ...prevFormData, message: profilePictureRes.message }));
+                setTimeout(() => {
+                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
+                    setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
+                }, 5000);
+            }
+        });
+    }
 
     // user form update start
     const [userFormLoader, setUserFormLoader] = useState(false);
@@ -238,7 +279,27 @@ export default function Profile(props) {
                                     <div className="card card-primary card-outline">
                                         <div className="card-body box-profile">
                                             <div className="text-center">
-                                                <img className="profile-user-img img-fluid img-circle" src="/assets/dist/img/user4-128x128.jpg" alt="User profile picture" />
+                                                <div class="profilepic">
+                                                    <img class="profile-user-img img-fluid img-circle profilepic__image" id='profilePicture' src={authUser.profile_picture_url} alt="Profibild" />
+                                                    <div class="profilepic__content" onClick={() => inputProfilePictureFile.current.click()}>
+                                                        <span class="profilepic__icon"><i class="fas fa-camera"></i></span>
+                                                        <span class="profilepic__text">Edit Profile</span>
+                                                    </div>
+                                                </div>
+                                                {/* <img className="profile-user-img img-fluid img-circle"
+                                                    src={authUser.profile_picture_url}
+                                                    alt="User profile picture"
+                                                    onClick={() => inputProfilePictureFile.current.click()}
+                                                    onMouseOver={({ target }) => target.style.color = "white"}
+                                                    onMouseOut={({ target }) => target.style.color = "black"} /> */}
+
+                                                <input
+                                                    type="file"
+                                                    onChange={selectProfilePicture}
+                                                    ref={inputProfilePictureFile}
+                                                    style={{ display: 'none' }} />
+
+
                                             </div>
                                             <h3 className="profile-username text-center">{authUser.name}</h3>
                                             <p className="text-muted text-center">Software Engineer</p>

@@ -131,7 +131,7 @@ export default function ViewPost(props) {
   return (<div className="card card-widget">
     <div className="card-header">
       <div className="user-block">
-        <img className="img-circle" src='/assets/dist/img/user1-128x128.jpg' alt="User Image" />
+        <img className="img-circle" src={post.auther.profile_picture_url} alt="User Image" />
         <span className="username"><a href="#">{post.auther.name}</a></span>
         <span className="description">{utcToLocalTime(post.createdAt)}</span>
       </div>
@@ -184,7 +184,7 @@ export default function ViewPost(props) {
 
     {post.comments.length > 0 ? <div className="card-footer card-comments">
       <div className="card-comment">
-        <img className="img-circle img-sm" src='/assets/dist/img/user3-128x128.jpg' alt="User Image" />
+        <img className="img-circle img-sm" src={post.comments[post.comments.length - 1].auther.profile_picture_url} alt="User Image" />
 
         <div className="comment-text">
           <span className="username">
@@ -199,7 +199,7 @@ export default function ViewPost(props) {
 
     <div className="card-footer">
       <form id={`createComment${postIndex}`} onSubmit={(e) => { commentFormSubmit(e, post, postIndex) }}>
-        <img className="img-fluid img-circle img-sm" src='/assets/dist/img/user4-128x128.jpg' alt="Alt Text" />
+        <img className="img-fluid img-circle img-sm" src={authUser.profile_picture_url} alt="Alt Text" />
         {/* <!-- .img-push is used to add margin to elements next to floating images --> */}
         <div className="img-push">
           <input type="text" className="form-control form-control-sm" placeholder="Press enter to post comment" name='text' value={commentFormData.text} onChange={(e) => { handleChangeCommentForm(e, post, postIndex) }} autoComplete='off' />

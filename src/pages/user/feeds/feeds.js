@@ -116,7 +116,7 @@ export default function Feeds(props) {
                                 {/* <!-- Add the bg color to the header using any of the bg-* classes --> */}
                                 <div className="widget-user-header bg-warning">
                                     <div className="widget-user-image">
-                                        <img className="img-circle elevation-2" src="/assets/dist/img/user7-128x128.jpg" alt="User Avatar" />
+                                        <img className="img-circle elevation-2" src={authUser.profile_picture_url} alt="User Avatar" />
                                     </div>
                                     <h3 className="widget-user-username">{authUser.name}</h3>
                                     <h5 className="widget-user-desc">{authUser.user_type.name}</h5>
