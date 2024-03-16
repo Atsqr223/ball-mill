@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 import './profile.css';
 
 import AlertBox from "../../../components/AlertBox";
+import CreatePost from "../../../components/CreatePost";
+import ViewPost from '../../../components/ViewPost';
 import { createAuthSession } from "../../../utils/authHelper";
 
 // component
@@ -12,6 +15,34 @@ export default function Profile(props) {
     document.title = 'Subha welcomes you | Profile';
     const { authFlag, authToken, authUser } = useOutletContext();
     const navigate = useNavigate();
+
+    const [posts, setPosts] = useState([]);
+    const [postsLoader, setPostsLoader] = useState(false);
+    const [pageNo, setPageNo] = useState(1);
+
+    const newPostAdded = (newPost) => {
+        setPosts(current => [newPost, ...current]);
+    }
+
+    const updatePostArray = (updatedPost) => {
+        const nextShapes = posts.map(post => {
+            if (post._id === updatedPost._id) {
+                // No change
+                return updatedPost;
+            } else {
+                // Return a new circle 50px below
+                return post;
+            }
+        });
+        // Re-render with the new array
+        setPosts(nextShapes);
+    };
+
+    const deleteFromPostArray = (deletedPost) => {
+        setPosts(oldValues => {
+            return oldValues.filter(post => post !== deletedPost)
+        })
+    };
 
     const inputProfilePictureFile = useRef(null);
     const [profilePicture, setProfilePicture] = useState([]);
@@ -231,6 +262,46 @@ export default function Profile(props) {
     };
     // user password update end
 
+    // fetch data
+    const fetchData = async () => {
+        setPostsLoader(true);
+        try {
+            let param = `?pageNo=${pageNo}`;
+            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-auther-posts${param}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': authToken
+                }
+            }).then((response) => response.json()).then((postsRes) => {
+                setPostsLoader(false);
+                if (postsRes.success === true) {
+                    setPosts(prevItems => [...prevItems, ...postsRes.data.posts]);
+                    if (postsRes.data.posts.length > 0) {
+                        setPageNo(prevPage => prevPage + 1);
+                    } else {
+
+                    }
+                } else {
+                    setPosts([]);
+                }
+            });
+        } catch (error) {
+            setPostsLoader(false);
+            setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'danger' }));
+            setAlertBox((prevFormData) => ({ ...prevFormData, message: 'An error occord.' }));
+        } finally {
+            setPostsLoader(false);
+        }
+    };
+
+    useEffect(() => {
+        if (posts.length === 0) {
+            fetchData();
+        }
+    }, []);
+
     return (
         <>
             {/* <!-- Content Header (Page header) --> */}
@@ -346,9 +417,7 @@ export default function Profile(props) {
                                             <strong><i className="far fa-file-alt mr-1"></i> Notes</strong>
                                             <p className="text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam fermentum enim neque.</p>
                                         </div>
-
                                     </div>
-
                                 </div>
 
                                 <div className="col-md-9">
@@ -364,110 +433,37 @@ export default function Profile(props) {
                                         <div className="card-body">
                                             <div className="tab-content">
                                                 <div className="active tab-pane" id="activity">
+                                                    <CreatePost authFlag={authFlag} authToken={authToken} authUser={authUser} newPostAdded={newPostAdded} />
 
-                                                    <div className="post">
-                                                        <div className="user-block">
-                                                            <img className="img-circle img-bordered-sm" src="/assets/dist/img/user1-128x128.jpg" alt="user image" />
-                                                            <span className="username">
-                                                                <a href="#">Jonathan Burke Jr.</a>
-                                                                <a href="#" className="float-right btn-tool"><i className="fas fa-times"></i></a>
-                                                            </span>
-                                                            <span className="description">Shared publicly - 7:30 PM today</span>
-                                                        </div>
+                                                    <AlertBox alert={alertBox.alert} message={alertBox.message} />
 
-                                                        <p>
-                                                            Lorem ipsum represents a long-held tradition for designers,
-                                                            typographers and the like. Some people hate it and argue for
-                                                            its demise, but others ignore the hate as they create awesome
-                                                            tools to help create filler text for everyone from bacon lovers
-                                                            to Charlie Sheen fans.
-                                                        </p>
-                                                        <p>
-                                                            <a href="#" className="link-black text-sm mr-2"><i className="fas fa-share mr-1"></i> Share</a>
-                                                            <a href="#" className="link-black text-sm"><i className="far fa-thumbs-up mr-1"></i> Like</a>
-                                                            <span className="float-right">
-                                                                <a href="#" className="link-black text-sm">
-                                                                    <i className="far fa-comments mr-1"></i> Comments (5)
-                                                                </a>
-                                                            </span>
-                                                        </p>
-                                                        <input className="form-control form-control-sm" type="text" placeholder="Type a comment" />
-                                                    </div>
+                                                    <InfiniteScroll
+                                                        dataLength={posts.length}
+                                                        next={fetchData}
+                                                        hasMore={posts.length < 200}
+                                                        loader={<></>}
+                                                        scrollableTarget="scrollableDiv"
+                                                    >
+                                                        {posts.map((post, i) => {
+                                                            return <ViewPost
+                                                                key={i}
+                                                                postIndex={i}
+                                                                post={post}
+                                                                updatePostArray={updatePostArray}
+                                                                deleteFromPostArray={deleteFromPostArray}
+                                                                authFlag={authFlag}
+                                                                authToken={authToken}
+                                                                authUser={authUser} />;
+                                                        })}
+                                                    </InfiniteScroll>
 
-
-                                                    <div className="post clearfix">
-                                                        <div className="user-block">
-                                                            <img className="img-circle img-bordered-sm" src="/assets/dist/img/user7-128x128.jpg" alt="User Image" />
-                                                            <span className="username">
-                                                                <a href="#">Sarah Ross</a>
-                                                                <a href="#" className="float-right btn-tool"><i className="fas fa-times"></i></a>
-                                                            </span>
-                                                            <span className="description">Sent you a message - 3 days ago</span>
-                                                        </div>
-
-                                                        <p>
-                                                            Lorem ipsum represents a long-held tradition for designers,
-                                                            typographers and the like. Some people hate it and argue for
-                                                            its demise, but others ignore the hate as they create awesome
-                                                            tools to help create filler text for everyone from bacon lovers
-                                                            to Charlie Sheen fans.
-                                                        </p>
-                                                        <form className="form-horizontal">
-                                                            <div className="input-group input-group-sm mb-0">
-                                                                <input className="form-control form-control-sm" placeholder="Response" />
-                                                                <div className="input-group-append">
-                                                                    <button type="submit" className="btn btn-danger">Send</button>
-                                                                </div>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-
-
-                                                    <div className="post">
-                                                        <div className="user-block">
-                                                            <img className="img-circle img-bordered-sm" src="/assets/dist/img/user6-128x128.jpg" alt="User Image" />
-                                                            <span className="username">
-                                                                <a href="#">Adam Jones</a>
-                                                                <a href="#" className="float-right btn-tool"><i className="fas fa-times"></i></a>
-                                                            </span>
-                                                            <span className="description">Posted 5 photos - 5 days ago</span>
-                                                        </div>
-
-                                                        <div className="row mb-3">
-                                                            <div className="col-sm-6">
-                                                                <img className="img-fluid" src="/assets/dist/img/photo1.png" alt="Photo" />
-                                                            </div>
-
-                                                            <div className="col-sm-6">
-                                                                <div className="row">
-                                                                    <div className="col-sm-6">
-                                                                        <img className="img-fluid mb-3" src="/assets/dist/img/photo2.png" alt="Photo" />
-                                                                        <img className="img-fluid" src="/assets/dist/img/photo3.jpg" alt="Photo" />
-                                                                    </div>
-
-                                                                    <div className="col-sm-6">
-                                                                        <img className="img-fluid mb-3" src="/assets/dist/img/photo4.jpg" alt="Photo" />
-                                                                        <img className="img-fluid" src="/assets/dist/img/photo1.png" alt="Photo" />
-                                                                    </div>
-
-                                                                </div>
-
-                                                            </div>
-
-                                                        </div>
-
-                                                        <p>
-                                                            <a href="#" className="link-black text-sm mr-2"><i className="fas fa-share mr-1"></i> Share</a>
-                                                            <a href="#" className="link-black text-sm"><i className="far fa-thumbs-up mr-1"></i> Like</a>
-                                                            <span className="float-right">
-                                                                <a href="#" className="link-black text-sm">
-                                                                    <i className="far fa-comments mr-1"></i> Comments (5)
-                                                                </a>
-                                                            </span>
-                                                        </p>
-                                                        <input className="form-control form-control-sm" type="text" placeholder="Type a comment" />
-                                                    </div>
-
+                                                    {postsLoader ? <div className='text-center mb-2'>
+                                                        <div className="spinner-grow text-primary"></div>
+                                                        <div className="spinner-grow text-success ml-2"></div>
+                                                        <div className="spinner-grow text-info ml-2"></div>
+                                                        <div className="spinner-grow text-warning ml-2"></div>
+                                                        <div className="spinner-grow text-danger ml-2"></div>
+                                                    </div> : <></>}
                                                 </div>
 
                                                 <div className="tab-pane" id="timeline">
