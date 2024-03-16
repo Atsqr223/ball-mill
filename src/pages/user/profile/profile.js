@@ -569,14 +569,14 @@ export default function Profile(props) {
                                                         <div className="form-group row">
                                                             <label htmlFor="inputEmail" className="col-sm-2 col-form-label">Email</label>
                                                             <div className="col-sm-10">
-                                                                <input type="email" className="form-control" name="email" value={userFormData.email} onChange={userFormHandleChange} placeholder="Email" />
+                                                                <input type="email" className="form-control" name="email" value={userFormData.email} onChange={userFormHandleChange} placeholder="Email" disabled={true} />
                                                                 {userFormErrors.email && userFormData.submited ? <span className="text-danger">{userFormErrors.email}</span> : <></>}
                                                             </div>
                                                         </div>
                                                         <div className="form-group row">
                                                             <label htmlFor="inputEmail" className="col-sm-2 col-form-label">Phone</label>
                                                             <div className="col-sm-10">
-                                                                <input type="text" className="form-control" name="phone" value={userFormData.phone} onChange={userFormHandleChange} placeholder="Phone no" />
+                                                                <input type="text" className="form-control" name="phone" value={userFormData.phone} onChange={userFormHandleChange} placeholder="Phone no" disabled={true} />
                                                                 {userFormErrors.phone && userFormData.submited ? <span className="text-danger">{userFormErrors.phone}</span> : <></>}
                                                             </div>
                                                         </div>
