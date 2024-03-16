@@ -282,8 +282,8 @@ export default function Profile(props) {
                                                 <div class="profilepic">
                                                     <img class="profile-user-img img-fluid img-circle profilepic__image" id='profilePicture' src={authUser.profile_picture_url} alt="Profibild" />
                                                     <div class="profilepic__content" onClick={() => inputProfilePictureFile.current.click()}>
-                                                        <span class="profilepic__icon"><i class="fas fa-camera"></i></span>
-                                                        <span class="profilepic__text">Edit Profile</span>
+                                                        <span class="font-weight-bold"><i class="fas fa-camera"></i></span>
+                                                        <span class="font-weight-bold">Change</span>
                                                     </div>
                                                 </div>
                                                 {/* <img className="profile-user-img img-fluid img-circle"
