@@ -5,8 +5,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import './profile.css';
 
 import AlertBox from "../../../components/AlertBox";
-import CreatePost from "../../../components/CreatePost";
-import ViewPost from '../../../components/ViewPost';
+import CreatePostComponent from "../../../components/post/CreatePostComponent";
+import ViewPostComponent from '../../../components/post/ViewPostComponent';
 import { createAuthSession } from "../../../utils/authHelper";
 
 // component
@@ -350,11 +350,11 @@ export default function Profile(props) {
                                     <div className="card card-primary card-outline">
                                         <div className="card-body box-profile">
                                             <div className="text-center">
-                                                <div class="profilepic">
-                                                    <img class="profile-user-img img-fluid img-circle profilepic__image" id='profilePicture' src={authUser.profile_picture_url} alt="Profibild" />
-                                                    <div class="profilepic__content" onClick={() => inputProfilePictureFile.current.click()}>
-                                                        <span class="font-weight-bold"><i class="fas fa-camera"></i></span>
-                                                        <span class="font-weight-bold">Change</span>
+                                                <div className="profilepic">
+                                                    <img className="profile-user-img img-fluid img-circle profilepic__image" id='profilePicture' src={authUser.profile_picture_url} alt="Profibild" />
+                                                    <div className="profilepic__content" onClick={() => inputProfilePictureFile.current.click()}>
+                                                        <span className="font-weight-bold"><i className="fas fa-camera"></i></span>
+                                                        <span className="font-weight-bold">Change</span>
                                                     </div>
                                                 </div>
                                                 {/* <img className="profile-user-img img-fluid img-circle"
@@ -433,7 +433,7 @@ export default function Profile(props) {
                                         <div className="card-body">
                                             <div className="tab-content">
                                                 <div className="active tab-pane" id="activity">
-                                                    <CreatePost authFlag={authFlag} authToken={authToken} authUser={authUser} newPostAdded={newPostAdded} />
+                                                    <CreatePostComponent authFlag={authFlag} authToken={authToken} authUser={authUser} newPostAdded={newPostAdded} />
 
                                                     <AlertBox alert={alertBox.alert} message={alertBox.message} />
 
@@ -445,7 +445,7 @@ export default function Profile(props) {
                                                         scrollableTarget="scrollableDiv"
                                                     >
                                                         {posts.map((post, i) => {
-                                                            return <ViewPost
+                                                            return <ViewPostComponent
                                                                 key={i}
                                                                 postIndex={i}
                                                                 post={post}

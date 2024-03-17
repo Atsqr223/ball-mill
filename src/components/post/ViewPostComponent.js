@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { RWebShare } from "react-web-share";
-import AlertBox from "./AlertBox";
-import { utcToLocalTime, timeAgo } from "../utils/timeHelper";
+import AlertBox from "../AlertBox";
+import { utcToLocalTime, timeAgo } from "../../utils/timeHelper";
 import Swal from 'sweetalert2';
 
 // component
-export default function ViewPost(props) {
+export default function ViewPostComponent(props) {
   const { authFlag, authToken, authUser, newPostAdded } = props;
   const { post, postIndex, updatePostArray, deleteFromPostArray } = props;
 
@@ -132,7 +132,7 @@ export default function ViewPost(props) {
     <div className="card-header">
       <div className="user-block">
         <img className="img-circle" src={post.auther.profile_picture_url} alt="User Image" />
-        <span className="username"><a href="#">{post.auther.name}</a></span>
+        <span className="username"><Link to={`${process.env.REACT_APP_BASE_URL}profile/${post.auther.username}`}>{post.auther.name}</Link></span>
         <span className="description">{utcToLocalTime(post.createdAt)}</span>
       </div>
 

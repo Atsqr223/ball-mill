@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate, useParams } from "react-router-dom";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { RWebShare } from "react-web-share";
+
 import AlertBox from "../../../components/AlertBox";
-import CreatePost from "../../../components/CreatePost";
-import ViewPostWithComments from '../../../components/ViewPostWithComments';
+import CreatePostComponent from "../../../components/post/CreatePostComponent";
+import ViewPostWithComment from '../../../components/post/ViewFullPostComponent';
 import { utcToLocalTime } from "../../../utils/timeHelper";
+import ViewFullPostComponent from '../../../components/post/ViewFullPostComponent';
 
 // component
 export default function ViewSinglePost(props) {
@@ -191,7 +193,7 @@ export default function ViewSinglePost(props) {
                                         <div className="spinner-grow text-warning ml-2"></div>
                                         <div className="spinner-grow text-danger ml-2"></div>
                                     </div> : <>
-                                        <ViewPostWithComments
+                                        <ViewFullPostComponent
                                             postIndex={0}
                                             post={post}
                                             updatePostArray={updatePostArray}

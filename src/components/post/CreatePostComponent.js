@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import AlertBox from "../components/AlertBox";
+import AlertBox from "../AlertBox";
 
 // component
-export default function CreatePost(props) {
+export default function CreatePostComponent(props) {
   const { authFlag, authToken, authUser, newPostAdded } = props;
 
   const [createPostLoader, setcreatePostLoader] = useState(false);

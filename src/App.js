@@ -25,6 +25,7 @@ const Home = lazy(() => import('./pages/user/home'));
 const Feeds = lazy(() => import('./pages/user/feeds/feeds'));
 const ViewSinglePost = lazy(() => import('./pages/user/post/ViewSinglePost'));
 const Profile = lazy(() => import('./pages/user/profile/profile'));
+const ViewProfile = lazy(() => import('./pages/user/profile/ViewProfile'));
 const Inbox = lazy(() => import('./pages/user/mailbox/inbox'));
 const ComposeMail = lazy(() => import('./pages/user/mailbox/compose'));
 const ReadMail = lazy(() => import('./pages/user/mailbox/read'));
@@ -79,6 +80,7 @@ function App() {
             )
           }>
             <Route path="feeds" element={<Feeds />} />
+            <Route path="profile/:username" element={<ViewProfile />} />
             <Route path="view-post/:slug" element={<ViewSinglePost />} />
 
             <Route path="/mail">

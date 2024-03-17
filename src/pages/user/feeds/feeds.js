@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { RWebShare } from "react-web-share";
+
 import AlertBox from "../../../components/AlertBox";
-import CreatePost from "../../../components/CreatePost";
-import ViewPost from '../../../components/ViewPost';
+import CreatePostComponent from "../../../components/post/CreatePostComponent";
+import ViewPostComponent from '../../../components/post/ViewPostComponent';
 import { utcToLocalTime } from "../../../utils/timeHelper";
 
 // component
@@ -179,7 +180,7 @@ export default function Feeds(props) {
                         </div>
 
                         <div id="scrollableDiv" className="col-md-6 overflow-auto" style={{ height: '100vh' }}>
-                            <CreatePost authFlag={authFlag} authToken={authToken} authUser={authUser} newPostAdded={newPostAdded} />
+                            <CreatePostComponent authFlag={authFlag} authToken={authToken} authUser={authUser} newPostAdded={newPostAdded} />
 
                             <AlertBox alert={alertBox.alert} message={alertBox.message} />
 
@@ -191,7 +192,7 @@ export default function Feeds(props) {
                                 scrollableTarget="scrollableDiv"
                             >
                                 {posts.map((post, i) => {
-                                    return <ViewPost
+                                    return <ViewPostComponent
                                         key={i}
                                         postIndex={i}
                                         post={post}
