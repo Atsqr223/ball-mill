@@ -7,6 +7,7 @@ import './profile.css';
 import AlertBox from "../../../components/AlertBox";
 import CreatePostComponent from "../../../components/post/CreatePostComponent";
 import ViewPostComponent from '../../../components/post/ViewPostComponent';
+import ProfileUpdateForm from './ProfileUpdateForm';
 import { createAuthSession } from "../../../utils/authHelper";
 
 // component
@@ -88,10 +89,21 @@ export default function Profile(props) {
     // user form update start
     const [userFormLoader, setUserFormLoader] = useState(false);
     const name = authUser.name.split(" ");
+    const [userEducationForm, setEducationForm] = useState({
+        school_college_university: '',
+        degree: '',
+        start_year: '',
+        end_year: '',
+        description: '',
+    });
     const [userFormData, setUserFormData] = useState({
         firstName: name[0],
         lastName: name[1],
         phone: authUser.phone.toString(),
+        education: [],
+        location: authUser.location,
+        skills: [],
+        bio: authUser.bio,
         email: authUser.email,
         submited: false
     });
@@ -176,6 +188,28 @@ export default function Profile(props) {
         } else {
             setUserFormLoader(false);
         }
+    };
+
+    const addNewEducation = () => {
+        const newArray = [...userFormData.education, {
+            school_college_university: '',
+            degree: '',
+            start_year: '',
+            end_year: '',
+            description: '',
+        }]; // Add a new element to the array
+        setUserFormData(prevState => ({
+            ...prevState,
+            education: newArray
+        }));
+    };
+
+    const deleteEducation = (index) => {
+        const newArray = userFormData.education.splice(index, 1);
+        setUserFormData(prevState => ({
+            ...prevState,
+            education: newArray
+        }));
     };
     // user form update end
 
@@ -346,7 +380,6 @@ export default function Profile(props) {
                         <div className="container-fluid">
                             <div className="row">
                                 <div className="col-md-3">
-
                                     <div className="card card-primary card-outline">
                                         <div className="card-body box-profile">
                                             <div className="text-center">
@@ -390,7 +423,6 @@ export default function Profile(props) {
 
                                     </div>
 
-
                                     <div className="card card-primary">
                                         <div className="card-header">
                                             <h3 className="card-title">About Me</h3>
@@ -403,7 +435,7 @@ export default function Profile(props) {
                                             </p>
                                             <hr />
                                             <strong><i className="fas fa-map-marker-alt mr-1"></i> Location</strong>
-                                            <p className="text-muted">Malibu, California</p>
+                                            <p className="text-muted">{authUser.location}</p>
                                             <hr />
                                             <strong><i className="fas fa-pencil-alt mr-1"></i> Skills</strong>
                                             <p className="text-muted">
@@ -414,8 +446,8 @@ export default function Profile(props) {
                                                 <span className="tag tag-primary">Node.js</span>
                                             </p>
                                             <hr />
-                                            <strong><i className="far fa-file-alt mr-1"></i> Notes</strong>
-                                            <p className="text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam fermentum enim neque.</p>
+                                            <strong><i className="far fa-file-alt mr-1"></i> Bio</strong>
+                                            <p className="text-muted">{authUser.bio}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -551,50 +583,7 @@ export default function Profile(props) {
                                                 </div>
 
                                                 <div className="tab-pane" id="settings">
-                                                    <form id='updateProfile' className="form-horizontal" onSubmit={updateUser}>
-                                                        <div className="form-group row">
-                                                            <label htmlFor="inputName" className="col-sm-2 col-form-label">First Name</label>
-                                                            <div className="col-sm-10">
-                                                                <input type="text" className="form-control" name="firstName" value={userFormData.firstName} onChange={userFormHandleChange} placeholder="First name" />
-                                                                {userFormErrors.firstName && userFormData.submited ? <span className="text-danger">{userFormErrors.firstName}</span> : <></>}
-                                                            </div>
-                                                        </div>
-                                                        <div className="form-group row">
-                                                            <label htmlFor="inputName" className="col-sm-2 col-form-label">Last Name</label>
-                                                            <div className="col-sm-10">
-                                                                <input type="text" className="form-control" name="lastName" value={userFormData.lastName} onChange={userFormHandleChange} placeholder="NLast name" />
-                                                                {userFormErrors.lastName && userFormData.submited ? <span className="text-danger">{userFormErrors.lastName}</span> : <></>}
-                                                            </div>
-                                                        </div>
-                                                        <div className="form-group row">
-                                                            <label htmlFor="inputEmail" className="col-sm-2 col-form-label">Email</label>
-                                                            <div className="col-sm-10">
-                                                                <input type="email" className="form-control" name="email" value={userFormData.email} onChange={userFormHandleChange} placeholder="Email" disabled={true} />
-                                                                {userFormErrors.email && userFormData.submited ? <span className="text-danger">{userFormErrors.email}</span> : <></>}
-                                                            </div>
-                                                        </div>
-                                                        <div className="form-group row">
-                                                            <label htmlFor="inputEmail" className="col-sm-2 col-form-label">Phone</label>
-                                                            <div className="col-sm-10">
-                                                                <input type="text" className="form-control" name="phone" value={userFormData.phone} onChange={userFormHandleChange} placeholder="Phone no" disabled={true} />
-                                                                {userFormErrors.phone && userFormData.submited ? <span className="text-danger">{userFormErrors.phone}</span> : <></>}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="form-group row">
-                                                            <div className="offset-sm-2 col-sm-10">
-                                                                <button type="submit" className="btn btn-danger" disabled={userFormLoader}>
-                                                                    {userFormLoader ? <>
-                                                                        <div className="spinner-border spinner-border-sm" role="status">
-                                                                            <span className="sr-only">Loading...</span>
-                                                                        </div>
-                                                                    </> : <>
-                                                                        Update
-                                                                    </>}
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </form>
+                                                    <ProfileUpdateForm authFlag={authFlag} authToken={authToken} authUser={authUser} />
 
                                                     <form id='updatePassword' className="form-horizontal" onSubmit={updatePassword}>
                                                         <div className="form-group row">
@@ -636,14 +625,10 @@ export default function Profile(props) {
                                                         </div>
                                                     </form>
                                                 </div>
-
                                             </div>
-
                                         </div>
                                     </div>
-
                                 </div>
-
                             </div>
                         </div>
                     </section>
