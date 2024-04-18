@@ -10,6 +10,7 @@ import ViewPostComponent from '../../../components/post/ViewPostComponent';
 import UserBasicUpdateForm from './UserBasicUpdateForm';
 import UserEducationUpdateForm from './UserEducationUpdateForm';
 import UserSkillsUpdateForm from './UserSkillsUpdateForm';
+import UserPasswordUpdateForm from './UserPasswordUpdateForm';
 import { createAuthSession } from "../../../utils/authHelper";
 
 // component
@@ -91,212 +92,11 @@ export default function Profile(props) {
     // user form update start
     const [userFormLoader, setUserFormLoader] = useState(false);
     const name = authUser.name.split(" ");
-    const [userEducationForm, setEducationForm] = useState({
-        school_college_university: '',
-        degree: '',
-        start_year: '',
-        end_year: '',
-        description: '',
-    });
-    const [userFormData, setUserFormData] = useState({
-        firstName: name[0],
-        lastName: name[1],
-        phone: authUser.phone.toString(),
-        education: [],
-        location: authUser.location,
-        skills: [],
-        bio: authUser.bio,
-        email: authUser.email,
-        submited: false
-    });
-    const [userFormErrors, setUserFormErrors] = useState({});
     const [alertBox, setAlertBox] = useState({
         alert: '',
         message: ''
     });
-
-    const userFormHandleChange = (event) => {
-        const { name, value } = event.target;
-        setUserFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
-        const validationErrors = validateUserForm(userFormData);
-        setUserFormErrors(validationErrors);
-    };
-
-    const validateUserForm = (data) => {
-        let errors = {};
-
-        // Validation rules
-        if (!data.firstName.trim()) {
-            errors.firstName = 'First name is required.';
-        }
-
-        if (!data.lastName.trim()) {
-            errors.lastName = 'Last name is required.';
-        }
-
-        if (!data.phone.trim()) {
-            errors.phone = 'Phone number is required.';
-        }
-
-        if (!data.email.trim()) {
-            errors.email = 'Email is required.';
-        } else if (!/\S+@\S+\.\S+/.test(data.email)) {
-            errors.email = 'Email address is invalid.';
-        }
-
-        return errors;
-    };
-
-    const updateUser = async (event) => {
-        event.preventDefault();
-        setUserFormData((prevFormData) => ({ ...prevFormData, submited: true }));
-        setUserFormLoader(true);
-        const validationErrors = validateUserForm(userFormData);
-        setUserFormErrors(validationErrors);
-        if (Object.keys(validationErrors).length === 0) {
-            await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/profile/update', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': authToken
-                },
-                body: JSON.stringify(userFormData)
-            }).then((response) => response.json()).then((updateProfileRes) => {
-                document.getElementById("updateProfile").reset();
-                setUserFormData((prevFormData) => ({ ...prevFormData, submited: false }));
-                setUserFormLoader(false);
-                if (updateProfileRes.success === true) {
-                    const setAuth = {
-                        userdata: updateProfileRes.data.user,
-                        token: updateProfileRes.data.access_token
-                    };
-                    createAuthSession(setAuth);
-                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'success' }));
-                    setAlertBox((prevFormData) => ({ ...prevFormData, message: updateProfileRes.message }));
-                    setTimeout(() => {
-                        setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
-                        setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
-                    }, 5000);
-                } else {
-                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'danger' }));
-                    setAlertBox((prevFormData) => ({ ...prevFormData, message: updateProfileRes.message }));
-                    setTimeout(() => {
-                        setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
-                        setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
-                    }, 5000);
-                }
-            });
-        } else {
-            setUserFormLoader(false);
-        }
-    };
-
-    const addNewEducation = () => {
-        const newArray = [...userFormData.education, {
-            school_college_university: '',
-            degree: '',
-            start_year: '',
-            end_year: '',
-            description: '',
-        }]; // Add a new element to the array
-        setUserFormData(prevState => ({
-            ...prevState,
-            education: newArray
-        }));
-    };
-
-    const deleteEducation = (index) => {
-        const newArray = userFormData.education.splice(index, 1);
-        setUserFormData(prevState => ({
-            ...prevState,
-            education: newArray
-        }));
-    };
     // user form update end
-
-    // user password update start
-    const [userPasswordFormLoader, setUserPasswordFormLoader] = useState(false);
-    const [userPasswordForm, setUserPasswordForm] = useState({
-        oldPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-        submited: false
-    });
-    const [userPasswordFormErrors, setUserPasswordFormErrors] = useState({});
-
-    const userPasswordFormHandleChange = (event) => {
-        const { name, value } = event.target;
-        setUserPasswordForm((prevFormData) => ({ ...prevFormData, [name]: value }));
-        const validationErrors = validatePasswordForm(userPasswordForm);
-        setUserPasswordFormErrors(validationErrors);
-    };
-
-    function validatePasswordForm(data) {
-        let errors = {};
-
-        if (!data.oldPassword) {
-            errors.oldPassword = 'Old Password is required.';
-        }
-
-        if (!data.newPassword) {
-            errors.newPassword = 'New Password is required.';
-        } else if (data.newPassword.length < 6) {
-            errors.newPassword = 'New Password must be at least 6 characters long.';
-        } else if (data.newPassword.length > 16) {
-            errors.newPassword = 'Password must less then or equal to 16 characters.';
-        }
-
-        if (data.newPassword !== data.confirmPassword) {
-            errors.confirmPassword = 'Passwords do not match.';
-        }
-
-        return errors;
-    }
-
-    const updatePassword = async (event) => {
-        event.preventDefault();
-        setUserPasswordForm((prevFormData) => ({ ...prevFormData, submited: true }));
-        setUserPasswordFormLoader(true);
-        const validationErrors = validatePasswordForm(userPasswordForm);
-        setUserPasswordFormErrors(validationErrors);
-        if (Object.keys(validationErrors).length === 0) {
-            await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/profile/update-password', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': authToken
-                },
-                body: JSON.stringify(userPasswordForm)
-            }).then((response) => response.json()).then((passwordUpdateRes) => {
-                document.getElementById("updatePassword").reset();
-                setUserPasswordForm((prevFormData) => ({ ...prevFormData, oldPassword: '' }));
-                setUserPasswordForm((prevFormData) => ({ ...prevFormData, newPassword: '' }));
-                setUserPasswordForm((prevFormData) => ({ ...prevFormData, confirmPassword: '' }));
-                setUserPasswordForm((prevFormData) => ({ ...prevFormData, submited: false }));
-                setUserPasswordFormLoader(false);
-                if (passwordUpdateRes.success === true) {
-                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'success' }));
-                    setAlertBox((prevFormData) => ({ ...prevFormData, message: passwordUpdateRes.message }));
-                    setTimeout(() => {
-                        setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
-                        setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
-                    }, 5000);
-                } else {
-                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'danger' }));
-                    setAlertBox((prevFormData) => ({ ...prevFormData, message: passwordUpdateRes.message }));
-                    setTimeout(() => {
-                        setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
-                        setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
-                    }, 5000);
-                }
-            });
-        } else {
-            setUserPasswordFormLoader(false);
-        }
-    };
-    // user password update end
 
     // fetch data
     const fetchData = async () => {
@@ -432,21 +232,22 @@ export default function Profile(props) {
 
                                         <div className="card-body">
                                             <strong><i className="fas fa-book mr-1"></i> Education</strong>
-                                            <p className="text-muted">
-                                                B.S. in Computer Science from the University of Tennessee at Knoxville
-                                            </p>
+
+                                            {authUser.educations.map((edu, i) => {
+                                                return <p className="text-muted" key={i}>
+                                                   {`${edu.degree} from the ${edu.school_college_university}`}
+                                                </p>
+                                            })}
                                             <hr />
                                             <strong><i className="fas fa-map-marker-alt mr-1"></i> Location</strong>
                                             <p className="text-muted">{authUser.location}</p>
                                             <hr />
                                             <strong><i className="fas fa-pencil-alt mr-1"></i> Skills</strong>
-                                            <p className="text-muted">
-                                                <span className="tag tag-danger">UI Design</span>
-                                                <span className="tag tag-success">Coding</span>
-                                                <span className="tag tag-info">Javascript</span>
-                                                <span className="tag tag-warning">PHP</span>
-                                                <span className="tag tag-primary">Node.js</span>
-                                            </p>
+                                            {authUser.skills.map((skl, i) => {
+                                                return <p className="text-muted" key={i}>
+                                                   {`${skl.year_of_experience} year of experince in ${skl.name}`}
+                                                </p>
+                                            })}
                                             <hr />
                                             <strong><i className="far fa-file-alt mr-1"></i> Bio</strong>
                                             <p className="text-muted">{authUser.bio}</p>
@@ -588,46 +389,7 @@ export default function Profile(props) {
                                                     <UserBasicUpdateForm authFlag={authFlag} authToken={authToken} authUser={authUser} newPostAdded={newPostAdded} />
                                                     <UserEducationUpdateForm authFlag={authFlag} authToken={authToken} authUser={authUser} newPostAdded={newPostAdded} />
                                                     <UserSkillsUpdateForm authFlag={authFlag} authToken={authToken} authUser={authUser} newPostAdded={newPostAdded} />
-
-                                                    <form id='updatePassword' className="form-horizontal" onSubmit={updatePassword}>
-                                                        <div className="form-group row">
-                                                            <label htmlFor="inputName" className="col-sm-2 col-form-label">Old Password</label>
-                                                            <div className="col-sm-10">
-                                                                <input type="password" className="form-control" name="oldPassword" value={userPasswordForm.oldPassword} onChange={userPasswordFormHandleChange} placeholder="Old Password" />
-                                                                {(userPasswordFormErrors.oldPassword && userPasswordForm.submited) ? <span className="text-danger">{userPasswordFormErrors.oldPassword}</span> : <></>}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="form-group row">
-                                                            <label htmlFor="inputEmail" className="col-sm-2 col-form-label">New Password</label>
-                                                            <div className="col-sm-10">
-                                                                <input type="password" className="form-control" name="newPassword" value={userPasswordForm.newPassword} onChange={userPasswordFormHandleChange} placeholder="New Password" />
-                                                                {userPasswordFormErrors.newPassword && userPasswordForm.submited ? <span className="text-danger">{userPasswordFormErrors.newPassword}</span> : <></>}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="form-group row">
-                                                            <label htmlFor="inputEmail" className="col-sm-2 col-form-label">Confirm Password</label>
-                                                            <div className="col-sm-10">
-                                                                <input type="password" className="form-control" name="confirmPassword" value={userPasswordForm.confirmPassword} onChange={userPasswordFormHandleChange} placeholder="Confirm Password" />
-                                                                {userPasswordFormErrors.confirmPassword && userPasswordForm.submited ? <span className="text-danger">{userPasswordFormErrors.confirmPassword}</span> : <></>}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="form-group row">
-                                                            <div className="offset-sm-2 col-sm-10">
-                                                                <button type="submit" className="btn btn-danger" disabled={userPasswordFormLoader}>
-                                                                    {userPasswordFormLoader ? <>
-                                                                        <div className="spinner-border spinner-border-sm" role="status">
-                                                                            <span className="sr-only">Loading...</span>
-                                                                        </div>
-                                                                    </> : <>
-                                                                        Update
-                                                                    </>}
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </form>
+                                                    <UserPasswordUpdateForm authFlag={authFlag} authToken={authToken} authUser={authUser} newPostAdded={newPostAdded} />
                                                 </div>
                                             </div>
                                         </div>

@@ -16,12 +16,13 @@ export default function UserEducationUpdateForm(props) {
 
     // user form update start
     const [userFormLoader, setUserFormLoader] = useState(false);
+    const [educationLoader, setEducationLoader] = useState(true);
     const [userEducationFormData, setUserEducationFormData] = useState({
         school_college_university: '',
         degree: '',
         start_date: '',
         end_date: '',
-        bio: '',
+        description: '',
         submited: false
     });
     const [userEducation, setUserEducation] = useState([]);
@@ -36,7 +37,7 @@ export default function UserEducationUpdateForm(props) {
         const validationErrors = validateUserEducationForm(userEducationFormData);
         setUserEducationFormErrors(validationErrors);
 
-        if(name == 'start_date') {
+        if (name == 'start_date') {
             setUserEducationFormData((prevFormData) => ({ ...prevFormData, ['end_date']: '' }));
         }
     };
@@ -60,33 +61,60 @@ export default function UserEducationUpdateForm(props) {
             errors.end_date = 'End year is required.';
         }
 
-        if (!data.bio.trim()) {
-            errors.bio = 'Description is required.';
+        if (!data.description.trim()) {
+            errors.description = 'Description is required.';
         }
 
         return errors;
     };
-    const addNewEducation = () => {
+    const addNewEducation = async (event) => {
+        event.preventDefault();
         setUserEducationFormData((prevFormData) => ({ ...prevFormData, submited: true }));
         const validationErrors = validateUserEducationForm(userEducationFormData);
         setUserEducationFormErrors(validationErrors);
+        setUserFormLoader(true);
         if (Object.keys(validationErrors).length === 0) {
-            setUserEducation(prevState => ([
-                ...prevState,
-                {
-                    school_college_university: userEducationFormData.school_college_university,
-                    degree: userEducationFormData.degree,
-                    start_date: userEducationFormData.start_date,
-                    end_date: userEducationFormData.end_date,
-                    bio: userEducationFormData.bio,
-                }
-            ]));
+            await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/profile/create-education', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': authToken
+                },
+                body: JSON.stringify(userEducationFormData)
+            }).then((response) => response.json()).then((updateEducationRes) => {
+                setUserEducationFormData((prevFormData) => ({ ...prevFormData, submited: false }));
+                setUserFormLoader(false);
+                if (updateEducationRes.success === true) {
+                    const setAuth = {
+                        userdata: updateEducationRes.data.user,
+                        token: updateEducationRes.data.token
+                    };
+                    createAuthSession(setAuth);
+                    setUserEducation(prevState => ([
+                        ...prevState,
+                        updateEducationRes.data.new_education
+                    ]));
 
-            const newState = {};
-            for (const key in userEducationFormData) {
-                newState[key] = '';
-            }
-            setUserEducationFormData(newState);
+                    const newState = {};
+                    for (const key in userEducationFormData) {
+                        newState[key] = '';
+                    }
+                    setUserEducationFormData(newState);
+
+                    setAlertBox({ alert: 'success', message: updateEducationRes.message });
+                    setTimeout(() => {
+                        setAlertBox({ alert: '', message: '' });
+                    }, 5000);
+                } else {
+                    setAlertBox({ alert: 'danger', message: updateEducationRes.message });
+                    setTimeout(() => {
+                        setAlertBox({ alert: '', message: '' });
+                    }, 5000);
+                }
+            });
+        } else {
+            setUserFormLoader(false);
         }
     };
 
@@ -100,7 +128,35 @@ export default function UserEducationUpdateForm(props) {
         }).then((result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                setUserEducation(prevState => prevState.filter((item, index) => index !== indexToRemove));
+                fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/profile/delete-education/${userEducation[indexToRemove]._id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': authToken
+                    },
+                    body: JSON.stringify({})
+                }).then((response) => response.json()).then((updateEducationRes) => {
+                    setUserFormLoader(false);
+                    if (updateEducationRes.success === true) {
+                        setUserEducation(prevState => prevState.filter((item, index) => index !== indexToRemove));
+                        const setAuth = {
+                            userdata: updateEducationRes.data.user,
+                            token: updateEducationRes.data.token
+                        };
+                        createAuthSession(setAuth);
+                        setAlertBox({ alert: 'success', message: updateEducationRes.message });
+
+                        setTimeout(() => {
+                            setAlertBox({ alert: '', message: '' });
+                        }, 5000);
+                    } else {
+                        setAlertBox({ alert: 'danger', message: updateEducationRes.message });
+                        setTimeout(() => {
+                            setAlertBox({ alert: '', message: '' });
+                        }, 5000);
+                    }
+                });
             } else {
                 console.log('Logout cancel.');
             }
@@ -121,13 +177,51 @@ export default function UserEducationUpdateForm(props) {
         return `${year}-${month}-${day}`;
     };
 
-    const submitUserEducation = () => {
+    const getDate = (paramDate) => {
+        const date = new Date(paramDate);
+        const year = date.getFullYear();
+        let month = date.getMonth() + 1;
+        let day = date.getDate();
 
-    }
+        // Add leading zero if month/day is single digit
+        month = month < 10 ? '0' + month : month;
+        day = day < 10 ? '0' + day : day;
+
+        return `${year}-${month}-${day}`;
+    };
+
+    // fetch data
+    const fetchEducationData = async () => {
+        setEducationLoader(true);
+        try {
+            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/profile/get-education`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': authToken
+                }
+            }).then((response) => response.json()).then((postsRes) => {
+                setEducationLoader(false);
+                if (postsRes.success === true) {
+                    setUserEducation(prevItems => [...prevItems, ...postsRes.data.educations]);
+                } else {
+                    setUserEducation([]);
+                }
+            });
+        } catch (error) {
+            setEducationLoader(false);
+            setAlertBox({ alert: 'danger', message: 'An error occord.' });
+        } finally {
+            setEducationLoader(false);
+        }
+    };
 
     useEffect(() => {
-        console.log("userEducation :: ", userEducation)
-    }, [userEducation]);
+        if (userEducation.length === 0) {
+            fetchEducationData();
+        }
+    }, []);
 
     return (
         <div className="card card-info">
@@ -139,7 +233,7 @@ export default function UserEducationUpdateForm(props) {
                 <AlertBox alert={alertBox.alert} message={alertBox.message} />
             </div>
 
-            <form id='updateProfile' className="form-horizontal" onSubmit={submitUserEducation}>
+            <form id='updateProfile' className="form-horizontal" onSubmit={addNewEducation}>
                 <div className="card-body">
                     <div className='row'>
                         <div className='col-md-12'>
@@ -161,19 +255,19 @@ export default function UserEducationUpdateForm(props) {
 
                                             <div className='col-md-4 form-group'>
                                                 <label htmlFor="inputEducation" className="col-form-label">Start year</label>
-                                                <input type="date" className="form-control" value={edu.start_date} disabled />
+                                                <input type="date" className="form-control" value={getDate(edu.start_date)} disabled />
                                             </div>
 
                                             <div className='col-md-4 form-group'>
                                                 <label htmlFor="inputEducation" className="col-form-label">End Year</label>
-                                                <input type="date" className="form-control" value={edu.end_date} disabled />
+                                                <input type="date" className="form-control" value={getDate(edu.end_date)} disabled />
                                             </div>
                                         </div>
 
                                         <div className='row'>
                                             <div className='col-md-12 form-group'>
-                                                <label htmlFor="inputBio" className="col-form-label">Details</label>
-                                                <textarea type="text" className="form-control" value={edu.bio} disabled></textarea>
+                                                <label htmlFor="inputdescription" className="col-form-label">Details</label>
+                                                <textarea type="text" className="form-control" value={edu.description} disabled></textarea>
                                             </div>
                                         </div>
 
@@ -245,27 +339,23 @@ export default function UserEducationUpdateForm(props) {
 
                             <div className='row'>
                                 <div className='col-md-12 form-group'>
-                                    <label htmlFor="inputBio" className="col-form-label">Details</label>
-                                    <textarea type="text" className="form-control" name="bio" value={userEducationFormData.bio} onChange={userFormEducationHandleChange} placeholder="Bio"></textarea>
-                                    {userEducationFormErrors.bio && userEducationFormData.submited ? <span className="text-danger">{userEducationFormErrors.bio}</span> : <></>}
+                                    <label htmlFor="inputdescription" className="col-form-label">Details</label>
+                                    <textarea type="text" className="form-control" name="description" value={userEducationFormData.description} onChange={userFormEducationHandleChange} placeholder="description"></textarea>
+                                    {userEducationFormErrors.description && userEducationFormData.submited ? <span className="text-danger">{userEducationFormErrors.description}</span> : <></>}
                                 </div>
                             </div>
-
-                            <button type="button" className="btn btn-info float-right" onClick={addNewEducation}>
-                                Add Education
-                            </button>
                         </div>
                     </div>
                 </div>
 
                 <div className="card-footer">
-                    <button type="submit" className="btn btn-info float-right" disabled={userFormLoader}>
+                    <button type="submit" className="btn btn-info float-right">
                         {userFormLoader ? <>
                             <div className="spinner-border spinner-border-sm" role="status">
                                 <span className="sr-only">Loading...</span>
                             </div>
                         </> : <>
-                            Update
+                            Add Education
                         </>}
                     </button>
                 </div>

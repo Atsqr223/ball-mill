@@ -67,7 +67,7 @@ export default function UserLogin(props) {
                     setLoginSuccess(true);
                     const setAuth = {
                         userdata: loginRes.data.user,
-                        token: loginRes.data.access_token
+                        token: loginRes.data.token
                     };
                     createAuthSession(setAuth);
                     setTimeout(() => {

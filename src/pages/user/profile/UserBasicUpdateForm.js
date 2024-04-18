@@ -88,21 +88,17 @@ export default function UserBasicUpdateForm(props) {
                 if (updateProfileRes.success === true) {
                     const setAuth = {
                         userdata: updateProfileRes.data.user,
-                        token: updateProfileRes.data.access_token
+                        token: updateProfileRes.data.token
                     };
                     createAuthSession(setAuth);
-                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'success' }));
-                    setAlertBox((prevFormData) => ({ ...prevFormData, message: updateProfileRes.message }));
+                    setAlertBox({alert: 'success', message: updateProfileRes.message });
                     setTimeout(() => {
-                        setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
-                        setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
+                        setAlertBox({alert: 'success', message: '' });
                     }, 5000);
                 } else {
-                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'danger' }));
-                    setAlertBox((prevFormData) => ({ ...prevFormData, message: updateProfileRes.message }));
+                    setAlertBox({ alert: 'danger', message: updateProfileRes.message });
                     setTimeout(() => {
-                        setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
-                        setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
+                        setAlertBox({alert: 'success', message: '' });
                     }, 5000);
                 }
             });
@@ -159,6 +155,12 @@ export default function UserBasicUpdateForm(props) {
                             <input type="text" className="form-control" name="location" value={userFormData.location} onChange={userFormHandleChange} placeholder="Location" />
                             {userFormErrors.location && userFormData.submited ? <span className="text-danger">{userFormErrors.location}</span> : <></>}
                         </div>
+
+                        <div className='col-md-6 form-group'>
+                            <label htmlFor="inputLocation" className="col-form-label">Bio</label>
+                            <textarea type="text" className="form-control" name="bio" value={userFormData.bio} onChange={userFormHandleChange} placeholder="Bio"></textarea>
+                            {userFormErrors.bio && userFormData.submited ? <span className="text-danger">{userFormErrors.bio}</span> : <></>}
+                        </div>
                     </div>
                 </div>
 
@@ -173,7 +175,6 @@ export default function UserBasicUpdateForm(props) {
                         </>}
                     </button>
                 </div>
-
             </form>
         </div>
     );

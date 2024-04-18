@@ -15,7 +15,9 @@ export default function UserSkillsUpdateForm(props) {
     const navigate = useNavigate();
 
     // user form update start
-    const [userFormLoader, setUserFormLoader] = useState(false);
+    const [skillLoader, setSkillLoader] = useState(false);
+    const [addSkillLoader, setAddSkillLoader] = useState(false);
+    const [deleteSkillLoader, setDeleteSkillLoader] = useState(false);
     const [userSkillsFormData, setUserSkillsFormData] = useState({
         name: '',
         year_of_experience: '',
@@ -52,31 +54,61 @@ export default function UserSkillsUpdateForm(props) {
 
         return errors;
     };
-    const addNewSkills = () => {
+    const addNewSkills = async (event) => {
+        event.preventDefault();
         setUserSkillsFormData((prevFormData) => ({ ...prevFormData, submited: true }));
         const validationErrors = validateuserSkillsForm(userSkillsFormData);
         setUserSkillsFormErrors(validationErrors);
         if (Object.keys(validationErrors).length === 0) {
-            setUserSkills(prevState => ([
-                ...prevState,
-                {
-                    name: userSkillsFormData.name,
-                    year_of_experience: userSkillsFormData.year_of_experience,
-                    description: userSkillsFormData.description
-                }
-            ]));
+            setAddSkillLoader(true);
+            await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/profile/create-skill', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': authToken
+                },
+                body: JSON.stringify(userSkillsFormData)
+            }).then((response) => response.json()).then((updateSkilsRes) => {
+                setUserSkillsFormData((prevFormData) => ({ ...prevFormData, submited: false }));
+                setAddSkillLoader(false);
+                if (updateSkilsRes.success === true) {
+                    setUserSkills(prevState => ([
+                        ...prevState,
+                        updateSkilsRes.data.new_skill
+                    ]));
 
-            const newState = {};
-            for (const key in userSkillsFormData) {
-                newState[key] = '';
-            }
-            setUserSkillsFormData(newState);
+                    const newState = {};
+                    for (const key in userSkillsFormData) {
+                        newState[key] = '';
+                    }
+                    setUserSkillsFormData(newState);
+
+                    const setAuth = {
+                        userdata: updateSkilsRes.data.user,
+                        token: updateSkilsRes.data.token
+                    };
+                    createAuthSession(setAuth);
+
+                    setAlertBox({ alert: 'success', message: updateSkilsRes.message });
+                    setTimeout(() => {
+                        setAlertBox({ alert: '', message: '' });
+                    }, 5000);
+                } else {
+                    setAlertBox({ alert: 'danger', message: updateSkilsRes.message });
+                    setTimeout(() => {
+                        setAlertBox({ alert: '', message: '' });
+                    }, 5000);
+                }
+            });
+        } else {
+            setAddSkillLoader(false);
         }
     };
 
     const deleteSkill = (indexToRemove) => {
         Swal.fire({
-            title: `Do you want to delete ${userSkills[indexToRemove].school_college_university} ?`,
+            title: `Do you want to delete ${userSkills[indexToRemove].name} ?`,
             showDenyButton: true,
             showCancelButton: false,
             confirmButtonText: "Yes",
@@ -84,20 +116,75 @@ export default function UserSkillsUpdateForm(props) {
         }).then((result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                setUserSkills(prevState => prevState.filter((item, index) => index !== indexToRemove));
+                setDeleteSkillLoader(true);
+                fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/profile/delete-skill/${userSkills[indexToRemove]._id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': authToken
+                    },
+                    body: JSON.stringify({})
+                }).then((response) => response.json()).then((updateSkillsRes) => {
+                    setDeleteSkillLoader(false);
+                    if (updateSkillsRes.success === true) {
+                        setUserSkills(prevState => prevState.filter((item, index) => index !== indexToRemove));
+
+                        const setAuth = {
+                            userdata: updateSkillsRes.data.user,
+                            token: updateSkillsRes.data.token
+                        };
+                        createAuthSession(setAuth);
+                        setAlertBox({ alert: 'success', message: updateSkillsRes.message });
+
+                        setTimeout(() => {
+                            setAlertBox({ alert: '', message: '' });
+                        }, 5000);
+                    } else {
+                        setAlertBox({ alert: 'danger', message: updateSkillsRes.message });
+                        setTimeout(() => {
+                            setAlertBox({ alert: '', message: '' });
+                        }, 5000);
+                    }
+                });
             } else {
                 console.log('Logout cancel.');
             }
         });
     };
 
-    const submitUserSkills = () => {
-
-    }
+    // fetch data
+    const fetchSkillData = async () => {
+        setSkillLoader(true);
+        try {
+            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/profile/get-skill`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': authToken
+                }
+            }).then((response) => response.json()).then((skillsRes) => {
+                setSkillLoader(false);
+                if (skillsRes.success === true) {
+                    setUserSkills(prevItems => [...prevItems, ...skillsRes.data.skills]);
+                } else {
+                    setUserSkills([]);
+                }
+            });
+        } catch (error) {
+            setSkillLoader(false);
+            setAlertBox({ alert: 'danger', message: 'An error occord.' });
+        } finally {
+            setSkillLoader(false);
+        }
+    };
 
     useEffect(() => {
-        console.log("userSkills :: ", userSkills)
-    }, [userSkills]);
+        if (userSkills.length === 0) {
+            fetchSkillData();
+        }
+    }, []);
 
     return (
         <div className="card card-info">
@@ -109,7 +196,7 @@ export default function UserSkillsUpdateForm(props) {
                 <AlertBox alert={alertBox.alert} message={alertBox.message} />
             </div>
 
-            <form id='updateProfile' className="form-horizontal" onSubmit={submitUserSkills}>
+            <form id='updateProfile' className="form-horizontal" onSubmit={addNewSkills}>
                 <div className="card-body">
                     <div className='row'>
                         <div className='col-md-12'>
@@ -137,8 +224,14 @@ export default function UserSkillsUpdateForm(props) {
 
                                         <div className='row'>
                                             <div className='col-md-12'>
-                                                <button type="button" className="btn btn-danger float-right" onClick={() => deleteSkill(i)}>
-                                                    Delete Skill
+                                                <button type="button" className="btn btn-danger float-right" onClick={() => deleteSkill(i)} disabled={deleteSkillLoader}>
+                                                    {deleteSkillLoader ? <>
+                                                        <div className="spinner-border spinner-border-sm" role="status">
+                                                            <span className="sr-only">Loading...</span>
+                                                        </div>
+                                                    </> : <>
+                                                        Delete Skill
+                                                    </>}
                                                 </button>
                                             </div>
                                         </div>
@@ -162,8 +255,8 @@ export default function UserSkillsUpdateForm(props) {
                                 </div>
 
                                 <div className='col-md-3 form-group'>
-                                    <label htmlFor="inputEducation" className="col-form-label">Degree/Certificate</label>
-                                    <input type="text"
+                                    <label htmlFor="inputEducation" className="col-form-label">Year of experience</label>
+                                    <input type="number"
                                         className="form-control"
                                         name="year_of_experience"
                                         value={userSkillsFormData.year_of_experience}
@@ -180,22 +273,18 @@ export default function UserSkillsUpdateForm(props) {
                                     {userSkillsFormErrors.description && userSkillsFormData.submited ? <span className="text-danger">{userSkillsFormErrors.description}</span> : <></>}
                                 </div>
                             </div>
-
-                            <button type="button" className="btn btn-info float-right" onClick={addNewSkills}>
-                                Add Skill
-                            </button>
                         </div>
                     </div>
                 </div>
 
                 <div className="card-footer">
-                    <button type="submit" className="btn btn-info float-right" disabled={userFormLoader}>
-                        {userFormLoader ? <>
+                    <button type="submit" className="btn btn-info float-right">
+                        {addSkillLoader ? <>
                             <div className="spinner-border spinner-border-sm" role="status">
                                 <span className="sr-only">Loading...</span>
                             </div>
                         </> : <>
-                            Update
+                            Add Skill
                         </>}
                     </button>
                 </div>
