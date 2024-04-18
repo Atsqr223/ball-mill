@@ -7,7 +7,9 @@ import './profile.css';
 import AlertBox from "../../../components/AlertBox";
 import CreatePostComponent from "../../../components/post/CreatePostComponent";
 import ViewPostComponent from '../../../components/post/ViewPostComponent';
-import ProfileUpdateForm from './ProfileUpdateForm';
+import UserBasicUpdateForm from './UserBasicUpdateForm';
+import UserEducationUpdateForm from './UserEducationUpdateForm';
+import UserSkillsUpdateForm from './UserSkillsUpdateForm';
 import { createAuthSession } from "../../../utils/authHelper";
 
 // component
@@ -583,7 +585,9 @@ export default function Profile(props) {
                                                 </div>
 
                                                 <div className="tab-pane" id="settings">
-                                                    <ProfileUpdateForm authFlag={authFlag} authToken={authToken} authUser={authUser} />
+                                                    <UserBasicUpdateForm authFlag={authFlag} authToken={authToken} authUser={authUser} newPostAdded={newPostAdded} />
+                                                    <UserEducationUpdateForm authFlag={authFlag} authToken={authToken} authUser={authUser} newPostAdded={newPostAdded} />
+                                                    <UserSkillsUpdateForm authFlag={authFlag} authToken={authToken} authUser={authUser} newPostAdded={newPostAdded} />
 
                                                     <form id='updatePassword' className="form-horizontal" onSubmit={updatePassword}>
                                                         <div className="form-group row">
