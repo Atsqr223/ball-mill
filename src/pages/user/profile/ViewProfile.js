@@ -97,6 +97,19 @@ export default function ViewProfile(props) {
         setPosts(nextShapes);
     };
 
+    const getDate = (paramDate) => {
+        const date = new Date(paramDate);
+        const year = date.getFullYear();
+        let month = date.getMonth() + 1;
+        let day = date.getDate();
+
+        // Add leading zero if month/day is single digit
+        month = month < 10 ? '0' + month : month;
+        day = day < 10 ? '0' + day : day;
+
+        return `${year}-${month}-${day}`;
+    };
+
     useEffect(() => {
         if (authUser.username === username) {
             navigate('/profile', { replace: true });
@@ -162,7 +175,7 @@ export default function ViewProfile(props) {
                                                     </div>
                                                 </div>
                                                 <h3 className="profile-username text-center">{profile.name}</h3>
-                                                <p className="text-muted text-center">Software Engineer</p>
+                                                <p className="text-muted text-center">{profile.bio}</p>
                                                 <ul className="list-group list-group-unbordered mb-3">
                                                     <li className="list-group-item">
                                                         <b>Followers</b> <a className="float-right">1,322</a>
@@ -188,25 +201,36 @@ export default function ViewProfile(props) {
                                         </div>
 
                                         <div className="card-body">
-                                            <strong><i className="fas fa-book mr-1"></i> Education</strong>
-                                            <p className="text-muted">
-                                                B.S. in Computer Science from the University of Tennessee at Knoxville
-                                            </p>
+                                            {profile?.educations?.length > 0 ? <>
+                                                <strong><i className="fas fa-book mr-1"></i> Education</strong>
+                                                <dl>
+                                                    {profile.educations.map((edu, i) => {
+                                                        return <React.Fragment key={i}>
+                                                            <dd><span className='font-weight-bold'>{edu.degree}</span> from <span className='font-weight-bold'>
+                                                                {edu.school_college_university}</span>.
+                                                            </dd>
+                                                        </React.Fragment>
+                                                    })}
+                                                </dl>
+                                            </> : <>
+                                            </>}
+
                                             <hr />
                                             <strong><i className="fas fa-map-marker-alt mr-1"></i> Location</strong>
-                                            <p className="text-muted">Malibu, California</p>
-                                            <hr />
-                                            <strong><i className="fas fa-pencil-alt mr-1"></i> Skills</strong>
-                                            <p className="text-muted">
-                                                <span className="tag tag-danger">UI Design</span>
-                                                <span className="tag tag-success">Coding</span>
-                                                <span className="tag tag-info">Javascript</span>
-                                                <span className="tag tag-warning">PHP</span>
-                                                <span className="tag tag-primary">Node.js</span>
-                                            </p>
-                                            <hr />
-                                            <strong><i className="far fa-file-alt mr-1"></i> Notes</strong>
-                                            <p className="text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam fermentum enim neque.</p>
+                                            <p className="text-muted">{profile.location}</p>
+                                            {profile?.skills?.length > 0 ? <>
+                                                <strong><i className="fas fa-pencil-alt mr-1"></i> Skills</strong>
+                                                <dl>
+                                                    {profile.skills.map((skl, i) => {
+                                                        return <React.Fragment key={i}>
+                                                            <dd>In <span className='font-weight-bold'>{skl.name}</span> I have <span className='font-weight-bold'>
+                                                                {skl.year_of_experience} year of experience.</span>.
+                                                            </dd>
+                                                        </React.Fragment>
+                                                    })}
+                                                </dl>
+                                            </> : <>
+                                            </>}
                                         </div>
                                     </div>
                                 </div>

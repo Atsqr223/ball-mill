@@ -208,7 +208,7 @@ export default function Profile(props) {
 
                                             </div>
                                             <h3 className="profile-username text-center">{authUser.name}</h3>
-                                            <p className="text-muted text-center">Software Engineer</p>
+                                            <p className="text-muted text-center">{authUser.bio}</p>
                                             <ul className="list-group list-group-unbordered mb-3">
                                                 <li className="list-group-item">
                                                     <b>Followers</b> <a className="float-right">1,322</a>
@@ -248,9 +248,6 @@ export default function Profile(props) {
                                                    {`${skl.year_of_experience} year of experince in ${skl.name}`}
                                                 </p>
                                             })}
-                                            <hr />
-                                            <strong><i className="far fa-file-alt mr-1"></i> Bio</strong>
-                                            <p className="text-muted">{authUser.bio}</p>
                                         </div>
                                     </div>
                                 </div>

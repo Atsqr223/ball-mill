@@ -17,6 +17,7 @@ export default function UserEducationUpdateForm(props) {
     // user form update start
     const [userFormLoader, setUserFormLoader] = useState(false);
     const [educationLoader, setEducationLoader] = useState(true);
+    const [deleteEducationLoader, setDeleteEducationLoader] = useState(false);
     const [userEducationFormData, setUserEducationFormData] = useState({
         school_college_university: '',
         degree: '',
@@ -128,6 +129,7 @@ export default function UserEducationUpdateForm(props) {
         }).then((result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
+                setDeleteEducationLoader(true);
                 fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/profile/delete-education/${userEducation[indexToRemove]._id}`, {
                     method: 'DELETE',
                     headers: {
@@ -137,7 +139,7 @@ export default function UserEducationUpdateForm(props) {
                     },
                     body: JSON.stringify({})
                 }).then((response) => response.json()).then((updateEducationRes) => {
-                    setUserFormLoader(false);
+                    setDeleteEducationLoader(false);
                     if (updateEducationRes.success === true) {
                         setUserEducation(prevState => prevState.filter((item, index) => index !== indexToRemove));
                         const setAuth = {
@@ -238,50 +240,26 @@ export default function UserEducationUpdateForm(props) {
                     <div className='row'>
                         <div className='col-md-12'>
                             {userEducation.length > 0 ? <>
-                                {userEducation.map((edu, i) => {
-                                    return <React.Fragment key={i}>
-                                        <div className='row'>
-                                            <div className='col-md-12 form-group'>
-                                                <label htmlFor="inputEducation" className="col-form-label">School/College/University</label>
-                                                <input type="text" className="form-control" value={edu.school_college_university} disabled />
-                                            </div>
-                                        </div>
-
-                                        <div className='row'>
-                                            <div className='col-md-4 form-group'>
-                                                <label htmlFor="inputEducation" className="col-form-label">Degree/Certificate</label>
-                                                <input type="text" className="form-control" value={edu.degree} disabled />
-                                            </div>
-
-                                            <div className='col-md-4 form-group'>
-                                                <label htmlFor="inputEducation" className="col-form-label">Start year</label>
-                                                <input type="date" className="form-control" value={getDate(edu.start_date)} disabled />
-                                            </div>
-
-                                            <div className='col-md-4 form-group'>
-                                                <label htmlFor="inputEducation" className="col-form-label">End Year</label>
-                                                <input type="date" className="form-control" value={getDate(edu.end_date)} disabled />
-                                            </div>
-                                        </div>
-
-                                        <div className='row'>
-                                            <div className='col-md-12 form-group'>
-                                                <label htmlFor="inputdescription" className="col-form-label">Details</label>
-                                                <textarea type="text" className="form-control" value={edu.description} disabled></textarea>
-                                            </div>
-                                        </div>
-
-                                        <div className='row'>
-                                            <div className='col-md-12'>
-                                                <button type="button" className="btn btn-danger float-right" onClick={() => deleteEducation(i)}>
-                                                    Delete Education
+                                <dl>
+                                    {userEducation.map((edu, i) => {
+                                        return <React.Fragment key={i}>
+                                            <dt>{edu.degree}</dt>
+                                            <dd>from <span className='font-weight-bold'>{edu.school_college_university}</span> in
+                                                <span className='font-weight-bold'>{getDate(edu.start_date)}</span> to <span className='font-weight-bold'>{getDate(edu.end_date)}.</span>
+                                                <button type="button" className="btn btn-danger btn-sm float-right" onClick={() => deleteEducation(i)} disabled={deleteEducationLoader}>
+                                                    {deleteEducationLoader ? <>
+                                                        <div className="spinner-border spinner-border-sm" role="status">
+                                                            <span className="sr-only">Loading...</span>
+                                                        </div>
+                                                    </> : <>
+                                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                                    </>}
                                                 </button>
-                                            </div>
-                                        </div>
-
-                                        <hr />
-                                    </React.Fragment>
-                                })}
+                                            </dd>
+                                            <hr />
+                                        </React.Fragment>
+                                    })}
+                                </dl>
                             </> : <>
                                 <p>Add education to show here.</p>
                             </>}
@@ -340,7 +318,7 @@ export default function UserEducationUpdateForm(props) {
                             <div className='row'>
                                 <div className='col-md-12 form-group'>
                                     <label htmlFor="inputdescription" className="col-form-label">Details</label>
-                                    <textarea type="text" className="form-control" name="description" value={userEducationFormData.description} onChange={userFormEducationHandleChange} placeholder="description"></textarea>
+                                    <textarea type="text" className="form-control" name="description" value={userEducationFormData.description} onChange={userFormEducationHandleChange} placeholder="Description"></textarea>
                                     {userEducationFormErrors.description && userEducationFormData.submited ? <span className="text-danger">{userEducationFormErrors.description}</span> : <></>}
                                 </div>
                             </div>

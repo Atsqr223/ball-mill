@@ -201,44 +201,26 @@ export default function UserSkillsUpdateForm(props) {
                     <div className='row'>
                         <div className='col-md-12'>
                             {userSkills.length > 0 ? <>
-                                {userSkills.map((skill, i) => {
-                                    return <React.Fragment key={i}>
-                                        <div className='row'>
-                                            <div className='col-md-9 form-group'>
-                                                <label htmlFor="inputEducation" className="col-form-label">Name</label>
-                                                <input type="text" className="form-control" value={skill.name} disabled />
-                                            </div>
-
-                                            <div className='col-md-3 form-group'>
-                                                <label htmlFor="inputEducation" className="col-form-label">Year of experience</label>
-                                                <input type="text" className="form-control" value={skill.year_of_experience} disabled />
-                                            </div>
-                                        </div>
-
-                                        <div className='row'>
-                                            <div className='col-md-12 form-group'>
-                                                <label htmlFor="inputBio" className="col-form-label">Description</label>
-                                                <textarea type="text" className="form-control" value={skill.description} disabled></textarea>
-                                            </div>
-                                        </div>
-
-                                        <div className='row'>
-                                            <div className='col-md-12'>
-                                                <button type="button" className="btn btn-danger float-right" onClick={() => deleteSkill(i)} disabled={deleteSkillLoader}>
+                                <dl>
+                                    {userSkills.map((skill, i) => {
+                                        return <React.Fragment key={i}>
+                                            <dt>{skill.name}</dt>
+                                            <dd>I have <span className='font-weight-bold'>{`${skill.year_of_experience} year`}</span> of experience in
+                                                <span className='font-weight-bold'>{` ${skill.name}.`}</span>
+                                                <button type="button" className="btn btn-danger btn-sm float-right" onClick={() => deleteSkill(i)} disabled={deleteSkillLoader}>
                                                     {deleteSkillLoader ? <>
                                                         <div className="spinner-border spinner-border-sm" role="status">
                                                             <span className="sr-only">Loading...</span>
                                                         </div>
                                                     </> : <>
-                                                        Delete Skill
+                                                        <i class="fa fa-trash" aria-hidden="true"></i>
                                                     </>}
                                                 </button>
-                                            </div>
-                                        </div>
-
-                                        <hr />
-                                    </React.Fragment>
-                                })}
+                                            </dd>
+                                            <hr />
+                                        </React.Fragment>
+                                    })}
+                                </dl>
                             </> : <>
                                 <p>Add skills to show here.</p>
                             </>}
@@ -269,7 +251,7 @@ export default function UserSkillsUpdateForm(props) {
                             <div className='row'>
                                 <div className='col-md-12 form-group'>
                                     <label htmlFor="inputBio" className="col-form-label">Description</label>
-                                    <textarea type="text" className="form-control" name="description" value={userSkillsFormData.description} onChange={userSkillHandleChange} placeholder="Bio"></textarea>
+                                    <textarea type="text" className="form-control" name="description" value={userSkillsFormData.description} onChange={userSkillHandleChange} placeholder="Description"></textarea>
                                     {userSkillsFormErrors.description && userSkillsFormData.submited ? <span className="text-danger">{userSkillsFormErrors.description}</span> : <></>}
                                 </div>
                             </div>
