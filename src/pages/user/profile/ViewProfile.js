@@ -17,7 +17,9 @@ export default function ViewProfile(props) {
     const { username } = useParams();
     const navigate = useNavigate();
 
-    const [profile, setProfile] = useState([]);
+    const [profile, setProfile] = useState({});
+    const [isFollow, setIsFollow] = useState(false);
+    const [followLoader, setFollowLoader] = useState(false);
     const [posts, setPosts] = useState([]);
     const [postsLoader, setPostsLoader] = useState(false);
     const [pageNo, setPageNo] = useState(1);
@@ -30,8 +32,7 @@ export default function ViewProfile(props) {
     const fetchProfileData = async () => {
         setPostsLoader(true);
         try {
-            let param = `?username=${username}`;
-            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/profile/get-profile${param}`, {
+            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/profile/get-profile/${username}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
@@ -42,6 +43,7 @@ export default function ViewProfile(props) {
                 setPostsLoader(false);
                 if (profileRes.success === true) {
                     setProfile(profileRes.data.profileData);
+                    setIsFollow(profileRes.data.youAreFollowing);
                 } else {
                     navigate('/feeds', { replace: true });
                 }
@@ -108,6 +110,34 @@ export default function ViewProfile(props) {
         day = day < 10 ? '0' + day : day;
 
         return `${year}-${month}-${day}`;
+    };
+
+    const followUnfollow = async () => {
+        setFollowLoader(true);
+        try {
+            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/follow/follow-unfollow/${profile._id}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': authToken
+                }
+            }).then((response) => response.json()).then((followRes) => {
+                if (followRes.success === true) {
+                    setIsFollow(followRes.data.youAreFollowing);
+                    if(followRes.data.youAreFollowing) {
+                        setProfile((prevFormData) => ({ ...prevFormData, followers_count: prevFormData.followers_count + 1 }));
+                    } else {
+                        setProfile((prevFormData) => ({ ...prevFormData, followers_count: prevFormData.followers_count - 1 }));
+                    }
+                }
+            });
+        } catch (error) {
+            console.log("ERROR");
+        } finally {
+            setFollowLoader(false);
+            console.log("FINAL");
+        }
     };
 
     useEffect(() => {
@@ -178,16 +208,33 @@ export default function ViewProfile(props) {
                                                 <p className="text-muted text-center">{profile.bio}</p>
                                                 <ul className="list-group list-group-unbordered mb-3">
                                                     <li className="list-group-item">
-                                                        <b>Followers</b> <a className="float-right">1,322</a>
+                                                        <b>Followers</b> <a className="float-right">{profile.followers_count}</a>
                                                     </li>
                                                     <li className="list-group-item">
-                                                        <b>Following</b> <a className="float-right">543</a>
-                                                    </li>
-                                                    <li className="list-group-item">
-                                                        <b>Friends</b> <a className="float-right">13,287</a>
+                                                        <b>Following</b> <a className="float-right">{profile.following_count}</a>
                                                     </li>
                                                 </ul>
-                                                <a href="#" className="btn btn-primary btn-block"><b>Follow</b></a>
+                                                {isFollow ? <>
+                                                    <Link className="btn btn-danger btn-block" onClick={followUnfollow} disable="followLoader">
+                                                        {followLoader ? <>
+                                                            <div className="spinner-border spinner-border-sm" role="status">
+                                                                <span className="sr-only">Loading...</span>
+                                                            </div>
+                                                        </> : <>
+                                                            <b>Unfollow</b>
+                                                        </>}
+                                                    </Link>
+                                                </> : <>
+                                                    <Link className="btn btn-primary btn-block" onClick={followUnfollow} disable="followLoader">
+                                                        {followLoader ? <>
+                                                            <div className="spinner-border spinner-border-sm" role="status">
+                                                                <span className="sr-only">Loading...</span>
+                                                            </div>
+                                                        </> : <>
+                                                            <b>Follow</b>
+                                                        </>}
+                                                    </Link>
+                                                </>}
                                             </div>
 
                                         </div>
@@ -241,8 +288,8 @@ export default function ViewProfile(props) {
                                         <div className="card-header p-2">
                                             <ul className="nav nav-pills">
                                                 <li className="nav-item"><a className="nav-link active" href="#activity" data-toggle="tab">Activity</a></li>
-                                                <li className="nav-item"><a className="nav-link" href="#timeline" data-toggle="tab">Timeline</a></li>
-                                                <li className="nav-item"><a className="nav-link" href="#settings" data-toggle="tab">Settings</a></li>
+                                                {/* <li className="nav-item"><a className="nav-link" href="#timeline" data-toggle="tab">Timeline</a></li>
+                                                <li className="nav-item"><a className="nav-link" href="#settings" data-toggle="tab">Settings</a></li> */}
                                             </ul>
                                         </div>
                                         <div className="card-body">

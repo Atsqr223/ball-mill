@@ -134,7 +134,7 @@ export default function UserSignup(props) {
                             {errors.password && <span className="text-danger">{errors.password}</span>}
                         </div>
                         <div className="form-group">
-                            <input type="password" className="form-control" name="confirmPassword" value={formData.rePassword} onChange={handleChange} placeholder="Retype password" />
+                            <input type="password" className="form-control" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Retype password" />
                             {errors.confirmPassword && <span className="text-danger">{errors.confirmPassword}</span>}
                         </div>
                         <div className="row">

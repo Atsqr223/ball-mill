@@ -211,16 +211,12 @@ export default function Profile(props) {
                                             <p className="text-muted text-center">{authUser.bio}</p>
                                             <ul className="list-group list-group-unbordered mb-3">
                                                 <li className="list-group-item">
-                                                    <b>Followers</b> <a className="float-right">1,322</a>
+                                                    <b>Followers</b> <a className="float-right">{authUser.followers_count}</a>
                                                 </li>
                                                 <li className="list-group-item">
-                                                    <b>Following</b> <a className="float-right">543</a>
-                                                </li>
-                                                <li className="list-group-item">
-                                                    <b>Friends</b> <a className="float-right">13,287</a>
+                                                    <b>Following</b> <a className="float-right">{authUser.following_count}</a>
                                                 </li>
                                             </ul>
-                                            <a href="#" className="btn btn-primary btn-block"><b>Follow</b></a>
                                         </div>
 
                                     </div>
