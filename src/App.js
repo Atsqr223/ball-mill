@@ -25,12 +25,14 @@ const Home = lazy(() => import('./pages/user/home'));
 const Feeds = lazy(() => import('./pages/user/feeds/feeds'));
 const ViewSinglePost = lazy(() => import('./pages/user/post/ViewSinglePost'));
 const Profile = lazy(() => import('./pages/user/profile/profile'));
+const FollowersFollowingList = lazy(() => import('./pages/user/profile/FollowersFollowingList'));
 const ViewProfile = lazy(() => import('./pages/user/profile/ViewProfile'));
 const Inbox = lazy(() => import('./pages/user/mailbox/inbox'));
 const ComposeMail = lazy(() => import('./pages/user/mailbox/compose'));
 const ReadMail = lazy(() => import('./pages/user/mailbox/read'));
 const Notification = lazy(() => import('./pages/user/notification'));
 const Messages = lazy(() => import('./pages/user/chats/messages'));
+
 
 // error pages
 const NotFound = lazy(() => import('./pages/error/notFound'));
@@ -81,6 +83,8 @@ function App() {
           }>
             <Route path="feeds" element={<Feeds />} />
             <Route path="profile/:username" element={<ViewProfile />} />
+            <Route path="profile/followers" element={<FollowersFollowingList title="Followers" />} />
+            <Route path="profile/following" element={<FollowersFollowingList title="Following" />} />
             <Route path="view-post/:slug" element={<ViewSinglePost />} />
 
             <Route path="/mail">

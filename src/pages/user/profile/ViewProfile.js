@@ -115,7 +115,7 @@ export default function ViewProfile(props) {
     const followUnfollow = async () => {
         setFollowLoader(true);
         try {
-            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/follow/follow-unfollow/${profile._id}`, {
+            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/friends/follow-unfollow/${profile._id}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
