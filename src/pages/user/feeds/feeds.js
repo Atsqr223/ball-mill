@@ -4,6 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { RWebShare } from "react-web-share";
 
 import AlertBox from "../../../components/common/AlertBox";
+import ProfileLeftPanel from "../../../components/profile/ProfileLeftPanel";
 import CreatePostComponent from "../../../components/post/CreatePostComponent";
 import ViewPostComponent from '../../../components/post/ViewPostComponent';
 import { utcToLocalTime } from "../../../utils/timeHelper";
@@ -113,70 +114,7 @@ export default function Feeds(props) {
                 <div className="container">
                     <div className='row'>
                         <div className='col-md-3 overflow-auto' style={{ height: '100vh' }}>
-                            <div className="card card-widget widget-user-2 shadow-sm">
-                                {/* <!-- Add the bg color to the header using any of the bg-* classes --> */}
-                                <div className="widget-user-header bg-warning">
-                                    <div className="widget-user-image">
-                                        <img className="img-circle elevation-2" src={authUser.profile_picture_url} alt="User Avatar" />
-                                    </div>
-                                    <h3 className="widget-user-username">{authUser.name}</h3>
-                                    <h5 className="widget-user-desc">{authUser.user_type.name}</h5>
-                                </div>
-                                <div className="card-footer p-0">
-                                    <ul className="nav flex-column">
-                                        <li className="nav-item">
-                                            <a href="#" className="nav-link">
-                                                Friend's <span className="float-right badge bg-primary">31</span>
-                                            </a>
-                                        </li>
-                                        <li className="nav-item">
-                                            <a href="#" className="nav-link">
-                                                Followers <span className="float-right badge bg-info">5</span>
-                                            </a>
-                                        </li>
-                                        <li className="nav-item">
-                                            <a href="#" className="nav-link">
-                                                Following <span className="float-right badge bg-success">12</span>
-                                            </a>
-                                        </li>
-                                        <li className="nav-item">
-                                            <a href="#" className="nav-link">
-                                                Subscribe <span className="float-right badge bg-danger">842</span>
-                                            </a>
-                                        </li>
-                                        <li className="nav-item">
-                                            <a href="#" className="nav-link">
-                                                Likes <span className="float-right badge bg-danger">842</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div className="card">
-                                <div className="card-header">
-                                    <h3 className="card-title text-bold">
-                                        Sample 1
-                                    </h3>
-                                </div>
-
-                                <div className="card-body">
-                                    <ul>
-                                        <li>Lorem ipsum dolor sit amet</li>
-                                        <li>Consectetur adipiscing elit</li>
-                                        <li>Nulla volutpat aliquam velit
-                                            <ul>
-                                                <li>Phasellus iaculis neque</li>
-                                                <li>Purus sodales ultricies</li>
-                                            </ul>
-                                        </li>
-                                        <li>Aenean sit amet erat nunc</li>
-                                        <li>Eget porttitor lorem</li>
-                                        <li>Eget porttitor lorem</li>
-                                        <li>Eget porttitor lorem</li>
-                                    </ul>
-                                </div>
-                            </div>
+                            <ProfileLeftPanel />
                         </div>
 
                         <div id="scrollableDiv" className="col-md-6 overflow-auto" style={{ height: '100vh' }}>

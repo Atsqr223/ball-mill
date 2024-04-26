@@ -51,7 +51,7 @@ export default function FollowersFollowingList(props) {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [props]);
 
     return (
         <>
@@ -111,33 +111,44 @@ export default function FollowersFollowingList(props) {
                                             <div className="card card-solid">
                                                 <div className="card-body pb-0">
                                                     <div className="row">
-                                                        {pageLoader ? <>
-                                                        </> : <>
-                                                            {userList.map((user, i) => {
-                                                                return <div key={i} className="col-12 col-sm-6 d-flex align-items-stretch flex-column">
-                                                                    <div className="card bg-light d-flex flex-fill">
-                                                                        <div className="card-body pt-2">
-                                                                            <div className="row">
-                                                                                <div className="col-7">
-                                                                                    <Link to={`${process.env.REACT_APP_BASE_URL}profile/${user.username}`}>
-                                                                                        <h2 className="lead"><b>{user.name}</b></h2>
-                                                                                    </Link>
-                                                                                    <p className="text-muted text-sm"><b>Location: </b> {user.location} </p>
-                                                                                    <p className="text-muted text-sm"><b>Bio: </b> {user.bio.substring(0, 60) + "..."} </p>
+                                                        {pageLoader ? <div className='col-md-12'>
+                                                            <div className='text-center'>
+                                                                <div className="spinner-grow text-primary"></div>
+                                                                <div className="spinner-grow text-success ml-2"></div>
+                                                                <div className="spinner-grow text-info ml-2"></div>
+                                                                <div className="spinner-grow text-warning ml-2"></div>
+                                                                <div className="spinner-grow text-danger ml-2"></div>
+                                                            </div>
+                                                        </div> : <>
+                                                            {userList.length > 0 ? <>
+                                                                {userList.map((user, i) => {
+                                                                    return <div key={i} className="col-12 col-sm-6 d-flex align-items-stretch flex-column">
+                                                                        <div className="card bg-light d-flex flex-fill">
+                                                                            <div className="card-body pt-2">
+                                                                                <div className="row">
+                                                                                    <div className="col-7">
+                                                                                        <Link to={`${process.env.REACT_APP_BASE_URL}profile/${user.username}`}>
+                                                                                            <h2 className="lead"><b>{user.name}</b></h2>
+                                                                                        </Link>
+                                                                                        <p className="text-muted text-sm"><b>Location: </b> {user.location} </p>
+                                                                                        <p className="text-muted text-sm"><b>Bio: </b> {user.bio.substring(0, 60) + "..."} </p>
+                                                                                    </div>
+                                                                                    <div className="col-5 text-center">
+                                                                                        <img src={user.profile_picture_url} alt="user-avatar" className="img-circle img-fluid" />
+                                                                                    </div>
                                                                                 </div>
-                                                                                <div className="col-5 text-center">
-                                                                                    <img src={user.profile_picture_url} alt="user-avatar" className="img-circle img-fluid" />
+                                                                            </div>
+                                                                            <div className="card-footer">
+                                                                                <div className="text-right">
+                                                                                    <FollowUnfollowButton isFollow={true} userData={user} />
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                        <div className="card-footer">
-                                                                            <div className="text-right">
-                                                                                <FollowUnfollowButton isFollow={true} userData={user} />
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>;
-                                                            })}
+                                                                    </div>;
+                                                                })}
+                                                            </> : <>
+                                                                <p>No record found.</p>
+                                                            </>}
                                                         </>}
                                                     </div>
                                                 </div>
