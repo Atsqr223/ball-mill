@@ -5,7 +5,7 @@ import { RWebShare } from "react-web-share";
 import Swal from 'sweetalert2';
 
 // component
-import AlertBox from "../../components/AlertBox";
+import AlertBox from "../../components/common/AlertBox";
 
 // helper
 import { utcToLocalTime, timeAgo } from "../../utils/timeHelper";

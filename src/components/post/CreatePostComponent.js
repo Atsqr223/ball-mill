@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import AlertBox from "../AlertBox";
+import AlertBox from "../common/AlertBox";
 
 // component
 export default function CreatePostComponent(props) {

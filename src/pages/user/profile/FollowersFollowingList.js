@@ -4,9 +4,9 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 
 import './profile.css';
 
-import AlertBox from "../../../components/AlertBox";
-import ProfileLeftPanel from './ProfileLeftPanel';
-import FollowUnfollowButton from './FollowUnfollowButton';
+import AlertBox from "../../../components/common/AlertBox";
+import ProfileLeftPanel from '../../../components/profile/ProfileLeftPanel';
+import FollowUnfollowButton from '../../../components/profile/FollowUnfollowButton';
 
 // component
 export default function FollowersFollowingList(props) {

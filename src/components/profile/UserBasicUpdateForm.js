@@ -3,10 +3,8 @@ import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Swal from 'sweetalert2';
 
-import './profile.css';
-
-import AlertBox from "../../../components/AlertBox";
-import { createAuthSession } from "../../../utils/authHelper";
+import AlertBox from "../common/AlertBox";
+import { createAuthSession } from "../../utils/authHelper";
 
 // component
 export default function UserBasicUpdateForm(props) {
@@ -93,12 +91,12 @@ export default function UserBasicUpdateForm(props) {
                     createAuthSession(setAuth);
                     setAlertBox({alert: 'success', message: updateProfileRes.message });
                     setTimeout(() => {
-                        setAlertBox({alert: 'success', message: '' });
+                        setAlertBox({alert: '', message: '' });
                     }, 5000);
                 } else {
                     setAlertBox({ alert: 'danger', message: updateProfileRes.message });
                     setTimeout(() => {
-                        setAlertBox({alert: 'success', message: '' });
+                        setAlertBox({alert: '', message: '' });
                     }, 5000);
                 }
             });

@@ -4,13 +4,14 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 
 import './profile.css';
 
-import AlertBox from "../../../components/AlertBox";
+import AlertBox from "../../../components/common/AlertBox";
 import CreatePostComponent from "../../../components/post/CreatePostComponent";
 import ViewPostComponent from '../../../components/post/ViewPostComponent';
-import UserBasicUpdateForm from './UserBasicUpdateForm';
-import UserEducationUpdateForm from './UserEducationUpdateForm';
-import UserSkillsUpdateForm from './UserSkillsUpdateForm';
-import UserPasswordUpdateForm from './UserPasswordUpdateForm';
+import UserBasicUpdateForm from '../../../components/profile/UserBasicUpdateForm';
+import UserEducationUpdateForm from '../../../components/profile/UserEducationUpdateForm';
+import UserSkillsUpdateForm from '../../../components/profile/UserSkillsUpdateForm';
+import UserPasswordUpdateForm from '../../../components/profile/UserPasswordUpdateForm';
+import ProfileLeftPanel from '../../../components/profile/ProfileLeftPanel';
 import { createAuthSession } from "../../../utils/authHelper";
 
 // component
@@ -182,70 +183,7 @@ export default function Profile(props) {
                         <div className="container-fluid">
                             <div className="row">
                                 <div className="col-md-3">
-                                    <div className="card card-primary card-outline">
-                                        <div className="card-body box-profile">
-                                            <div className="text-center">
-                                                <div className="profilepic">
-                                                    <img className="profile-user-img img-fluid img-circle profilepic__image" id='profilePicture' src={authUser.profile_picture_url} alt="Profibild" />
-                                                    <div className="profilepic__content" onClick={() => inputProfilePictureFile.current.click()}>
-                                                        <span className="font-weight-bold"><i className="fas fa-camera"></i></span>
-                                                        <span className="font-weight-bold">Change</span>
-                                                    </div>
-                                                </div>
-                                                {/* <img className="profile-user-img img-fluid img-circle"
-                                                    src={authUser.profile_picture_url}
-                                                    alt="User profile picture"
-                                                    onClick={() => inputProfilePictureFile.current.click()}
-                                                    onMouseOver={({ target }) => target.style.color = "white"}
-                                                    onMouseOut={({ target }) => target.style.color = "black"} /> */}
-
-                                                <input
-                                                    type="file"
-                                                    onChange={selectProfilePicture}
-                                                    ref={inputProfilePictureFile}
-                                                    style={{ display: 'none' }} />
-
-
-                                            </div>
-                                            <h3 className="profile-username text-center">{authUser.name}</h3>
-                                            <p className="text-muted text-center">{authUser.bio}</p>
-                                            <ul className="list-group list-group-unbordered mb-3">
-                                                <li className="list-group-item">
-                                                    <b>Followers</b> <Link to="/profile/followers" className="float-right">{authUser.followers_count}</Link>
-                                                </li>
-                                                <li className="list-group-item">
-                                                    <b>Following</b> <Link to="/profile/followers" className="float-right">{authUser.following_count}</Link>
-                                                </li>
-                                            </ul>
-                                        </div>
-
-                                    </div>
-
-                                    <div className="card card-primary">
-                                        <div className="card-header">
-                                            <h3 className="card-title">About Me</h3>
-                                        </div>
-
-                                        <div className="card-body">
-                                            <strong><i className="fas fa-book mr-1"></i> Education</strong>
-
-                                            {authUser.educations.map((edu, i) => {
-                                                return <p className="text-muted" key={i}>
-                                                   {`${edu.degree} from the ${edu.school_college_university}`}
-                                                </p>
-                                            })}
-                                            <hr />
-                                            <strong><i className="fas fa-map-marker-alt mr-1"></i> Location</strong>
-                                            <p className="text-muted">{authUser.location}</p>
-                                            <hr />
-                                            <strong><i className="fas fa-pencil-alt mr-1"></i> Skills</strong>
-                                            {authUser.skills.map((skl, i) => {
-                                                return <p className="text-muted" key={i}>
-                                                   {`${skl.year_of_experience} year of experince in ${skl.name}`}
-                                                </p>
-                                            })}
-                                        </div>
-                                    </div>
+                                    <ProfileLeftPanel />
                                 </div>
 
                                 <div className="col-md-9">
@@ -303,8 +241,6 @@ export default function Profile(props) {
                                                                 10 Feb. 2014
                                                             </span>
                                                         </div>
-
-
                                                         <div>
                                                             <i className="fas fa-envelope bg-primary"></i>
                                                             <div className="timeline-item">
@@ -323,7 +259,6 @@ export default function Profile(props) {
                                                             </div>
                                                         </div>
 
-
                                                         <div>
                                                             <i className="fas fa-user bg-info"></i>
                                                             <div className="timeline-item">
@@ -332,7 +267,6 @@ export default function Profile(props) {
                                                                 </h3>
                                                             </div>
                                                         </div>
-
 
                                                         <div>
                                                             <i className="fas fa-comments bg-warning"></i>
@@ -350,13 +284,11 @@ export default function Profile(props) {
                                                             </div>
                                                         </div>
 
-
                                                         <div className="time-label">
                                                             <span className="bg-success">
                                                                 3 Jan. 2014
                                                             </span>
                                                         </div>
-
 
                                                         <div>
                                                             <i className="fas fa-camera bg-purple"></i>

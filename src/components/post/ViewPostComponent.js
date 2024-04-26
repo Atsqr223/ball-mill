@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { RWebShare } from "react-web-share";
-import AlertBox from "../AlertBox";
+import AlertBox from "../common/AlertBox";
 import { utcToLocalTime, timeAgo } from "../../utils/timeHelper";
 import Swal from 'sweetalert2';
 

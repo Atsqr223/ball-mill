@@ -1,16 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
-import InfiniteScroll from 'react-infinite-scroll-component';
-
-import './profile.css';
-
-import AlertBox from "../../../components/AlertBox";
-import { createAuthSession } from "../../../utils/authHelper";
+import { createAuthSession } from "../../utils/authHelper";
 
 // component
 export default function ProfileLeftPanel(props) {
     // page title
-    document.title = 'Subha welcomes you | Profile';
     const { authFlag, authToken, authUser } = useOutletContext();
     const navigate = useNavigate();
 
@@ -38,18 +32,14 @@ export default function ProfileLeftPanel(props) {
                     token: profilePictureRes.data.access_token
                 };
                 createAuthSession(setAuth);
-                setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'success' }));
-                setAlertBox((prevFormData) => ({ ...prevFormData, message: profilePictureRes.message }));
+                setAlertBox({ alert: 'success', message: profilePictureRes.message });
                 setTimeout(() => {
-                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
-                    setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
+                    setAlertBox({ alert: '', message: '' });
                 }, 5000);
             } else {
-                setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'danger' }));
-                setAlertBox((prevFormData) => ({ ...prevFormData, message: profilePictureRes.message }));
+                setAlertBox({alert: 'danger', message: profilePictureRes.message });
                 setTimeout(() => {
-                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
-                    setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
+                    setAlertBox({alert: '', message: '' });
                 }, 5000);
             }
         });

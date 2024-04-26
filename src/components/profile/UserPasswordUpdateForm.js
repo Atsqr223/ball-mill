@@ -3,10 +3,8 @@ import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Swal from 'sweetalert2';
 
-import './profile.css';
-
-import AlertBox from "../../../components/AlertBox";
-import { createAuthSession } from "../../../utils/authHelper";
+import AlertBox from "../common/AlertBox";
+import { createAuthSession } from "../../utils/authHelper";
 
 // component
 export default function UserPasswordUpdateForm(props) {
@@ -85,18 +83,14 @@ export default function UserPasswordUpdateForm(props) {
                 setUserPasswordForm((prevFormData) => ({ ...prevFormData, submited: false }));
                 setUserPasswordFormLoader(false);
                 if (passwordUpdateRes.success === true) {
-                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'success' }));
-                    setAlertBox((prevFormData) => ({ ...prevFormData, message: passwordUpdateRes.message }));
+                    setAlertBox({ alert: 'success', message: passwordUpdateRes.message });
                     setTimeout(() => {
-                        setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
-                        setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
+                        setAlertBox({ alert: '', message: '' });
                     }, 5000);
                 } else {
-                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: 'danger' }));
-                    setAlertBox((prevFormData) => ({ ...prevFormData, message: passwordUpdateRes.message }));
+                    setAlertBox({ alert: 'danger', message: passwordUpdateRes.message });
                     setTimeout(() => {
-                        setAlertBox((prevFormData) => ({ ...prevFormData, alert: '' }));
-                        setAlertBox((prevFormData) => ({ ...prevFormData, message: '' }));
+                        setAlertBox({ alert: '', message: '' });
                     }, 5000);
                 }
             });

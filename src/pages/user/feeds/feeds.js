@@ -3,7 +3,7 @@ import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { RWebShare } from "react-web-share";
 
-import AlertBox from "../../../components/AlertBox";
+import AlertBox from "../../../components/common/AlertBox";
 import CreatePostComponent from "../../../components/post/CreatePostComponent";
 import ViewPostComponent from '../../../components/post/ViewPostComponent';
 import { utcToLocalTime } from "../../../utils/timeHelper";

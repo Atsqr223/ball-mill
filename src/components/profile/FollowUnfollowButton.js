@@ -1,23 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
-import InfiniteScroll from 'react-infinite-scroll-component';
-
-import './profile.css';
-
-import AlertBox from "../../../components/AlertBox";
-import { createAuthSession } from "../../../utils/authHelper";
 
 // component
 export default function FollowUnfollowButton(props) {
-    // page title
     const { authFlag, authToken, authUser } = useOutletContext();
-
+    const navigate = useNavigate();
     const [followLoader, setFollowLoader] = useState(false);
     const [isFollow, setIsFollow] = useState(props.isFollow);
-    const [alertBox, setAlertBox] = useState({
-        alert: '',
-        message: ''
-    });
     // user form update end
 
     const followUnfollow = async (userId) => {

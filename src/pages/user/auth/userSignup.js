@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
-import AlertBox from "../../../components/AlertBox";
+import AlertBox from "../../../components/common/AlertBox";
 
 // component
 export default function UserSignup(props) {

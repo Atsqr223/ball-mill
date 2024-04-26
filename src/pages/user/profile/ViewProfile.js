@@ -4,7 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 
 import './profile.css';
 
-import AlertBox from "../../../components/AlertBox";
+import AlertBox from "../../../components/common/AlertBox";
 import CreatePostComponent from "../../../components/post/CreatePostComponent";
 import ViewPostComponent from '../../../components/post/ViewPostComponent';
 import { createAuthSession } from "../../../utils/authHelper";
