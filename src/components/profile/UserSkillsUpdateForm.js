@@ -4,6 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Swal from 'sweetalert2';
 
 import AlertBox from "../common/AlertBox";
+import UserSkillsUpdateView from "../profile/UserSkillsUpdateView";
 import { createAuthSession } from "../../utils/authHelper";
 
 // component
@@ -104,53 +105,6 @@ export default function UserSkillsUpdateForm(props) {
         }
     };
 
-    const deleteSkill = (indexToRemove) => {
-        Swal.fire({
-            title: `Do you want to delete ${userSkills[indexToRemove].name} ?`,
-            showDenyButton: true,
-            showCancelButton: false,
-            confirmButtonText: "Yes",
-            denyButtonText: `No`
-        }).then((result) => {
-            /* Read more about isConfirmed, isDenied below */
-            if (result.isConfirmed) {
-                setDeleteSkillLoader(true);
-                fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/profile/delete-skill/${userSkills[indexToRemove]._id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': authToken
-                    },
-                    body: JSON.stringify({})
-                }).then((response) => response.json()).then((updateSkillsRes) => {
-                    setDeleteSkillLoader(false);
-                    if (updateSkillsRes.success === true) {
-                        setUserSkills(prevState => prevState.filter((item, index) => index !== indexToRemove));
-
-                        const setAuth = {
-                            userdata: updateSkillsRes.data.user,
-                            token: updateSkillsRes.data.token
-                        };
-                        createAuthSession(setAuth);
-                        setAlertBox({ alert: 'success', message: updateSkillsRes.message });
-
-                        setTimeout(() => {
-                            setAlertBox({ alert: '', message: '' });
-                        }, 5000);
-                    } else {
-                        setAlertBox({ alert: 'danger', message: updateSkillsRes.message });
-                        setTimeout(() => {
-                            setAlertBox({ alert: '', message: '' });
-                        }, 5000);
-                    }
-                });
-            } else {
-                console.log('Logout cancel.');
-            }
-        });
-    };
-
     // fetch data
     const fetchSkillData = async () => {
         setSkillLoader(true);
@@ -178,6 +132,28 @@ export default function UserSkillsUpdateForm(props) {
         }
     };
 
+    const deleteSkill = async (skill, updateSkillRes) => {
+        if (updateSkillRes.success === true) {
+            setUserSkills(prevState => prevState.filter((item, index) => item !== skill));
+
+            const setAuth = {
+                userdata: updateSkillRes.data.user,
+                token: updateSkillRes.data.token
+            };
+            createAuthSession(setAuth);
+            setAlertBox({ alert: 'success', message: updateSkillRes.message });
+
+            setTimeout(() => {
+                setAlertBox({ alert: '', message: '' });
+            }, 5000);
+        } else {
+            setAlertBox({ alert: 'danger', message: updateSkillRes.message });
+            setTimeout(() => {
+                setAlertBox({ alert: '', message: '' });
+            }, 5000);
+        }
+    }
+
     useEffect(() => {
         if (userSkills.length === 0) {
             fetchSkillData();
@@ -202,19 +178,12 @@ export default function UserSkillsUpdateForm(props) {
                                 <dl>
                                     {userSkills.map((skill, i) => {
                                         return <React.Fragment key={i}>
-                                            <dt>{skill.name}</dt>
-                                            <dd>I have <span className='font-weight-bold'>{`${skill.year_of_experience} year`}</span> of experience in
-                                                <span className='font-weight-bold'>{` ${skill.name}.`}</span>
-                                                <button type="button" className="btn btn-danger btn-sm float-right" onClick={() => deleteSkill(i)} disabled={deleteSkillLoader}>
-                                                    {deleteSkillLoader ? <>
-                                                        <div className="spinner-border spinner-border-sm" role="status">
-                                                            <span className="sr-only">Loading...</span>
-                                                        </div>
-                                                    </> : <>
-                                                        <i class="fa fa-trash" aria-hidden="true"></i>
-                                                    </>}
-                                                </button>
-                                            </dd>
+                                            <UserSkillsUpdateView
+                                                authFlag={authFlag}
+                                                authToken={authToken}
+                                                authUser={authUser}
+                                                skill={skill}
+                                                deleteSkill={deleteSkill} />
                                             <hr />
                                         </React.Fragment>
                                     })}

@@ -201,7 +201,13 @@ export default function UserEducationUpdateForm(props) {
                                 <dl>
                                     {userEducation.map((edu, i) => {
                                         return <React.Fragment key={i}>
-                                            <UserEducationUpdateView authFlag={authFlag} authToken={authToken} authUser={authUser} userEducation={userEducation} education={edu} deleteEducation={deleteEducation} />
+                                            <UserEducationUpdateView 
+                                            authFlag={authFlag} 
+                                            authToken={authToken} 
+                                            authUser={authUser} 
+                                            userEducation={userEducation} 
+                                            education={edu} 
+                                            deleteEducation={deleteEducation} />
                                             <hr />
                                         </React.Fragment>
                                     })}
