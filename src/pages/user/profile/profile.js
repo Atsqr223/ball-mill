@@ -103,8 +103,7 @@ export default function Profile(props) {
     const fetchData = async () => {
         setPostsLoader(true);
         try {
-            let param = `?pageNo=${pageNo}`;
-            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-auther-posts${param}`, {
+            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-auther-posts/${pageNo}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',

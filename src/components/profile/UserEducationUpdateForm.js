@@ -4,6 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Swal from 'sweetalert2';
 
 import AlertBox from "../common/AlertBox";
+import UserEducationUpdateView from "./UserEducationUpdateView";
 import { createAuthSession } from "../../utils/authHelper";
 
 // component
@@ -14,8 +15,6 @@ export default function UserEducationUpdateForm(props) {
 
     // user form update start
     const [userFormLoader, setUserFormLoader] = useState(false);
-    const [educationLoader, setEducationLoader] = useState(true);
-    const [deleteEducationLoader, setDeleteEducationLoader] = useState(false);
     const [userEducationFormData, setUserEducationFormData] = useState({
         school_college_university: '',
         degree: '',
@@ -24,6 +23,7 @@ export default function UserEducationUpdateForm(props) {
         description: '',
         submited: false
     });
+    const [educationLoader, setEducationLoader] = useState(true);
     const [userEducation, setUserEducation] = useState([]);
     const [userEducationFormErrors, setUserEducationFormErrors] = useState({});
     const [alertBox, setAlertBox] = useState({
@@ -117,68 +117,9 @@ export default function UserEducationUpdateForm(props) {
         }
     };
 
-    const deleteEducation = (indexToRemove) => {
-        Swal.fire({
-            title: `Do you want to delete ${userEducation[indexToRemove].school_college_university} ?`,
-            showDenyButton: true,
-            showCancelButton: false,
-            confirmButtonText: "Yes",
-            denyButtonText: `No`
-        }).then((result) => {
-            /* Read more about isConfirmed, isDenied below */
-            if (result.isConfirmed) {
-                setDeleteEducationLoader(true);
-                fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/profile/delete-education/${userEducation[indexToRemove]._id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': authToken
-                    },
-                    body: JSON.stringify({})
-                }).then((response) => response.json()).then((updateEducationRes) => {
-                    setDeleteEducationLoader(false);
-                    if (updateEducationRes.success === true) {
-                        setUserEducation(prevState => prevState.filter((item, index) => index !== indexToRemove));
-                        const setAuth = {
-                            userdata: updateEducationRes.data.user,
-                            token: updateEducationRes.data.token
-                        };
-                        createAuthSession(setAuth);
-                        setAlertBox({ alert: 'success', message: updateEducationRes.message });
-
-                        setTimeout(() => {
-                            setAlertBox({ alert: '', message: '' });
-                        }, 5000);
-                    } else {
-                        setAlertBox({ alert: 'danger', message: updateEducationRes.message });
-                        setTimeout(() => {
-                            setAlertBox({ alert: '', message: '' });
-                        }, 5000);
-                    }
-                });
-            } else {
-                console.log('Logout cancel.');
-            }
-        });
-    };
-
     // Function to get the current date in the format YYYY-MM-DD
     const getCurrentDate = () => {
         const date = new Date();
-        const year = date.getFullYear();
-        let month = date.getMonth() + 1;
-        let day = date.getDate();
-
-        // Add leading zero if month/day is single digit
-        month = month < 10 ? '0' + month : month;
-        day = day < 10 ? '0' + day : day;
-
-        return `${year}-${month}-${day}`;
-    };
-
-    const getDate = (paramDate) => {
-        const date = new Date(paramDate);
         const year = date.getFullYear();
         let month = date.getMonth() + 1;
         let day = date.getDate();
@@ -217,10 +158,29 @@ export default function UserEducationUpdateForm(props) {
         }
     };
 
-    useEffect(() => {
-        if (userEducation.length === 0) {
-            fetchEducationData();
+    const deleteEducation = (education, updateEducationRes) => {
+        if (updateEducationRes.success === true) {
+            setUserEducation(prevState => prevState.filter((item, index) => item !== education));
+            const setAuth = {
+                userdata: updateEducationRes.data.user,
+                token: updateEducationRes.data.token
+            };
+            createAuthSession(setAuth);
+            setAlertBox({ alert: 'success', message: updateEducationRes.message });
+
+            setTimeout(() => {
+                setAlertBox({ alert: '', message: '' });
+            }, 5000);
+        } else {
+            setAlertBox({ alert: 'danger', message: updateEducationRes.message });
+            setTimeout(() => {
+                setAlertBox({ alert: '', message: '' });
+            }, 5000);
         }
+    };
+
+    useEffect(() => {
+        fetchEducationData();
     }, []);
 
     return (
@@ -241,19 +201,7 @@ export default function UserEducationUpdateForm(props) {
                                 <dl>
                                     {userEducation.map((edu, i) => {
                                         return <React.Fragment key={i}>
-                                            <dt>{edu.degree}</dt>
-                                            <dd>from <span className='font-weight-bold'>{edu.school_college_university}</span> in
-                                                <span className='font-weight-bold'>{getDate(edu.start_date)}</span> to <span className='font-weight-bold'>{getDate(edu.end_date)}.</span>
-                                                <button type="button" className="btn btn-danger btn-sm float-right" onClick={() => deleteEducation(i)} disabled={deleteEducationLoader}>
-                                                    {deleteEducationLoader ? <>
-                                                        <div className="spinner-border spinner-border-sm" role="status">
-                                                            <span className="sr-only">Loading...</span>
-                                                        </div>
-                                                    </> : <>
-                                                        <i class="fa fa-trash" aria-hidden="true"></i>
-                                                    </>}
-                                                </button>
-                                            </dd>
+                                            <UserEducationUpdateView authFlag={authFlag} authToken={authToken} authUser={authUser} userEducation={userEducation} education={edu} deleteEducation={deleteEducation} />
                                             <hr />
                                         </React.Fragment>
                                     })}

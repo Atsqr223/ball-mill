@@ -59,8 +59,7 @@ export default function ViewProfile(props) {
     const fetchPostData = async () => {
         setPostsLoader(true);
         try {
-            let param = `?pageNo=${pageNo}&username=${username}`;
-            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-profile-posts${param}`, {
+            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/post/get-profile-posts/${username}/${pageNo}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',

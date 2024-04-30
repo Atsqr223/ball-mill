@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 import { createAuthSession } from "../../utils/authHelper";
 
+import './profile.css';
+
 // component
 export default function ProfileLeftPanel(props) {
     // page title
@@ -82,8 +84,8 @@ export default function ProfileLeftPanel(props) {
 
                     </div>
                     <h3 className="profile-username text-center">{authUser.name}</h3>
-                    <p className="text-muted text-center">{authUser.bio}</p>
-                    <ul className="list-group list-group-unbordered mb-3">
+                    <p className="text-muted text-center">{authUser.bio.substring(0, 100) + "..."}</p>
+                    <ul className="list-group list-group-unbordered">
                         <li className="list-group-item">
                             <b>Followers</b> <Link to="/profile/followers" className="float-right">{authUser.followers_count}</Link>
                         </li>

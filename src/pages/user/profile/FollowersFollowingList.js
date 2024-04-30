@@ -17,6 +17,7 @@ export default function FollowersFollowingList(props) {
     const navigate = useNavigate();
     const [pageLoader, setPageLoader] = useState(false);
     const [userList, setUserList] = useState([]);
+    const [pageNo, setPageNo] = useState(1);
 
     const [alertBox, setAlertBox] = useState({
         alert: '',
@@ -28,7 +29,7 @@ export default function FollowersFollowingList(props) {
     const fetchData = async () => {
         setPageLoader(true);
         try {
-            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/friends/get-${props.title.toLowerCase()}/${authUser._id}`, {
+            await fetch(`${process.env.REACT_APP_API_BASE_URL}api/v1/friends/get-${props.title.toLowerCase()}/${authUser._id}/${pageNo}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
@@ -37,7 +38,8 @@ export default function FollowersFollowingList(props) {
                 }
             }).then((response) => response.json()).then((followRes) => {
                 if (followRes.success === true) {
-                    setUserList(followRes.data[props.title.toLowerCase()]);
+                    setPageNo(prevPage => prevPage + 1);
+                    setUserList(prevItems => [...prevItems, ...followRes.data[props.title.toLowerCase()]]);
                 }
             });
         } catch (error) {
@@ -50,6 +52,7 @@ export default function FollowersFollowingList(props) {
     };
 
     useEffect(() => {
+        setPageNo(1);
         fetchData();
     }, [props]);
 
@@ -111,6 +114,41 @@ export default function FollowersFollowingList(props) {
                                             <div className="card card-solid">
                                                 <div className="card-body pb-0">
                                                     <div className="row">
+                                                        <InfiniteScroll
+                                                            dataLength={userList.length}
+                                                            next={fetchData}
+                                                            hasMore={userList.length < 200}
+                                                            loader={<></>}
+                                                            scrollableTarget="scrollableDiv"
+                                                        >
+                                                            {userList.map((user, i) => {
+                                                                return <div key={i} className="col-12 col-sm-6 d-flex align-items-stretch flex-column">
+                                                                    <div className="card bg-light d-flex flex-fill">
+                                                                        <div className="card-body pt-2">
+                                                                            <div className="row">
+                                                                                <div className="col-7">
+                                                                                    <Link to={`${process.env.REACT_APP_BASE_URL}profile/${user.username}`}>
+                                                                                        <h2 className="lead"><b>{user.name}</b></h2>
+                                                                                    </Link>
+                                                                                    <p className="text-muted text-sm"><b>Location: </b> {user.location} </p>
+                                                                                    <p className="text-muted text-sm"><b>Bio: </b> {user.bio.substring(0, 60) + "..."} </p>
+                                                                                </div>
+                                                                                <div className="col-5 text-center">
+                                                                                    <img src={user.profile_picture_url} alt="user-avatar" className="img-circle img-fluid" />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="card-footer">
+                                                                            <div className="text-right">
+                                                                                <FollowUnfollowButton isFollow={true} userData={user} />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>;
+                                                            })}
+                                                        </InfiniteScroll>
+
+
                                                         {pageLoader ? <div className='col-md-12'>
                                                             <div className='text-center'>
                                                                 <div className="spinner-grow text-primary"></div>
@@ -119,37 +157,7 @@ export default function FollowersFollowingList(props) {
                                                                 <div className="spinner-grow text-warning ml-2"></div>
                                                                 <div className="spinner-grow text-danger ml-2"></div>
                                                             </div>
-                                                        </div> : <>
-                                                            {userList.length > 0 ? <>
-                                                                {userList.map((user, i) => {
-                                                                    return <div key={i} className="col-12 col-sm-6 d-flex align-items-stretch flex-column">
-                                                                        <div className="card bg-light d-flex flex-fill">
-                                                                            <div className="card-body pt-2">
-                                                                                <div className="row">
-                                                                                    <div className="col-7">
-                                                                                        <Link to={`${process.env.REACT_APP_BASE_URL}profile/${user.username}`}>
-                                                                                            <h2 className="lead"><b>{user.name}</b></h2>
-                                                                                        </Link>
-                                                                                        <p className="text-muted text-sm"><b>Location: </b> {user.location} </p>
-                                                                                        <p className="text-muted text-sm"><b>Bio: </b> {user.bio.substring(0, 60) + "..."} </p>
-                                                                                    </div>
-                                                                                    <div className="col-5 text-center">
-                                                                                        <img src={user.profile_picture_url} alt="user-avatar" className="img-circle img-fluid" />
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div className="card-footer">
-                                                                                <div className="text-right">
-                                                                                    <FollowUnfollowButton isFollow={true} userData={user} />
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>;
-                                                                })}
-                                                            </> : <>
-                                                                <p>No record found.</p>
-                                                            </>}
-                                                        </>}
+                                                        </div> : <></>}
                                                     </div>
                                                 </div>
                                                 {/* <div className="card-footer">
@@ -173,8 +181,8 @@ export default function FollowersFollowingList(props) {
                             </div>
                         </div>
                     </section>
-                </div>
-            </div>
+                </div >
+            </div >
         </>
     );
 }
