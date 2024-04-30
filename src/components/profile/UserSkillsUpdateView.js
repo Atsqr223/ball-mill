@@ -95,7 +95,6 @@ export default function UserEducationUpdateView(props) {
                         </>}
                     </button>
                 </dd>
-                <hr />
             </React.Fragment>
         </>
     );
