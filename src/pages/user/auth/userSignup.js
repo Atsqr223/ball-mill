@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 import AlertBox from "../../../components/common/AlertBox";
+import UserSignupOtp from "../../../components/auth/UserSignupOtp";
+import { createAuthSession } from "../../../utils/authHelper";
 
 // component
 export default function UserSignup(props) {
@@ -13,12 +15,12 @@ export default function UserSignup(props) {
     const [signupSuccess, setSignupSuccess] = useState(false);
     const [signupError, setSignupError] = useState('');
     const [formData, setFormData] = useState({
-        firstName: "",
-        lastName: "",
-        phone: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
+        firstName: "Subha",
+        lastName: "Prasad",
+        phone: "1234567890",
+        email: "subha123@gmail.com",
+        password: "123456",
+        confirmPassword: "123456",
         terms: false,
         submited: false
     });
@@ -95,8 +97,7 @@ export default function UserSignup(props) {
                     setSignupSuccess(true);
                 } else {
                     setSignupError(signupRes.message);
-                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: `danger` }));
-                    setAlertBox((prevFormData) => ({ ...prevFormData, message: `${signupRes.message}` }));
+                    setAlertBox({ alert: `danger`, message: `${signupRes.message}` });
                 }
             });
         } else {
@@ -163,22 +164,10 @@ export default function UserSignup(props) {
                         <p className='text-danger'>{signupError}</p>
                     </form>
 
-                    {/* <div className="social-auth-links text-center">
-                        <a href="#" className="btn btn-block btn-primary">
-                            <i className="fab fa-facebook mr-2"></i>
-                            Sign up using Facebook
-                        </a>
-                        <a href="#" className="btn btn-block btn-danger">
-                            <i className="fab fa-google-plus mr-2"></i>
-                            Sign up using Google+
-                        </a>
-                    </div> */}
-
                     <Link to="/auth/login" className="text-center">I already have a membership</Link>
                 </> :
                 <>
-                    <p className="login-box-msg">Register a new membership</p>
-                    <Link to="/auth/login" className="btn btn-primary btn-block">Login</Link>
+                    <UserSignupOtp userData={formData} />
                 </>
             }
         </>

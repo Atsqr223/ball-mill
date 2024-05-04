@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 
 import AlertBox from "../../../components/common/AlertBox";
+import UserSignupOtp from "../../../components/auth/UserSignupOtp";
 import { createAuthSession } from "../../../utils/authHelper";
 
 // component
@@ -13,6 +14,8 @@ export default function UserLogin(props) {
     const navigate = useNavigate();
     const [loader, setLoader] = useState(false);
     const [loginSuccess, setLoginSuccess] = useState(false);
+    const [loginNotSuccess, setLoginNotSuccess] = useState(false);
+    const [userData, setUserData] = useState({});
     const [loginError, setLoginError] = useState('');
     const [formData, setFormData] = useState({
         phoneoremail: "",
@@ -65,15 +68,20 @@ export default function UserLogin(props) {
                 setLoader(false);
                 if (loginRes.success === true) {
                     setLoginSuccess(true);
-                    const setAuth = {
-                        userdata: loginRes.data.user,
-                        token: loginRes.data.token
-                    };
-                    createAuthSession(setAuth);
-                    setTimeout(() => {
-                        console.log("REDIRECT");
-                        window.location.reload();
-                    }, 1000);
+                    setUserData(loginRes.data.user);
+                    if(loginRes.data.user.status.name == 'Active') {
+                        const setAuth = {
+                            userdata: loginRes.data.user,
+                            token: loginRes.data.token
+                        };
+                        createAuthSession(setAuth);
+                        setTimeout(() => {
+                            console.log("REDIRECT");
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        setLoginNotSuccess(true);
+                    }
                 } else {
                     setLoginError(loginRes.message);
                     setAlertBox((prevFormData) => ({ ...prevFormData, alert: `danger` }));
@@ -88,43 +96,45 @@ export default function UserLogin(props) {
 
     return (
         <>
-            <p className="login-box-msg">Sign in to start your session</p>
-            <AlertBox alert={alertBox.alert} message={alertBox.message} />
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <input type="email" className="form-control" placeholder="Email" name="phoneoremail" value={formData.phoneoremail} onChange={handleChange} />
-                    {errors.phoneoremail && <span className="text-danger">{errors.phoneoremail}</span>}
-                </div>
-
-                <div className="form-group">
-                    <input type="password" className="form-control" placeholder="Password" name="password" value={formData.password} onChange={handleChange} />
-                    {errors.password && <span className="text-danger">{errors.password}</span>}
-                </div>
-
-                <div className="row">
-                    <div className="col-8">
-                        <div className="icheck-primary">
-                            <input type="checkbox" id="remember" />
-                            <label htmlFor="remember">
-                                Remember Me
-                            </label>
+            {!loginNotSuccess ?
+                <>
+                    <p className="login-box-msg">Sign in to start your session</p>
+                    <AlertBox alert={alertBox.alert} message={alertBox.message} />
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <input type="email" className="form-control" placeholder="Email" name="phoneoremail" value={formData.phoneoremail} onChange={handleChange} />
+                            {errors.phoneoremail && <span className="text-danger">{errors.phoneoremail}</span>}
                         </div>
-                    </div>
-                    <div className="col-4">
-                        <button type="submit" className="btn btn-primary btn-block" disabled={loader}>
-                            {loader ? <>
-                                <div className="spinner-border spinner-border-sm" role="status">
-                                    <span className="sr-only">Loading...</span>
-                                </div>
-                            </> : <>
-                                Let's go
-                            </>}
-                        </button>
-                    </div>
-                </div>
-            </form>
 
-            {/* <div className="social-auth-links text-center mt-2 mb-3">
+                        <div className="form-group">
+                            <input type="password" className="form-control" placeholder="Password" name="password" value={formData.password} onChange={handleChange} />
+                            {errors.password && <span className="text-danger">{errors.password}</span>}
+                        </div>
+
+                        <div className="row">
+                            <div className="col-8">
+                                <div className="icheck-primary">
+                                    <input type="checkbox" id="remember" />
+                                    <label htmlFor="remember">
+                                        Remember Me
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="col-4">
+                                <button type="submit" className="btn btn-primary btn-block" disabled={loader}>
+                                    {loader ? <>
+                                        <div className="spinner-border spinner-border-sm" role="status">
+                                            <span className="sr-only">Loading...</span>
+                                        </div>
+                                    </> : <>
+                                        Let's go
+                                    </>}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    {/* <div className="social-auth-links text-center mt-2 mb-3">
                 <a href="#" className="btn btn-block btn-primary">
                     <i className="fab fa-facebook mr-2"></i> Sign in using Facebook
                 </a>
@@ -133,12 +143,15 @@ export default function UserLogin(props) {
                 </a>
             </div> */}
 
-            <p className="mb-1">
-                <Link to="/auth/forgot-password">I forgot my password</Link>
-            </p>
-            <p className="mb-0">
-                <Link to="/auth/signup" className="text-center">Register a new membership</Link>
-            </p>
+                    <p className="mb-1">
+                        <Link to="/auth/forgot-password">I forgot my password</Link>
+                    </p>
+                    <p className="mb-0">
+                        <Link to="/auth/signup" className="text-center">Register a new membership</Link>
+                    </p>
+                </> : <>
+                    <UserSignupOtp userData={userData} />
+                </>}
         </>
     );
 }
