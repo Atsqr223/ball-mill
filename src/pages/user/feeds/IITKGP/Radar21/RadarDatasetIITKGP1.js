@@ -24,7 +24,7 @@ const RadarDatasetIITKGP1 = () => {
   useEffect(() => {
     const fetchRadarData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/data');
+        const response = await axios.get('https://ball-mill-flask.onrender.com/api/data');
         console.log('Response data:', response.data); // Verify the structure of the response
         setRadarData({
           x: response.data.x,
@@ -161,7 +161,7 @@ const RadarDatasetIITKGP1 = () => {
     data: [
       {
         type: 'scatter',
-        mode: 'lines+markers',
+        mode: 'markers',
         x: xData,
         y: yData,
         name: 'Sample1 Data',
@@ -169,7 +169,7 @@ const RadarDatasetIITKGP1 = () => {
       },
       {
         type: 'scatter',
-        mode: 'lines+markers',
+        mode: 'markers',
         x: xData,
         y: yData2,
         name: 'Sample2 Data',
@@ -194,7 +194,7 @@ const RadarDatasetIITKGP1 = () => {
     data: [
       {
         type: 'scatter',
-        mode: 'lines',
+        mode: 'markers',
         x: xData,
         y: yData,
         fill: 'tozeroy', // Fill to x-axis
@@ -275,7 +275,7 @@ const RadarDatasetIITKGP1 = () => {
   return (
     <div style={containerStyle}>
       {/* Heading */}
-      <h1>Radar Data from TCS Kolkata Office</h1>
+      <h1>Radar Data from IIT KGP Lab</h1>
 
       {/* YouTube Video */}
       <div>

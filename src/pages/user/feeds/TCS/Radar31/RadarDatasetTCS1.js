@@ -24,7 +24,7 @@ const RadarDatasetTCS1 = () => {
   useEffect(() => {
     const fetchRadarData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/data');
+        const response = await axios.get('https://ball-mill-flask.onrender.com/api/data');
         console.log('Response data:', response.data); // Verify the structure of the response
         setRadarData({
           x: response.data.x,
