@@ -269,105 +269,114 @@ const RadarDatasetTCS1 = () => {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    marginTop: '5%'
+    paddingTop: '20px' // Optional: add some padding if needed
+  };
+
+  const headerStyle = {
+    width: '100%',
+    textAlign: 'center',
+    margin: '20px 0'
   };
 
   return (
-    <div style={containerStyle}>
+    <div>
       {/* Heading */}
-      <h1>Radar Data from TCS Kolkata Office</h1>
+      <h1 style={headerStyle}>Radar Data from TCS Jamshedpur Office</h1>
 
-      {/* YouTube Video */}
-      <div>
-        <iframe
-          width="800"
-          height="450"
-          src="https://www.youtube.com/embed/CeAgx48qQ3M"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe>
-      </div>
+      {/* Container */}
+      <div style={containerStyle}>
+        {/* YouTube Video */}
+        <div>
+          <iframe
+            width="800"
+            height="450"
+            src="https://www.youtube.com/embed/CeAgx48qQ3M"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
 
-      {/* Radar Dataset Plot */}
-      <div>
-        {radarPlotData.data ? (
+        {/* Radar Dataset Plot */}
+        <div>
+          {radarPlotData.data ? (
+            <Plot
+              data={radarPlotData.data}
+              layout={radarPlotData.layout}
+            />
+          ) : (
+            <p>Loading 3d interactive plot...</p>
+          )}
+        </div>
+
+        {/* Accelerator Dataset Line Plot */}
+        <div>
+          {acceleratorData.length > 0 ? (
+            <Plot
+              data={linePlotData.data}
+              layout={linePlotData.layout}
+            />
+          ) : (
+            <p>Loading Time Series Data...</p>
+          )}
+        </div>
+
+        {/* Accelerator Dataset Filled Area Plot */}
+        <div>
+          {acceleratorData.length > 0 ? (
+            <Plot
+              data={filledAreaPlotData.data}
+              layout={filledAreaPlotData.layout}
+            />
+          ) : null}
+        </div>
+
+        {/* FFT Plot */}
+        <div>
           <Plot
-            data={radarPlotData.data}
-            layout={radarPlotData.layout}
+            data={fftPlotData.data}
+            layout={fftPlotData.layout}
           />
-        ) : (
-          <p>Loading 3d interactive plot...</p>
-        )}
-      </div>
+        </div>
 
-      {/* Accelerator Dataset Line Plot */}
-      <div>
-        {acceleratorData.length > 0 ? (
-          <Plot
-            data={linePlotData.data}
-            layout={linePlotData.layout}
-          />
-        ) : (
-          <p>Loading Time Series Data...</p>
-        )}
-      </div>
-
-      {/* Accelerator Dataset Filled Area Plot */}
-      <div>
-        {acceleratorData.length > 0 ? (
-          <Plot
-            data={filledAreaPlotData.data}
-            layout={filledAreaPlotData.layout}
-          />
-        ) : null}
-      </div>
-
-      {/* FFT Plot */}
-      <div>
-        <Plot
-          data={fftPlotData.data}
-          layout={fftPlotData.layout}
-        />
-      </div>
-
-      {/* Firebase Data Plot */}
-      <div>
-        {firebaseData.length > 0 ? (
-          <Plot
-            data={[
-              {
-                type: 'scatter',
-                mode: 'markers',
-                x: firebaseData.map(data => new Date(data.Time_Stamp1)),
-                y: firebaseData.map(data => data.Sample1_data),
-                name: 'Sample1 Data',
-                marker: { color: 'green' },
-              },
-              {
-                type: 'scatter',
-                mode: 'markers',
-                x: firebaseData.map(data => new Date(data.Time_Stamp2)),
-                y: firebaseData.map(data => data.Sample2_data),
-                name: 'Sample2 Data',
-                marker: { color: 'blue' },
-              },
-            ]}
-            layout={{
-              title: 'Sample Data from Firebase',
-              xaxis: {
-                title: 'Time',
-                type: 'date', // This ensures Plotly treats x-axis as date/time
-              },
-              yaxis: {
-                title: 'Sample Data',
-              },
-              width: 800,
-              height: 600,
-            }}
-          />
-        ) : (
-          <p>Loading Firebase Data...</p>
-        )}
+        {/* Firebase Data Plot */}
+        <div>
+          {firebaseData.length > 0 ? (
+            <Plot
+              data={[
+                {
+                  type: 'scatter',
+                  mode: 'markers',
+                  x: firebaseData.map(data => new Date(data.Time_Stamp1)),
+                  y: firebaseData.map(data => data.Sample1_data),
+                  name: 'Sample1 Data',
+                  marker: { color: 'green' },
+                },
+                {
+                  type: 'scatter',
+                  mode: 'markers',
+                  x: firebaseData.map(data => new Date(data.Time_Stamp2)),
+                  y: firebaseData.map(data => data.Sample2_data),
+                  name: 'Sample2 Data',
+                  marker: { color: 'blue' },
+                },
+              ]}
+              layout={{
+                title: 'Sample Data from Firebase',
+                xaxis: {
+                  title: 'Time',
+                  type: 'date', // This ensures Plotly treats x-axis as date/time
+                },
+                yaxis: {
+                  title: 'Sample Data',
+                },
+                width: 800,
+                height: 600,
+              }}
+            />
+          ) : (
+            <p>Loading Firebase Data...</p>
+          )}
+        </div>
       </div>
     </div>
   );
