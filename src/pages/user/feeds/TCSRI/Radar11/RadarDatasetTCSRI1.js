@@ -112,7 +112,7 @@ const RadarDatasetTCSRI1 = () => {
       x: surfaceX,
       y: surfaceY,
       z: surfaceZ,
-      opacity: 0.5,
+      opacity: 0.4,
       colorscale: 'Blues'
     };
   };
@@ -129,7 +129,7 @@ const RadarDatasetTCSRI1 = () => {
         marker: {
           size: 5,
           color: 'green',
-          opacity: 0.8
+          opacity: 0.5              
         }
       },
       generateCylinderData(21, 40) // Adjust radius and length as needed
@@ -186,7 +186,7 @@ const RadarDatasetTCSRI1 = () => {
       yaxis: {
         title: 'Sample Data',
       },
-      width: '100%',
+      width: '50%',
       height: '100%',
     }
   };
