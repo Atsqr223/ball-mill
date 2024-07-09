@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import './Radar11/RadarDatasetTCSRI1.js';  // Adjusted import path to Radar11 folder
 
 class Radar1 extends React.Component {
     constructor() {
@@ -44,6 +43,11 @@ class Radar1 extends React.Component {
         this.setState({ search: e.target.value });
     };
 
+    // Dummy function, no backend interaction
+    handleFireButtonClick = (itemId) => {
+        console.log(`Firing script for item ${itemId}`);
+    };
+
     filteredItems() {
         const { items, search } = this.state;
         return items.filter(item => item.name.toLowerCase().includes(search.toLowerCase()));
@@ -51,7 +55,7 @@ class Radar1 extends React.Component {
 
     render() {
         const { hasMore } = this.state;
-    
+
         return (
             <div style={{ marginTop: '6%', position: 'relative' }}>
                 <h1>Radar</h1>
@@ -79,21 +83,37 @@ class Radar1 extends React.Component {
                         {this.filteredItems().map((item, index) => (
                             <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', borderBottom: '1px solid #ccc' }}>
                                 <span>{item.name}</span>
-                                <div style={{ marginLeft: 'auto' }}>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
                                     {item.name === "Dataset 1" ? (
-                                        <Link
-                                            to={`/RadarDatasetTCSRI1.js`}
-                                            style={{ marginLeft: '20px' }}
-                                        >
-                                            View details
-                                        </Link>
+                                        <>
+                                            <Link
+                                                to={`/RadarDatasetTCSRI1.js`}
+                                                style={{ marginLeft: '20px' }}
+                                            >
+                                                View details
+                                            </Link>
+                                            <button
+                                                style={{ marginLeft: '10px' }}
+                                                onClick={() => this.handleFireButtonClick(item.id)}
+                                            >
+                                                Fire
+                                            </button>
+                                        </>
                                     ) : (
-                                        <button
-                                            style={{ marginLeft: '20px' }}
-                                            onClick={() => window.location.href = `/details/${item.id}`}
-                                        >
-                                            View details
-                                        </button>
+                                        <>
+                                            <button
+                                                style={{ marginLeft: '20px' }}
+                                                onClick={() => window.location.href = `/details/${item.id}`}
+                                            >
+                                                View details
+                                            </button>
+                                            <button
+                                                style={{ marginLeft: '10px' }}
+                                                onClick={() => this.handleFireButtonClick(item.id)}
+                                            >
+                                                Fire
+                                            </button>
+                                        </>
                                     )}
                                 </div>
                             </div>
