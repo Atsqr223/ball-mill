@@ -16,7 +16,7 @@ export default function ViewSinglePost(props) {
     const { slug } = useParams();
 
     // page title
-    document.title = "Subha welcomes you | View Post";
+    document.title = "TCS welcomes you | View Post";
     const navigate = useNavigate();
     const [post, setPost] = useState([]);
     const [postsLoader, setPostsLoader] = useState(true);

@@ -5,7 +5,7 @@ import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
 export default function Compose(props) {
 
     // page title
-    document.title = "Subha welcomes you | Mail Box";
+    document.title = "TCS welcomes you | Mail Box";
 
     const navigate = useNavigate();
 

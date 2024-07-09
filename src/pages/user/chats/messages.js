@@ -13,7 +13,7 @@ import MessageBoxComponent from '../../../components/message/MessageBoxComponent
 // component
 export default function Messages(props) {
     // page title
-    document.title = "Subha welcomes you | Message";
+    document.title = "TCS welcomes you | Message";
 
     const { authFlag, authToken, authUser } = useOutletContext();
 

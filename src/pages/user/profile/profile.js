@@ -17,7 +17,7 @@ import { createAuthSession } from "../../../utils/authHelper";
 // component
 export default function Profile(props) {
     // page title
-    document.title = 'Subha welcomes you | Profile';
+    document.title = 'TCS welcomes you | Profile';
     const { authFlag, authToken, authUser } = useOutletContext();
     const navigate = useNavigate();
 

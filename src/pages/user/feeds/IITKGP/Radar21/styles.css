@@ -1,0 +1,5 @@
+@media (max-width: 768px) {
+  .card-body {
+    padding: 10px; /* Adjust padding inside cards on smaller screens */
+  }
+}

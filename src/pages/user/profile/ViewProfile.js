@@ -10,7 +10,7 @@ import ViewPostComponent from '../../../components/post/ViewPostComponent';
 // component
 export default function ViewProfile(props) {
     // page title
-    document.title = 'Subha welcomes you | Profile';
+    document.title = 'TCS welcomes you | Profile';
     const { authFlag, authToken, authUser } = useOutletContext();
     const { username } = useParams();
     const navigate = useNavigate();

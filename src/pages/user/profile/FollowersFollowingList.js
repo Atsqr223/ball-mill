@@ -11,7 +11,7 @@ import FollowUnfollowButton from '../../../components/profile/FollowUnfollowButt
 // component
 export default function FollowersFollowingList(props) {
     // page title
-    document.title = `Subha welcomes you | ${props.title}`;
+    document.title = `TCS welcomes you | ${props.title}`;
     const { authFlag, authToken, authUser } = useOutletContext();
     let fetchApiCall = false;
     const navigate = useNavigate();

@@ -18,7 +18,7 @@ export default function UserSignup(props) {
         firstName: "TCS",
         lastName: "R&I*",
         phone: "9876524680",
-        email: "tcs12345@gmail.com",
+        email: "tcs12345@gmail.cm",
         password: "123456",
         confirmPassword: "123456",
         terms: false,

@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import './Radar21/RadarDatasetIITKGP1.js';  // Adjusted import path to Radar11 folder
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+
 class Radar1 extends React.Component {
     constructor() {
         super();

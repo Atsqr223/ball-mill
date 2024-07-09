@@ -32,7 +32,7 @@ const RadarDatasetTCSRI1 = () => {
           y: response.data.y,
           z: response.data.z
         });
-      } catch (error) {
+      } catch (error) {   
         console.error('Error fetching radar data:', error);
       }
     };
@@ -142,8 +142,8 @@ const RadarDatasetTCSRI1 = () => {
         aspectmode: 'manual',
         aspectratio: { x: 1, y: 1, z: 1 }
       },
-      width: 800,
-      height: 600
+      width: '100%',
+      height: '100%'
     }
   };
 
@@ -186,8 +186,8 @@ const RadarDatasetTCSRI1 = () => {
       yaxis: {
         title: 'Sample Data',
       },
-      width: 800,
-      height: 400,
+      width: '100%',
+      height: '100%',
     }
   };
 
