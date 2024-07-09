@@ -1,0 +1,16 @@
+/* style.css */
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#myGrid {
+    height: 300px;
+    flex: none;
+}
+
+.my-chart {
+    height: 400px;
+    flex: none;
+}

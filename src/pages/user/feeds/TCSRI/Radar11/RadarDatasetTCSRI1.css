@@ -1,0 +1,46 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 5%;
+}
+
+.heading {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.card {
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 1rem 0;
+  padding: 1rem;
+  width: 100%;
+  max-width: 800px;
+}
+
+.card h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.plot {
+  margin-top: 1rem;
+}
+
+.video-container {
+  margin-bottom: 2rem;
+}
+
+.video-container iframe {
+  width: 100%;
+  max-width: 800px;
+  height: 450px;
+}
+
+.plot {
+  width: 100%;
+  max-width: 800px;
+  height: 400px;
+}

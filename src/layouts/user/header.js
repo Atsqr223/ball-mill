@@ -32,13 +32,14 @@ export default function Header(props) {
     }
 
     return (
-        // <nav className="main-header navbar navbar-expand-md navbar-light navbar-white">
-        <nav className='main-header navbar navbar-expand-md navbar-dark fixed-top bg-dark'>
+        <nav className='main-header navbar navbar-expand-md navbar-dark fixed-top bg-primary'>
             <div className="container">
-                <a href="/" className="navbar-brand">
-                    <img src="/assets/dist/img/subhaLogo.png" alt="SubhaPrasad Logo" className="brand-image img-circle elevation-3"
-                        style={{ opacity: .8 }} />
-                    <span className="brand-text font-weight-light">&nbsp;{process.env.REACT_APP_TITLE}</span>
+                <a href="/" className="navbar-brand d-flex align-items-center">
+                    <img src="assets/dist/img/TCSRI.jpg" alt="TCS Logo" className="brand-image img-thumbnail elevation-3"
+                        style={{ opacity: .8, marginRight: '10px' }} />
+                    <div>
+                        <p>TCS Research and Innovation</p>
+                    </div>
                 </a>
 
                 {

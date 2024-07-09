@@ -5,7 +5,6 @@ import { authCheck } from "../utils/authHelper";
 // pages user
 const UserLayouts = lazy(() => import('../layouts/user/userLayouts'));
 const Home = lazy(() => import('../pages/user/home'));
-const Feeds = lazy(() => import('../pages/user/feeds'));
 const Inbox = lazy(() => import('../pages/user/mailbox/inbox'));
 const ComposeMail = lazy(() => import('../pages/user/mailbox/compose'));
 const ReadMail = lazy(() => import('../pages/user/mailbox/read'));
@@ -28,7 +27,6 @@ export const UserAuthRoutes = () => {
   }>
     <Route index element={<Home />} />
     <Route path="home" element={<Home />} />
-    <Route path="feeds" element={<Feeds />} />
     
     <Route path="/mail">
       <Route index path="inbox" element={<Inbox title="Inbox" />} />

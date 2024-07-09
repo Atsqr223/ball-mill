@@ -7,7 +7,7 @@ export default function Dashboard(props) {
   const navigate = useNavigate();
 
   // page title
-  document.title = 'Welcome to We connect | Dashboard';
+  document.title = 'Welcome to TCSRI | Dashboard';
 
   return (
     <>
@@ -75,7 +75,7 @@ export default function Dashboard(props) {
 
                 <div className="info-box-content">
                   <span className="info-box-text">New Members</span>
-                  <span className="info-box-number">2,000</span>
+                  <span className="info-box-number">240</span>
                 </div>
               </div>
             </div>

@@ -206,6 +206,7 @@ img {
 svg {
   overflow: hidden;
   vertical-align: middle;
+  object-fit: cover;
 }
 
 table {

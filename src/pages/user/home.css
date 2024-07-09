@@ -1,0 +1,48 @@
+/* MiddlePage.css */
+
+:root {
+    --tcs-blue: #0074c8;
+    --tcs-green: #34b934;
+    --tcs-gray: #666666;
+    --tcs-white: #ffffff;
+  }
+  
+  #video-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch; /* Change to stretch to make all videos same height */
+    height: 60vh; /* Set the container height to 70% of the viewport height */
+  }
+  
+  .video {
+    flex: 1;
+    margin: 20px 10px 0; /* Adjust spacing between videos and add margin-top */
+    background-color: var(--tcs-blue); /* Set background color */
+    color: var(--tcs-white); /* Set text color */
+    padding: 20px; /* Add padding */
+    border-radius: 10px; /* Add border radius */
+    position: relative; /* Added position relative */
+    cursor: pointer; /* Change cursor to pointer */
+    overflow: hidden; /* Hide overflow */
+    display: flex; /* Ensure flex behavior */
+    flex-direction: column; /* Stack content vertically */
+  }
+  
+  .media-container {
+    flex: 1; /* Fill remaining space */
+    overflow: hidden;
+    margin-bottom: 10px; /* Add margin bottom for the gap */
+  }
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+  }
+  
+  iframe {
+    width: 100%;
+    height: 100%; /* Fill container */
+    border: none;
+  }
+  

@@ -8,17 +8,17 @@ import { createAuthSession } from "../../../utils/authHelper";
 export default function UserSignup(props) {
 
     // page title
-    document.title = 'Subha welcomes you | Sign up | Authentication Page';
+    document.title = 'TCS welcomes you | Sign up | Authentication Page';
 
     const navigate = useNavigate();
     const [loader, setLoader] = useState(false);
     const [signupSuccess, setSignupSuccess] = useState(false);
     const [signupError, setSignupError] = useState('');
     const [formData, setFormData] = useState({
-        firstName: "Subha",
-        lastName: "Prasad",
-        phone: "1234567890",
-        email: "subha123@gmail.com",
+        firstName: "TCS",
+        lastName: "R&I*",
+        phone: "9876524680",
+        email: "tcs12345@gmail.com",
         password: "123456",
         confirmPassword: "123456",
         terms: false,

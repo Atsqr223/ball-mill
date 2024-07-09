@@ -6,7 +6,7 @@ export default function LeftMenu(props) {
         <aside className="main-sidebar sidebar-dark-primary elevation-4">
             {/* <!-- Brand Logo --> */}
             <a href="index3.html" className="brand-link">
-                <img src='/assets/dist/img/subhaLogo.png' alt="SubhaPrasad Logo" className="brand-image img-circle elevation-3"
+                <img src="assets/dist/img/TCSRI.jpg" alt="TCS Logo" className="brand-image img-thumbnail elevation-3"
                     style={{ opacity: .8 }} />
                 <span className="brand-text font-weight-light">&nbsp;{process.env.REACT_APP_TITLE}</span>
             </a>

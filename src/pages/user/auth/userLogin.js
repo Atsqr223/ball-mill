@@ -9,7 +9,7 @@ import { createAuthSession } from "../../../utils/authHelper";
 export default function UserLogin(props) {
 
     // page title
-    document.title = 'Subha welcomes you | Login';
+    document.title = 'TCS welcomes you | Login';
 
     const navigate = useNavigate();
     const [loader, setLoader] = useState(false);
