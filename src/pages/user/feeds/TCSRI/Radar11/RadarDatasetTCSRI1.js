@@ -6,6 +6,7 @@ import exampleDataFFT from './exampleDataFFT'; // Adjust the path for FFT data
 import { collection, getDocs } from 'firebase/firestore';
 import db from '../../../../../components/firebase.js'; // Adjust the path as per your project structure
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+import FFT from 'fft.js'; // Import FFT library
 
 const RadarDatasetTCSRI1 = () => {
   // State for Radar Dataset
@@ -60,7 +61,9 @@ const RadarDatasetTCSRI1 = () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'samples'));
         const data = querySnapshot.docs.map(doc => doc.data());
+        console.log('Firebase Data:', data); // Add this line
         setFirebaseData(data);
+        computeFFTFromFirebase(data); // Compute FFT after fetching Firebase data
       } catch (error) {
         console.error("Error fetching Firestore data: ", error);
       }
@@ -243,28 +246,45 @@ const RadarDatasetTCSRI1 = () => {
     }
   };
 
-  // Effect for computing FFT from Firebase data
-  useEffect(() => {
-    const computeFFTFromFirebase = () => {
-      if (firebaseData.length > 0) {
-        const dataPoints = firebaseData.map(data => data.Sample1_data); // Use Sample1_data for FFT computation
-        const fftResult = performFFT(dataPoints);
-        setFFTData({ frequencies: fftResult.frequencies, amplitudes: fftResult.amplitudes });
-      }
-    };
+  const computeFFTFromFirebase = (data) => {
+    if (data.length > 0) {
+      const dataPoints = data.map(data => data.Sample1_data); // Use Sample1_data for FFT computation
+      console.log('Data Points for FFT:', dataPoints); // Add this line
+      const fftResult = performFFT(dataPoints);
+      console.log('FFT Result:', fftResult); // Add this line
+      setFFTData({ frequencies: fftResult.frequencies, amplitudes: fftResult.amplitudes });
+    }
+  };
+  
 
-    computeFFTFromFirebase();
-  }, [firebaseData]); // Trigger when firebaseData updates
+  // Actual FFT function implementation using fft.js
+  const fft = require('fft-js').fft;
 
-  // Placeholder FFT function (replace with actual FFT implementation)
   const performFFT = (dataPoints) => {
-    // Example placeholder FFT implementation
-    // Replace this with your FFT algorithm or library usage
-    const frequencies = [1, 2, 3, 4, 5];  // Example frequencies
-    const amplitudes = [10, 20, 15, 18, 12];  // Example amplitudes
-
+    // Check if the length of dataPoints is a power of two and greater than one
+    const n = dataPoints.length;
+    if ((n & (n - 1)) !== 0 || n <= 1) {
+      // If not a power of two or less than 2, pad or truncate dataPoints
+      const paddedLength = Math.pow(2, Math.ceil(Math.log2(n))); // Next power of two
+      dataPoints = dataPoints.slice(0, paddedLength).concat(new Array(paddedLength - n).fill(0)); // Truncate or pad with zeros
+    }
+  
+    // Perform FFT computation
+    const result = fft(dataPoints);
+  
+    // Extract frequencies and amplitudes
+    const frequencies = [];
+    const amplitudes = [];
+    for (let i = 0; i < result.length; i++) {
+      const magnitude = Math.sqrt(result[i][0] ** 2 + result[i][1] ** 2);
+      const frequency = i; // Index represents frequency
+      frequencies.push(frequency);
+      amplitudes.push(magnitude);
+    }
+  
     return { frequencies, amplitudes };
   };
+
 
   return (
     <div className="container-fluid py-4">
@@ -296,7 +316,7 @@ const RadarDatasetTCSRI1 = () => {
             <div className="card-body">
               <h2 className="card-title">Active Time Series Data</h2>
               <div className="plot-container">
-                {acceleratorData.length > 0 ? (
+                {firebaseData.length > 0 ? (
                   <Plot
                     data={linePlotData.data}
                     layout={linePlotData.layout}
@@ -316,7 +336,7 @@ const RadarDatasetTCSRI1 = () => {
             <div className="card-body">
               <h2 className="card-title">Area Under the Curve</h2>
               <div className="plot-container">
-                {acceleratorData.length > 0 ? (
+                {firebaseData.length > 0 ? (
                   <Plot
                     data={filledAreaPlotData.data}
                     layout={filledAreaPlotData.layout}

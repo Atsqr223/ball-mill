@@ -4,12 +4,12 @@ import {getFirestore} from 'firebase/firestore';
 
 // Replace these with your Firebase project configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyB0kBf-SbmJm8a3rvKic-pHI9Hu_Cj1qoA",
-  authDomain: "ball-mill-site.firebaseapp.com",
-  projectId: "ball-mill-site",
-  storageBucket: "ball-mill-site.appspot.com",
-  messagingSenderId: "385765089377",
-  appId: "1:385765089377:web:e7877fbe1ebdae192e0a20"
+  apiKey: "AIzaSyC0qVFoNXXsRpGMRGdXpfq_nMmZQOmWrIE",
+  authDomain: "ball-mill-website.firebaseapp.com",
+  projectId: "ball-mill-website",
+  storageBucket: "ball-mill-website.appspot.com",
+  messagingSenderId: "535000739980",
+  appId: "1:535000739980:web:e5c142f6c02f8c57278ba9"
 };
 
 
