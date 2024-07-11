@@ -33,7 +33,7 @@ export default function Home(props) {
                                     <div className="embed-responsive embed-responsive-16by9">
                                         <iframe
                                             className="embed-responsive-item"
-                                            src="https://www.youtube.com/embed/eWHPR1KH8eQ"
+                                            src="https://www.youtube.com/embed/eWHPR1KH8eQ?rel=0"
                                             allowFullScreen
                                             title="YouTube video"
                                         />
@@ -49,7 +49,7 @@ export default function Home(props) {
                                     <div className="embed-responsive embed-responsive-16by9">
                                         <iframe
                                             className="embed-responsive-item"
-                                            src="https://www.youtube.com/embed/GyYYYhprhYQ"
+                                            src="https://www.youtube.com/embed/GyYYYhprhYQ?rel=0"
                                             allowFullScreen
                                             title="YouTube video"
                                         />
