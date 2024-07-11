@@ -34,6 +34,7 @@ export default function UserLogin(props) {
     const validateForm = (data) => {
         let errors = {};
 
+        
         if (!data.phoneoremail.trim()) {
             errors.phoneoremail = 'Email is required.';
         } else if (!/\S+@\S+\.\S+/.test(data.phoneoremail)) {
