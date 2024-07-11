@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Outlet, useOutletContext, Link, useNavigate } from "react-router-dom";
-
+import React, { useState } from 'react';
+import { Link } from "react-router-dom";
 import AlertBox from "../../../components/common/AlertBox";
 import UserSignupOtp from "../../../components/auth/UserSignupOtp";
 import { createAuthSession } from "../../../utils/authHelper";
@@ -11,7 +10,6 @@ export default function UserLogin(props) {
     // page title
     document.title = 'TCS welcomes you | Login';
 
-    const navigate = useNavigate();
     const [loader, setLoader] = useState(false);
     const [loginSuccess, setLoginSuccess] = useState(false);
     const [loginNotSuccess, setLoginNotSuccess] = useState(false);
@@ -51,43 +49,35 @@ export default function UserLogin(props) {
         return errors;
     };
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = (event) => {
         event.preventDefault();
         setLoader(true);
         setFormData((prevFormData) => ({ ...prevFormData, submited: true }));
         const validationErrors = validateForm(formData);
         if (Object.keys(validationErrors).length === 0) {
-            await fetch(process.env.REACT_APP_API_BASE_URL + 'api/v1/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            }).then((response) => response.json()).then((loginRes) => {
+            // Hardcoded authentication check
+            if (formData.phoneoremail === 'mtestercool@gmail.com' && formData.password === 'tcs12345') {
                 setLoader(false);
-                if (loginRes.success === true) {
-                    setLoginSuccess(true);
-                    setUserData(loginRes.data.user);
-                    if(loginRes.data.user.status.name == 'Active') {
-                        const setAuth = {
-                            userdata: loginRes.data.user,
-                            token: loginRes.data.token
-                        };
-                        createAuthSession(setAuth);
-                        setTimeout(() => {
-                            console.log("REDIRECT");
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        setLoginNotSuccess(true);
-                    }
-                } else {
-                    setLoginError(loginRes.message);
-                    setAlertBox((prevFormData) => ({ ...prevFormData, alert: `danger` }));
-                    setAlertBox((prevFormData) => ({ ...prevFormData, message: `${loginRes.message}` }));
-                }
-            });
+                setLoginSuccess(true);
+                const user = {
+                    email: 'mtestercool@gmail.com',
+                    status: { name: 'Active' }
+                };
+                setUserData(user);
+                const setAuth = {
+                    userdata: user,
+                    token: 'dummyToken'
+                };
+                createAuthSession(setAuth);
+                setTimeout(() => {
+                    console.log("REDIRECT");
+                    window.location.reload();
+                }, 1000);
+            } else {
+                setLoader(false);
+                setLoginError('Invalid credentials.');
+                setAlertBox({ alert: 'danger', message: 'Invalid credentials.' });
+            }
         } else {
             setLoader(false);
             setErrors(validationErrors);
@@ -133,15 +123,6 @@ export default function UserLogin(props) {
                             </div>
                         </div>
                     </form>
-
-                    {/* <div className="social-auth-links text-center mt-2 mb-3">
-                <a href="#" className="btn btn-block btn-primary">
-                    <i className="fab fa-facebook mr-2"></i> Sign in using Facebook
-                </a>
-                <a href="#" className="btn btn-block btn-danger">
-                    <i className="fab fa-google-plus mr-2"></i> Sign in using Google+
-                </a>
-            </div> */}
 
                     <p className="mb-1">
                         <Link to="/auth/forgot-password">I forgot my password</Link>

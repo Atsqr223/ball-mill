@@ -197,7 +197,7 @@ const RadarDatasetTCSRI1 = () => {
   const filledAreaPlotData = {
     data: [
       {
-        type: 'scatter',
+        type: 'markers',
         mode: 'lines',
         x: xData,
         y: yData,
@@ -246,6 +246,7 @@ const RadarDatasetTCSRI1 = () => {
     }
   };
 
+  //FFT on the data pulled from firebase
   const computeFFTFromFirebase = (data) => {
     if (data.length > 0) {
       const dataPoints = data.map(data => data.Sample1_data); // Use Sample1_data for FFT computation
