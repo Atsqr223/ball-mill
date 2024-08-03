@@ -30,6 +30,7 @@ const TCSRIButton = lazy(() => import('./pages/user/feeds/TCSRI/TCSRIButton'));
 const SignalAnalysis1 = lazy(() => import('./pages/user/feeds/TCSRI/SignalAnalysis1'));
 const Radar1 = lazy(() => import('./pages/user/feeds/TCSRI/Radar1'));
 const RadarDatasetTCSRI1 = lazy(() => import('./pages/user/feeds/TCSRI/Radar11/RadarDatasetTCSRI1'));
+const RadarDatasetTCSRI2 = lazy(() => import('./pages/user/feeds/TCSRI/Radar11/RadarDatasetTCSRI2'));
 const Mic1 = lazy(() => import('./pages/user/feeds/TCSRI/Mic1'));
 const MicDatasetTCSRI1 = lazy(() => import('./pages/user/feeds/TCSRI/Mic11/MicDatasetTCSRI1'));
 const Accelerator1 = lazy(() => import('./pages/user/feeds/TCSRI/Accelerator1'));
@@ -134,6 +135,7 @@ function App() {
             <Route path="SignalAnalysis1.js" element={<SignalAnalysis1 />} />
             <Route path="Radar1.js" element={<Radar1 />} /> 
             <Route path="RadarDatasetTCSRI1.js" element={<RadarDatasetTCSRI1 />} /> 
+            <Route path="RadarDatasetTCSRI2.js" element={<RadarDatasetTCSRI2 />} />
             <Route path="Mic1.js" element={<Mic1 />} />
             <Route path="MicDatasetTCSRI1.js" element={<MicDatasetTCSRI1 />} />
             <Route path="Accelerator1.js" element={<Accelerator1 />} />

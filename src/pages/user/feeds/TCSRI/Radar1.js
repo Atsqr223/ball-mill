@@ -10,6 +10,9 @@ class Radar1 extends React.Component {
             hasMore: true,
             search: '',
             page: 1,
+            isDialogOpen: false,
+            selectedItemId: null,
+            numberOfSamples: ''
         };
     }
 
@@ -19,7 +22,6 @@ class Radar1 extends React.Component {
 
     fetchData = (page) => {
         const newItems = [];
-        // Generate new items with specific names for the first three items
         for (let i = 0; i < 100; i++) {
             let itemName;
             if (i === 0) {
@@ -43,9 +45,18 @@ class Radar1 extends React.Component {
         this.setState({ search: e.target.value });
     };
 
-    // Dummy function, no backend interaction
-    handleFireButtonClick = (itemId) => {
-        console.log(`Firing script for item ${itemId}`);
+    handleDialogClose = () => {
+        this.setState({ isDialogOpen: false, numberOfSamples: '' });
+    };
+
+    handleNumberOfSamplesChange = (e) => {
+        this.setState({ numberOfSamples: e.target.value });
+    };
+
+    handleSubmit = () => {
+        const { selectedItemId, numberOfSamples } = this.state;
+        console.log(`Firing script for item ${selectedItemId} with ${numberOfSamples} samples`);
+        this.handleDialogClose();
     };
 
     filteredItems() {
@@ -54,10 +65,10 @@ class Radar1 extends React.Component {
     }
 
     render() {
-        const { hasMore } = this.state;
+        const { hasMore, isDialogOpen, numberOfSamples } = this.state;
 
         return (
-            <div style={{ marginTop: '6%', position: 'relative' }}>
+            <div style={{ marginTop: '5%', position: 'relative' }}>
                 <h1>Radar</h1>
                 <div style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1, padding: '10px', marginBottom: '20px' }}>
                     <input
@@ -85,41 +96,66 @@ class Radar1 extends React.Component {
                                 <span>{item.name}</span>
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
                                     {item.name === "Dataset 1" ? (
-                                        <>
-                                            <Link
-                                                to={`/RadarDatasetTCSRI1.js`}
-                                                style={{ marginLeft: '20px' }}
-                                            >
-                                                View details
-                                            </Link>
-                                            <button
-                                                style={{ marginLeft: '10px' }}
-                                                onClick={() => this.handleFireButtonClick(item.id)}
-                                            >
-                                                Fire
-                                            </button>
-                                        </>
+                                        <Link
+                                            to={`/RadarDatasetTCSRI1.js`}
+                                            style={{ marginLeft: '20px' }}
+                                        >
+                                            View details
+                                        </Link>
+                                    ) : item.name === "Dataset 2" ? (
+                                        <Link
+                                            to={`/RadarDatasetTCSRI2.js`}
+                                            style={{ marginLeft: '20px' }}
+                                        >
+                                            View details
+                                        </Link>
                                     ) : (
-                                        <>
-                                            <button
-                                                style={{ marginLeft: '20px' }}
-                                                onClick={() => window.location.href = `/details/${item.id}`}
-                                            >
-                                                View details
-                                            </button>
-                                            <button
-                                                style={{ marginLeft: '10px' }}
-                                                onClick={() => this.handleFireButtonClick(item.id)}
-                                            >
-                                                Fire
-                                            </button>
-                                        </>
+                                        <button
+                                            style={{ marginLeft: '20px' }}
+                                            onClick={() => window.location.href = `/details/${item.id}`}
+                                        >
+                                            View details
+                                        </button>
                                     )}
                                 </div>
                             </div>
                         ))}
                     </InfiniteScroll>
                 </div>
+
+                {/* Dialog */}
+                {isDialogOpen && (
+                    <div style={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        backgroundColor: 'white',
+                        padding: '20px',
+                        borderRadius: '5px',
+                        boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+                        zIndex: 1000
+                    }}>
+                        <h2>Enter Number of Samples</h2>
+                        <input
+                            type="number"
+                            value={numberOfSamples}
+                            onChange={this.handleNumberOfSamplesChange}
+                            style={{ padding: '10px', width: '100%' }}
+                        />
+                        <div style={{ marginTop: '10px', textAlign: 'right' }}>
+                            <button
+                                onClick={this.handleSubmit}
+                                style={{ marginRight: '10px' }}
+                            >
+                                Submit
+                            </button>
+                            <button onClick={this.handleDialogClose}>
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }
